@@ -1,0 +1,15 @@
+{
+    "type": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "valuetalk",
+    "password": "valueTalk!",
+    "database": "valuetalk",
+    "entities": ["src/**/*.entity{.ts,.js}"],
+    "migrations": ["src/migration/*.ts"],
+    "logging": true,
+    "synchronize": true,
+    "cli": {
+        "migrationsDir": "src/migration"
+    }
+}
