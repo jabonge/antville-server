@@ -29,7 +29,7 @@ class AbroadSyncBot {
 
     const quotes = await getQuotes(exchangeName);
     //TODO i < quotes.length;
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 3; i++) {
       const symbol = quotes[i].symbol;
       let stock = await getRepository(Stock).findOne({
         where: { symbol },

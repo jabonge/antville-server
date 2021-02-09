@@ -39,7 +39,7 @@ export class Stock extends CoreEntity {
   sector!: string;
 
   @Field(() => Date, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   ipoDate!: Date;
 
   @Field(() => StockMeta, { nullable: true })

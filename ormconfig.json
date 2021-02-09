@@ -6,6 +6,7 @@
     "password": "valueTalk!",
     "database": "valuetalk",
     "entities": ["src/**/*.entity{.ts,.js}"],
+    "subscribers": ["src/**/*.subscriber{.ts,.js}"],
     "migrations": ["src/migration/*.ts"],
     "logging": true,
     "synchronize": true,

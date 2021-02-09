@@ -13,34 +13,26 @@ type Exchange {
   stocks: [Stock!]!
 }
 
-input GetStockInput {
-  symbol: String!
-}
-
 type GetStockResponse {
   data: Stock
   error: String
   ok: Boolean!
 }
 
-type PickObjectType {
+type Query {
+  getStock(symbol: String!): GetStockResponse!
+  search(query: String!): SearchStockResponse!
+}
+
+type SearchStock {
   enName: String!
   id: Int!
   krName: String!
   symbol: String!
 }
 
-type Query {
-  getStock(input: GetStockInput!): GetStockResponse!
-  search(input: SearchStockInput!): SearchStockResponse!
-}
-
-input SearchStockInput {
-  query: String!
-}
-
 type SearchStockResponse {
-  data: [PickObjectType!]
+  data: [SearchStock!]
   error: String
   ok: Boolean!
 }
@@ -67,6 +59,10 @@ type StockMeta {
   marketCap: Float
   open: Float!
   previousClose: Float!
-  stock: Stock!
+  stock: Stock
   updatedAt: DateTime!
+}
+
+type Subscription {
+  changeStockMeta(id: Int!): StockMeta!
 }

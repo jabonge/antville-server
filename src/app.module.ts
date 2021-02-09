@@ -5,6 +5,7 @@ import { join } from 'path';
 import { StockModule } from './stock/stock.module';
 import { FinancialApiModule } from './lib/financial-api/financial-api.module';
 import { ConfigModule } from '@nestjs/config';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -25,12 +26,14 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     GraphQLModule.forRoot({
+      installSubscriptionHandlers: true,
       playground: process.env.NODE_ENV !== 'production',
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
     }),
     StockModule,
     FinancialApiModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],

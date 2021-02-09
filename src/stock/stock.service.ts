@@ -1,28 +1,24 @@
 import { StockRepository } from './repositories/stock.repository';
 import { StockMeta } from './entities/stock-meta.entity';
-import { GetStockInput, GetStockResponse } from './dtos/get-stock.dto';
-import { Stock } from './entities/stock.entity';
+import { GetStockResponse } from './dtos/get-stock.dto';
 import { FinancialApiService } from '../lib/financial-api/financial-api.service';
 import { Injectable } from '@nestjs/common';
-import { SearchStockInput, SearchStockResponse } from './dtos/search-stock.dto';
+import { SearchStockResponse } from './dtos/search-stock.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class StockService {
   constructor(
+    @InjectRepository(StockMeta)
+    private readonly stockMetaRepository: Repository<StockMeta>,
     private readonly stockRepository: StockRepository,
     private readonly financialApiService: FinancialApiService,
   ) {}
 
-  async search(input: SearchStockInput): Promise<SearchStockResponse> {
+  async search(query: string): Promise<SearchStockResponse> {
     try {
-      const stocks = await this.stockRepository
-        .createQueryBuilder()
-        .select()
-        .where(`MATCH(symbol) AGAINST ('+${input.query}' IN BOOLEAN MODE)`)
-        .orWhere(
-          `MATCH(enName,krName) AGAINST ('*${input.query}* *${input.query}*' IN BOOLEAN MODE)`,
-        )
-        .getMany();
+      const stocks = await this.stockRepository.searchStock(query);
       return {
         ok: true,
         data: stocks,
@@ -35,22 +31,13 @@ export class StockService {
     }
   }
 
-  async getStock({ symbol }: GetStockInput): Promise<GetStockResponse> {
+  async getStock(symbol: string): Promise<GetStockResponse> {
     try {
-      let stock = await this.stockRepository.findBySymbol(symbol);
-      if (!stock) {
-        const profile = await this.financialApiService.getProfile(symbol);
-        stock = new Stock();
-        stock.symbol = profile.symbol;
-        stock.sector = profile.sector;
-        stock.ipoDate = new Date(profile.ipoDate);
-        stock.enName = profile.companyName;
-      }
-      const quote = await this.financialApiService.getQuote(symbol);
-      const stockMeta = new StockMeta();
-      stockMeta.marketCap = quote.marketCap;
-      stock.stockMeta = stockMeta;
-      await this.stockRepository.save(stock);
+      const stock = await this.stockRepository.findBySymbol(symbol);
+      this.financialApiService.getQuote(symbol).then((quote) => {
+        stock.stockMeta.update(quote);
+        this.stockMetaRepository.save(stock.stockMeta, { reload: false });
+      });
       return {
         ok: true,
         data: stock,
