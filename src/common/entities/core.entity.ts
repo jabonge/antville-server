@@ -11,7 +11,7 @@ export class CoreEntity {
   @Field(() => Int)
   id: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn()
   @Field(() => Date)
   createdAt: Date;
 

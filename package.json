@@ -21,7 +21,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
     "syncbot:us": "ts-node src/sync/abroad/index.ts",
-    "syncbot:kr": "ts-node src/sync/korea/index.ts"
+    "syncbot:kr": "ts-node src/sync/korea/index.ts",
+    "redis": "ts-node src/sync/redis/index.ts"
   },
   "dependencies": {
     "@nestjs/common": "^7.5.1",
@@ -30,7 +31,6 @@
     "@nestjs/graphql": "^7.9.8",
     "@nestjs/platform-express": "^7.5.1",
     "@nestjs/typeorm": "^7.1.5",
-    "@types/csv-parse": "^1.2.2",
     "apollo-server-express": "^2.19.2",
     "axios": "^0.21.1",
     "class-transformer": "^0.3.2",
@@ -42,10 +42,12 @@
     "graphql-subscriptions": "^1.2.0",
     "graphql-tools": "^7.0.2",
     "mysql2": "^2.2.5",
+    "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.3",
     "typeorm": "^0.2.30",
+    "ws": "^7.4.2",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
@@ -56,10 +58,13 @@
     "@types/express": "^4.17.8",
     "@types/jest": "^26.0.15",
     "@types/node": "^14.14.6",
+    "@types/redis": "^2.8.28",
     "@types/supertest": "^2.0.10",
     "@types/xml2js": "^0.4.8",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",
+    "@types/csv-parse": "^1.2.2",
+    "@types/ws": "^7.4.0",
     "eslint": "^7.12.1",
     "eslint-config-prettier": "7.1.0",
     "eslint-plugin-prettier": "^3.1.4",

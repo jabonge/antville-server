@@ -1,14 +1,6 @@
-import { Country } from './country.entity';
 import { Stock } from './stock.entity';
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  RelationId,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
 @Entity()
@@ -28,12 +20,4 @@ export class Exchange {
   @Field(() => [Stock])
   @OneToMany(() => Stock, (stock) => stock.exchange)
   stocks!: Stock[];
-
-  @RelationId((exchange: Exchange) => exchange.country)
-  countryId!: number;
-
-  @ManyToOne(() => Country, {
-    onDelete: 'CASCADE',
-  })
-  country!: Country;
 }

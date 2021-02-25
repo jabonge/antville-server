@@ -54,7 +54,6 @@ class KoreaSyncBot {
       if (!stock) {
         stock = new Stock();
         stock.symbol = info.code;
-        stock.ipoDate = new Date(info.ipoDate);
         stock.krName = info.krName;
         stock.enName = info.enName;
         let exchange = await getRepository(Exchange).findOne({
@@ -62,22 +61,13 @@ class KoreaSyncBot {
         });
         if (!exchange) {
           exchange = new Exchange();
-          exchange.country = country;
           exchange.name = info.exchange;
           await getRepository(Exchange).save(exchange);
         }
         stock.exchange = exchange;
+        stock.country = country;
         await getRepository(Stock).save(stock);
       }
-      await this.syncStock(stock).catch((e) => {
-        fs.appendFile(
-          __dirname + '/error_tickers.txt',
-          `${stock.krName},${stock.symbol},${e}\n`,
-          (err) => {
-            console.log(err);
-          },
-        );
-      });
       bar.increment(1);
     }
     bar.stop();

@@ -1,6 +1,7 @@
+import { Country } from './country.entity';
 import { StockMeta } from './stock-meta.entity';
 import { Exchange } from './exchange.entity';
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
@@ -10,6 +11,13 @@ import {
   RelationId,
 } from 'typeorm';
 import { CoreEntity } from '../../common/entities/core.entity';
+
+export enum StockType {
+  ETF = 'ETF',
+  CRYPTO = 'CRYPTO',
+}
+
+registerEnumType(StockType, { name: 'StockType' });
 
 @ObjectType()
 @Entity()
@@ -34,13 +42,13 @@ export class Stock extends CoreEntity {
   })
   krName!: string;
 
-  @Field(() => String, { nullable: true })
-  @Column({ nullable: true })
-  sector!: string;
-
-  @Field(() => Date, { nullable: true })
-  @Column({ type: 'timestamp', nullable: true })
-  ipoDate!: Date;
+  @Field(() => StockType, { nullable: true })
+  @Column({
+    nullable: true,
+    type: 'enum',
+    enum: StockType,
+  })
+  type!: StockType;
 
   @Field(() => StockMeta, { nullable: true })
   @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock, {
@@ -52,8 +60,13 @@ export class Stock extends CoreEntity {
   exchangeId!: number;
 
   @Field(() => Exchange, { nullable: true })
-  @ManyToOne(() => Exchange, (exchange) => exchange.stocks, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Exchange, (exchange) => exchange.stocks)
   exchange!: Exchange;
+
+  @RelationId((stock: Stock) => stock.country)
+  countryId!: number;
+
+  @Field(() => Country, { nullable: true })
+  @ManyToOne(() => Country)
+  country!: Country;
 }

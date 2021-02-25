@@ -26,24 +26,14 @@
         "signature": "5f4e733ced4e129482ae2186aae29fde948ab7182844c3a5a51dd346182c7b06",
         "affectsGlobalScope": false
       },
+      "./node_modules/typescript/lib/lib.es2019.d.ts": {
+        "version": "e6b724280c694a9f588847f754198fb96c43d805f065c3a5b28bbc9594541c84",
+        "signature": "e6b724280c694a9f588847f754198fb96c43d805f065c3a5b28bbc9594541c84",
+        "affectsGlobalScope": false
+      },
       "./node_modules/typescript/lib/lib.dom.d.ts": {
         "version": "abadddbf660adeec27e9a56584907d52fa1d6e1e1dc49f639a921baa951b7a84",
         "signature": "abadddbf660adeec27e9a56584907d52fa1d6e1e1dc49f639a921baa951b7a84",
-        "affectsGlobalScope": true
-      },
-      "./node_modules/typescript/lib/lib.dom.iterable.d.ts": {
-        "version": "d42f4141bd9ce82b4e2902f26acb00c183e321be19a38bbc0e76a922c1724c94",
-        "signature": "d42f4141bd9ce82b4e2902f26acb00c183e321be19a38bbc0e76a922c1724c94",
-        "affectsGlobalScope": true
-      },
-      "./node_modules/typescript/lib/lib.webworker.importscripts.d.ts": {
-        "version": "7fac8cb5fc820bc2a59ae11ef1c5b38d3832c6d0dfaec5acdb5569137d09a481",
-        "signature": "7fac8cb5fc820bc2a59ae11ef1c5b38d3832c6d0dfaec5acdb5569137d09a481",
-        "affectsGlobalScope": true
-      },
-      "./node_modules/typescript/lib/lib.scripthost.d.ts": {
-        "version": "097a57355ded99c68e6df1b738990448e0bf170e606707df5a7c0481ff2427cd",
-        "signature": "097a57355ded99c68e6df1b738990448e0bf170e606707df5a7c0481ff2427cd",
         "affectsGlobalScope": true
       },
       "./node_modules/typescript/lib/lib.es2015.core.d.ts": {
@@ -151,6 +141,21 @@
         "signature": "9d57b2b5d15838ed094aa9ff1299eecef40b190722eb619bac4616657a05f951",
         "affectsGlobalScope": true
       },
+      "./node_modules/typescript/lib/lib.es2019.object.d.ts": {
+        "version": "6c51b5dd26a2c31dbf37f00cfc32b2aa6a92e19c995aefb5b97a3a64f1ac99de",
+        "signature": "6c51b5dd26a2c31dbf37f00cfc32b2aa6a92e19c995aefb5b97a3a64f1ac99de",
+        "affectsGlobalScope": true
+      },
+      "./node_modules/typescript/lib/lib.es2019.string.d.ts": {
+        "version": "93544ca2f26a48716c1b6c5091842cad63129daac422dfa4bc52460465f22bb1",
+        "signature": "93544ca2f26a48716c1b6c5091842cad63129daac422dfa4bc52460465f22bb1",
+        "affectsGlobalScope": true
+      },
+      "./node_modules/typescript/lib/lib.es2019.symbol.d.ts": {
+        "version": "2ad234885a4240522efccd77de6c7d99eecf9b4de0914adb9a35c0c22433f993",
+        "signature": "2ad234885a4240522efccd77de6c7d99eecf9b4de0914adb9a35c0c22433f993",
+        "affectsGlobalScope": true
+      },
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts": {
         "version": "7b5a10e3c897fabece5a51aa85b4111727d7adb53c2734b5d37230ff96802a09",
         "signature": "7b5a10e3c897fabece5a51aa85b4111727d7adb53c2734b5d37230ff96802a09",
@@ -160,11 +165,6 @@
         "version": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "signature": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "affectsGlobalScope": true
-      },
-      "./node_modules/typescript/lib/lib.es2017.full.d.ts": {
-        "version": "d2f31f19e1ba6ed59be9259d660a239d9a3fcbbc8e038c6b2009bde34b175fed",
-        "signature": "d2f31f19e1ba6ed59be9259d660a239d9a3fcbbc8e038c6b2009bde34b175fed",
-        "affectsGlobalScope": false
       },
       "./node_modules/reflect-metadata/index.d.ts": {
         "version": "8d6d51a5118d000ed3bfe6e1dd1335bebfff3fef23cd2af2f84a24d30f90cc90",
@@ -5126,13 +5126,13 @@
         "affectsGlobalScope": false
       },
       "./src/stock/entities/exchange.entity.ts": {
-        "version": "31bb6224a874145589eea1ffb8c8b6749caaef4841167bc0c2ba18a86cce939a",
-        "signature": "9dced4685534e0e52cd289f4070d0cd16b32684d9c3a4c9df1f8da3621605b78",
+        "version": "a30fb1571574e17adb0c74c24a5b042c57b4a3d43e93b0e4192b91313337968e",
+        "signature": "a96f59bff0fcf6a931d647eb46fc06c255f1640a063fe1e1d70687ad6e5544ea",
         "affectsGlobalScope": false
       },
       "./src/stock/entities/stock.entity.ts": {
-        "version": "14d09465d1387d98de0ce46cdc58b05ddffff2c24717e42c8e4860ab7754a459",
-        "signature": "a91cfdcf258a238f19ad283e0c1e94ac2b0c621ec1d5b8f9412963c3cc456a36",
+        "version": "89228fc193a91c781fd90eac281460a7ee8d1ce2975b1b7547cb81df62cae2df",
+        "signature": "a96e49ba713465c052827a5310a8f233c974c500a135622d7cd7bb754b4a0eed",
         "affectsGlobalScope": false
       },
       "./src/stock/entities/stock-meta.entity.ts": {
@@ -5246,7 +5246,7 @@
         "affectsGlobalScope": false
       },
       "./src/stock/stock.resolver.ts": {
-        "version": "7e5add5ba4c6e35982c084d8e73cf41806b5391e0711180497f680f4c539dcc2",
+        "version": "1d6e057104e86aa49d58af64d4071fb354b1f227e7f8b70951c5f165d1a1135c",
         "signature": "01c00dafcbff7e88d3f6a5c19db1498a31651f26659600005d96670c1c70c063",
         "affectsGlobalScope": false
       },
@@ -5260,8 +5260,28 @@
         "signature": "7214164cfa10573d2bf79da5174719e21aa58d3745730ba5464fd4491e9d5c6c",
         "affectsGlobalScope": false
       },
+      "./src/user/user.service.ts": {
+        "version": "230ca661961fc66c122621883c098d2b1e1b3bbb212eef1f23df18203f50a490",
+        "signature": "87766d73d7dbeee6ba94874f66534c261407facf6ed49d8f080f095f52366e9d",
+        "affectsGlobalScope": false
+      },
+      "./src/user/entities/user.entity.ts": {
+        "version": "25645d663f33ba063264f70b3755f077c4f07830dee0bda6bf5210e731fd49ec",
+        "signature": "8902985ddb0a60b5e52ae17371fbfc40ffb3b68e84451bfcaed0ce8063020b3c",
+        "affectsGlobalScope": false
+      },
+      "./src/user/user.resolver.ts": {
+        "version": "067121132ffe7beb6c8a521fc8a178062f5feab993e19a7280c80cb8608c1d9b",
+        "signature": "0aa9ada425ab977c2d7de8e86ea2a82be0015d1b2196d6d6b16bd6c1adb17552",
+        "affectsGlobalScope": false
+      },
+      "./src/user/user.module.ts": {
+        "version": "c97606883969f02dac80b74c98093b68e37b2ebb33ea10b57b34a0d936551df6",
+        "signature": "482b8f0d35a3d453500a15b6c6057c1e4c40baa4329b39da9e1026d8e1de4329",
+        "affectsGlobalScope": false
+      },
       "./src/app.module.ts": {
-        "version": "833630363452076292e1c0918f76ef9088f4b030a499bc8ca34dcc1385a01b6e",
+        "version": "f4bebe4837b2e639857d890b3da143ca40b3c6f89c851e93692fca9b1cdb5879",
         "signature": "b82491e2990291580288c5602d4c017238977749d52b17391f0e45d9a29be644",
         "affectsGlobalScope": false
       },
@@ -5285,14 +5305,9 @@
         "signature": "baf81e15e169d3ce87d0c650cb7b83961d8eaa77a1574b78f8974be779192b4e",
         "affectsGlobalScope": false
       },
-      "./src/sync/abroad/api/getprofile.ts": {
-        "version": "3b2fa701f284ebb71fe93ccbdbb011b31c0a0adcf8d256c6efc022e2b5277999",
-        "signature": "2a72371e6a04e48a7110e570fbdc87b8d2b262f062c21c4eda2782a48d7d187c",
-        "affectsGlobalScope": false
-      },
       "./src/sync/abroad/syncbot.ts": {
-        "version": "b62b9af617e39ee6e13796c33c23c9a1583b108e089fab6f0880d47c2a09c2e4",
-        "signature": "8386e414fdcef4bfa4c5621eac3bd07df442d4803a897801226e6902b44234f7",
+        "version": "f14bfd50507f3320963b8139575066a0d541dfe7e09abb4c448f6a3c6d102b58",
+        "signature": "50a27915bdbfa7fd2b96e36a67165006681d7f779b818dbd58e862632f2e55b8",
         "affectsGlobalScope": false
       },
       "./node_modules/dotenv/types/index.d.ts": {
@@ -5303,6 +5318,11 @@
       "./src/sync/abroad/index.ts": {
         "version": "2f51c34905533d2c6f58cdf8d26c9f8159584c244aaefb1ce6280ef27981d1c1",
         "signature": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+        "affectsGlobalScope": false
+      },
+      "./src/sync/abroad/api/getprofile.ts": {
+        "version": "3b2fa701f284ebb71fe93ccbdbb011b31c0a0adcf8d256c6efc022e2b5277999",
+        "signature": "2a72371e6a04e48a7110e570fbdc87b8d2b262f062c21c4eda2782a48d7d187c",
         "affectsGlobalScope": false
       },
       "./src/sync/korea/client.ts": {
@@ -5341,13 +5361,38 @@
         "affectsGlobalScope": false
       },
       "./src/sync/korea/syncbot.ts": {
-        "version": "43c5dc93631c3d4023e50f21169a1cac69878befe150017dd3861892bde2b5ac",
+        "version": "7590bf9df2e484a893505d8ce01f9aa500be3ba5170dc5b5919e5c7867614bee",
         "signature": "39f54a4c83699f127000c8128d9861c59f8a13790c2d53b334d0bb452b699853",
         "affectsGlobalScope": false
       },
       "./src/sync/korea/index.ts": {
         "version": "20aed10302b3bff9b74b54822d89e21642554c8b5dda5dd46b4edb477966ae06",
         "signature": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+        "affectsGlobalScope": false
+      },
+      "./src/sync/redis/interfaces.ts": {
+        "version": "9020ba2fde7d9e77f700de70f80853173865beb95fb3125e2312c194f1788346",
+        "signature": "0310ca6672cb09bb66d70bf3b776086b7bd949082adc61df745b1f966ad65f08",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/redis/index.d.ts": {
+        "version": "c6f0fb24005dfe5c741b2f0877bcd2e3a7602907f0233caf581a791d4da2c753",
+        "signature": "c6f0fb24005dfe5c741b2f0877bcd2e3a7602907f0233caf581a791d4da2c753",
+        "affectsGlobalScope": false
+      },
+      "./src/sync/redis/index.ts": {
+        "version": "51cdb7b29f489a39c9f55138909810ff3d6e60bd9a084b899821e2f1574d0786",
+        "signature": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+        "affectsGlobalScope": false
+      },
+      "./src/user/dto/create-user.input.ts": {
+        "version": "498a5a8d235b8dcd91ea55a32178cc0fd9b9cb582531650a3a64750ab6b5be6d",
+        "signature": "7aae81a8c3cb8f098beaf04e0f919e4ebe65557baba8c252ef8ad7c1705fc061",
+        "affectsGlobalScope": false
+      },
+      "./src/user/dto/update-user.input.ts": {
+        "version": "777f8385301b56ab4b46cf0bfdb6f3d231f789f82c12ad6ec467b7896dc2148b",
+        "signature": "68a56eda65d590d10b8a79b55a22a386b67927f706838ab0cd6ae70cf4ced41c",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/anymatch/index.d.ts": {
@@ -5660,6 +5705,9 @@
       "allowSyntheticDefaultImports": true,
       "esModuleInterop": true,
       "target": 4,
+      "lib": [
+        "lib.es2019.d.ts"
+      ],
       "sourceMap": true,
       "outDir": "./dist",
       "rootDir": "./src",
@@ -7443,6 +7491,11 @@
         "./node_modules/@types/node/vm.d.ts"
       ],
       "./node_modules/@types/node/zlib.d.ts": [
+        "./node_modules/@types/node/stream.d.ts"
+      ],
+      "./node_modules/@types/redis/index.d.ts": [
+        "./node_modules/@types/node/events.d.ts",
+        "./node_modules/@types/node/index.d.ts",
         "./node_modules/@types/node/stream.d.ts"
       ],
       "./node_modules/@types/serve-static/index.d.ts": [
@@ -10021,7 +10074,8 @@
         "./node_modules/@types/node/path.d.ts",
         "./src/common/common.module.ts",
         "./src/lib/financial-api/financial-api.module.ts",
-        "./src/stock/stock.module.ts"
+        "./src/stock/stock.module.ts",
+        "./src/user/user.module.ts"
       ],
       "./src/common/common.module.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
@@ -10070,7 +10124,6 @@
       "./src/stock/entities/exchange.entity.ts": [
         "./node_modules/@nestjs/graphql/index.d.ts",
         "./node_modules/typeorm/index.d.ts",
-        "./src/stock/entities/country.entity.ts",
         "./src/stock/entities/stock.entity.ts"
       ],
       "./src/stock/entities/stock-meta.entity.ts": [
@@ -10084,6 +10137,7 @@
         "./node_modules/@nestjs/graphql/index.d.ts",
         "./node_modules/typeorm/index.d.ts",
         "./src/common/entities/core.entity.ts",
+        "./src/stock/entities/country.entity.ts",
         "./src/stock/entities/exchange.entity.ts",
         "./src/stock/entities/stock-meta.entity.ts"
       ],
@@ -10149,9 +10203,7 @@
         "./node_modules/typeorm/index.d.ts",
         "./src/stock/entities/country.entity.ts",
         "./src/stock/entities/exchange.entity.ts",
-        "./src/stock/entities/stock-meta.entity.ts",
         "./src/stock/entities/stock.entity.ts",
-        "./src/sync/abroad/api/getprofile.ts",
         "./src/sync/abroad/api/getquotes.ts"
       ],
       "./src/sync/korea/client.ts": [
@@ -10177,6 +10229,40 @@
         "./src/stock/entities/stock.entity.ts",
         "./src/sync/korea/getxml.ts",
         "./src/sync/korea/korea-stock.interface.ts"
+      ],
+      "./src/sync/redis/index.ts": [
+        "./node_modules/@types/redis/index.d.ts",
+        "./node_modules/@types/ws/index.d.ts",
+        "./node_modules/axios/index.d.ts",
+        "./node_modules/dotenv/types/index.d.ts",
+        "./src/sync/abroad/api/getquotes.ts",
+        "./src/sync/redis/interfaces.ts"
+      ],
+      "./src/user/dto/create-user.input.ts": [
+        "./node_modules/@nestjs/graphql/index.d.ts"
+      ],
+      "./src/user/dto/update-user.input.ts": [
+        "./node_modules/@nestjs/graphql/index.d.ts",
+        "./src/user/dto/create-user.input.ts"
+      ],
+      "./src/user/entities/user.entity.ts": [
+        "./node_modules/@nestjs/graphql/index.d.ts",
+        "./node_modules/typeorm/index.d.ts",
+        "./src/common/entities/core.entity.ts",
+        "./src/stock/entities/stock.entity.ts"
+      ],
+      "./src/user/user.module.ts": [
+        "./node_modules/@nestjs/common/index.d.ts",
+        "./src/user/user.resolver.ts",
+        "./src/user/user.service.ts"
+      ],
+      "./src/user/user.resolver.ts": [
+        "./node_modules/@nestjs/graphql/index.d.ts",
+        "./src/user/entities/user.entity.ts",
+        "./src/user/user.service.ts"
+      ],
+      "./src/user/user.service.ts": [
+        "./node_modules/@nestjs/common/index.d.ts"
       ]
     },
     "exportedModulesMap": {
@@ -11953,6 +12039,11 @@
         "./node_modules/@types/node/vm.d.ts"
       ],
       "./node_modules/@types/node/zlib.d.ts": [
+        "./node_modules/@types/node/stream.d.ts"
+      ],
+      "./node_modules/@types/redis/index.d.ts": [
+        "./node_modules/@types/node/events.d.ts",
+        "./node_modules/@types/node/index.d.ts",
         "./node_modules/@types/node/stream.d.ts"
       ],
       "./node_modules/@types/serve-static/index.d.ts": [
@@ -14535,7 +14626,6 @@
         "./node_modules/typeorm/index.d.ts"
       ],
       "./src/stock/entities/exchange.entity.ts": [
-        "./src/stock/entities/country.entity.ts",
         "./src/stock/entities/stock.entity.ts"
       ],
       "./src/stock/entities/stock-meta.entity.ts": [
@@ -14545,6 +14635,7 @@
       ],
       "./src/stock/entities/stock.entity.ts": [
         "./src/common/entities/core.entity.ts",
+        "./src/stock/entities/country.entity.ts",
         "./src/stock/entities/exchange.entity.ts",
         "./src/stock/entities/stock-meta.entity.ts"
       ],
@@ -14586,6 +14677,17 @@
       "./src/sync/korea/syncbot.ts": [
         "./src/stock/entities/stock.entity.ts",
         "./src/sync/korea/korea-stock.interface.ts"
+      ],
+      "./src/user/dto/update-user.input.ts": [
+        "./node_modules/@nestjs/common/index.d.ts",
+        "./src/user/dto/create-user.input.ts"
+      ],
+      "./src/user/entities/user.entity.ts": [
+        "./src/common/entities/core.entity.ts",
+        "./src/stock/entities/stock.entity.ts"
+      ],
+      "./src/user/user.resolver.ts": [
+        "./src/user/user.service.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
@@ -15048,6 +15150,7 @@
       "./node_modules/@types/prettier/index.d.ts",
       "./node_modules/@types/qs/index.d.ts",
       "./node_modules/@types/range-parser/index.d.ts",
+      "./node_modules/@types/redis/index.d.ts",
       "./node_modules/@types/serve-static/index.d.ts",
       "./node_modules/@types/source-list-map/index.d.ts",
       "./node_modules/@types/stack-utils/index.d.ts",
@@ -15652,7 +15755,6 @@
       "./node_modules/typeorm/subscriber/event/transactionstartevent.d.ts",
       "./node_modules/typeorm/subscriber/event/updateevent.d.ts",
       "./node_modules/typescript/lib/lib.dom.d.ts",
-      "./node_modules/typescript/lib/lib.dom.iterable.d.ts",
       "./node_modules/typescript/lib/lib.es2015.collection.d.ts",
       "./node_modules/typescript/lib/lib.es2015.core.d.ts",
       "./node_modules/typescript/lib/lib.es2015.d.ts",
@@ -15666,7 +15768,6 @@
       "./node_modules/typescript/lib/lib.es2016.array.include.d.ts",
       "./node_modules/typescript/lib/lib.es2016.d.ts",
       "./node_modules/typescript/lib/lib.es2017.d.ts",
-      "./node_modules/typescript/lib/lib.es2017.full.d.ts",
       "./node_modules/typescript/lib/lib.es2017.intl.d.ts",
       "./node_modules/typescript/lib/lib.es2017.object.d.ts",
       "./node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts",
@@ -15679,11 +15780,13 @@
       "./node_modules/typescript/lib/lib.es2018.promise.d.ts",
       "./node_modules/typescript/lib/lib.es2018.regexp.d.ts",
       "./node_modules/typescript/lib/lib.es2019.array.d.ts",
+      "./node_modules/typescript/lib/lib.es2019.d.ts",
+      "./node_modules/typescript/lib/lib.es2019.object.d.ts",
+      "./node_modules/typescript/lib/lib.es2019.string.d.ts",
+      "./node_modules/typescript/lib/lib.es2019.symbol.d.ts",
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "./node_modules/typescript/lib/lib.es5.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
-      "./node_modules/typescript/lib/lib.scripthost.d.ts",
-      "./node_modules/typescript/lib/lib.webworker.importscripts.d.ts",
       "./node_modules/typescript/lib/typescript.d.ts",
       "./node_modules/zen-observable-ts/lib/index.d.ts",
       "./node_modules/zen-observable-ts/lib/types.d.ts",
@@ -15718,7 +15821,15 @@
       "./src/sync/korea/getxml.ts",
       "./src/sync/korea/index.ts",
       "./src/sync/korea/korea-stock.interface.ts",
-      "./src/sync/korea/syncbot.ts"
+      "./src/sync/korea/syncbot.ts",
+      "./src/sync/redis/index.ts",
+      "./src/sync/redis/interfaces.ts",
+      "./src/user/dto/create-user.input.ts",
+      "./src/user/dto/update-user.input.ts",
+      "./src/user/entities/user.entity.ts",
+      "./src/user/user.module.ts",
+      "./src/user/user.resolver.ts",
+      "./src/user/user.service.ts"
     ]
   },
   "version": "4.1.3"

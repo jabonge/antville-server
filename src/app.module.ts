@@ -6,6 +6,7 @@ import { StockModule } from './stock/stock.module';
 import { FinancialApiModule } from './lib/financial-api/financial-api.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommonModule } from './common/common.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CommonModule } from './common/common.module';
     StockModule,
     FinancialApiModule,
     CommonModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

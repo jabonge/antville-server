@@ -1,11 +1,11 @@
 import { createConnection } from 'typeorm';
-import AbroadSyncBot from './syncbot';
 import * as dotenv from 'dotenv';
+import CryptoSyncBot from './syncbot';
 
 dotenv.config({ path: process.cwd() + '/.env.dev' });
 
 createConnection().then(async (connection) => {
-  const abroadSyncBot = new AbroadSyncBot();
-  await abroadSyncBot.syncAll();
+  const cryptoSyncBot = new CryptoSyncBot();
+  await cryptoSyncBot.syncAll();
   connection.close();
 });
