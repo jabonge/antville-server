@@ -1,3 +1,4 @@
+import { AuthModule } from './auth/auth.module';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -36,6 +37,7 @@ import { UserModule } from './user/user.module';
     FinancialApiModule,
     CommonModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

@@ -1,4 +1,3 @@
-import { StockMetaSubscriber } from './subscribers/stock-meta.subscriber';
 import { StockMeta } from './entities/stock-meta.entity';
 import { StockRepository } from './repositories/stock.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,6 +11,6 @@ import { StockService } from './stock.service';
     FinancialApiModule,
     TypeOrmModule.forFeature([StockRepository, StockMeta]),
   ],
-  providers: [StockResolver, StockService, StockMetaSubscriber],
+  providers: [StockResolver, StockService],
 })
 export class StockModule {}

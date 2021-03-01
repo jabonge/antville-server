@@ -1,5 +1,3 @@
-import { IUpbitWsCryptoResponse } from './../../sync/redis/interface';
-import { Quote } from './../../lib/financial-api/financial-api.interfaces';
 import { ObjectType, Field, Float, Int } from '@nestjs/graphql';
 import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
 import { CoreEntity } from '../../common/entities/core.entity';
@@ -8,6 +6,9 @@ import { Stock } from './stock.entity';
 @ObjectType()
 @Entity()
 export class StockMeta extends CoreEntity {
+  @Field(() => String)
+  symbol!: string;
+
   @Field(() => Float)
   @Column({
     type: 'double',
@@ -60,23 +61,4 @@ export class StockMeta extends CoreEntity {
   })
   @JoinColumn()
   stock!: Stock;
-
-  quoteToStockMeta(quote: Quote) {
-    this.dayHigh = quote.dayHigh;
-    this.dayLow = quote.dayLow;
-    this.latest = quote.price;
-    this.previousClose = quote.previousClose;
-    this.open = quote.open;
-    this.marketCap = quote.marketCap;
-    this.timestamp = quote.timestamp;
-  }
-
-  upbitWsCryptoResponseToStockMeta(crypto: IUpbitWsCryptoResponse) {
-    this.dayHigh = crypto.high_price;
-    this.dayLow = crypto.low_price;
-    this.latest = crypto.trade_price;
-    this.previousClose = crypto.prev_closing_price;
-    this.open = crypto.opening_price;
-    this.timestamp = crypto.timestamp;
-  }
 }

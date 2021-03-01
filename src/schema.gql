@@ -2,11 +2,23 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type CommonResponse {
+  error: String
+  ok: Boolean!
+}
+
 type Country {
   code: String!
   id: Int!
   krName: String!
   usName: String!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String!
+  nickname: String!
+  password: String!
 }
 
 """
@@ -20,14 +32,23 @@ type Exchange {
   stocks: [Stock!]!
 }
 
-type GetStockResponse {
-  data: Stock
+type LoginDataType {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type LoginResponse {
+  data: LoginDataType!
   error: String
   ok: Boolean!
 }
 
+type Mutation {
+  login(email: String!, password: String!): LoginResponse!
+  signUp(input: CreateUserInput!): CommonResponse!
+}
+
 type Query {
-  getStock(symbol: String!): GetStockResponse!
   search(query: String!): SearchStockResponse!
 }
 
@@ -39,7 +60,7 @@ type SearchStock {
 }
 
 type SearchStockResponse {
-  data: [SearchStock!]
+  data: [SearchStock!]!
   error: String
   ok: Boolean!
 }
@@ -53,6 +74,7 @@ type Stock {
   krName: String!
   stockMeta: StockMeta
   symbol: String!
+  type: StockType
   updatedAt: DateTime!
 }
 
@@ -66,9 +88,16 @@ type StockMeta {
   open: Float!
   previousClose: Float!
   stock: Stock
+  symbol: String!
+  timestamp: Int!
   updatedAt: DateTime!
 }
 
+enum StockType {
+  CRYPTO
+  ETF
+}
+
 type Subscription {
-  changeStockMeta(id: Int!): StockMeta!
+  changeStockMeta(symbols: [String!]!): StockMeta!
 }
