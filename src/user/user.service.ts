@@ -1,7 +1,7 @@
 import { CommonResponse } from './../common/dtos/common-response.dto';
 import { CreateUserInput } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -26,11 +26,19 @@ export class UserService {
   }
 
   async signUp(input: CreateUserInput): Promise<CommonResponse> {
-    const user = new User();
-    user.email = input.email;
-    user.nickname = input.nickname;
-    user.name = input.name;
-    user.password = input.password;
+    const duplicatedEmailUser = await this.userRepository.findOne({
+      email: input.email,
+    });
+    if (duplicatedEmailUser) {
+      throw new HttpException('Email is duplicated', HttpStatus.BAD_REQUEST);
+    }
+    const duplicatedNicknameUser = await this.userRepository.findOne({
+      nickname: input.nickname,
+    });
+    if (duplicatedNicknameUser) {
+      throw new HttpException('Nickname is duplicated', HttpStatus.BAD_REQUEST);
+    }
+    const user = input.toUser();
     await this.userRepository.save(user);
     return {
       ok: true,

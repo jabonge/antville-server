@@ -14,10 +14,8 @@ export class AuthResolver {
   @Mutation(() => LoginResponse)
   login(
     @CurrentUser() user: User,
-    //eslint-disable-next-line
-    @Args('email') email: string,
-    //eslint-disable-next-line
-    @Args('password') password: string,
+    @Args('email') _: string,
+    @Args('password') __: string,
   ): Promise<LoginResponse> {
     return this.authService.login(user);
   }

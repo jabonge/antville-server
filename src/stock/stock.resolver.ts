@@ -1,3 +1,4 @@
+import { IChangeStockMetaSubscriptionVariables } from './interfaces/change-stock.interface';
 import { PubSub } from 'graphql-subscriptions';
 import {
   PUB_SUB,
@@ -22,17 +23,17 @@ export class StockResolver {
   }
 
   @Subscription(() => StockMeta, {
-    filter: (payload: [string], variables: StockMeta) => {
-      return payload.includes(variables.symbol);
+    filter: (
+      payload: StockMeta,
+      variables: IChangeStockMetaSubscriptionVariables,
+    ) => {
+      return variables.symbols.includes(payload.symbol);
     },
     resolve: (value) => {
       return value;
     },
   })
-  changeStockMeta(
-    //eslint-disable-next-line
-    @Args('symbols', { type: () => [String] }) symbols: [string],
-  ) {
+  changeStockMeta(@Args('symbols', { type: () => [String] }) _: [string]) {
     return this.pubsub.asyncIterator(CHANGE_STOCK_META);
   }
 }

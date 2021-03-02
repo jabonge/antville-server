@@ -5156,8 +5156,8 @@
         "affectsGlobalScope": false
       },
       "./src/user/dto/create-user.dto.ts": {
-        "version": "bd6da576373f2d5e4bfaf57bc9aa6acb3ca828499f7946b88c67a0de5b4e6273",
-        "signature": "fbeecf360f1cdd9c7ae508696d506cd963552d509525d87b34f4a8c5d02b3184",
+        "version": "a1c60d177a398024c4145ed1f0299a4804214665d43a3a1d0b7b1b17a291f17f",
+        "signature": "5b03d9c737337e018f7dc3f917986c4f96a0c42436f8e2b002c0d30a6d7639d5",
         "affectsGlobalScope": false
       },
       "./node_modules/@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type.d.ts": {
@@ -5206,7 +5206,7 @@
         "affectsGlobalScope": false
       },
       "./src/user/user.service.ts": {
-        "version": "b6b7fb70afed23b04aef4c4e036d14e7823ac1ec529aaee91a700506d600c2b0",
+        "version": "2b1119861424fe4177ee6c5e2d254700edddd37b7a8af9c188e72479c0921649",
         "signature": "16e93bd0536ffb484e33c8623f13e82cac6388f7b883187564c8c46b218ba0dd",
         "affectsGlobalScope": false
       },
@@ -5346,13 +5346,13 @@
         "affectsGlobalScope": false
       },
       "./src/common/decorators/user.decorator.ts": {
-        "version": "055327ba8d0a0b8f37c6230bddeda491e8ea5aa4ede2d3487fed17d0b28c39c2",
+        "version": "9643d90a6c4349d9737dce6607c4f82f4eb23216cfaa883e1e28e56384bbc9fe",
         "signature": "bd0813652a9ed3e299ab055c72aff6e68142f79003094e14411460a28fb5d21e",
         "affectsGlobalScope": false
       },
       "./src/auth/auth.resolver.ts": {
-        "version": "d3af2ecc94420c2de3e29417deca6a6163210c661b15298c0057f6ccea75085e",
-        "signature": "3db4eb9497c28babbfdc0edb340f332fd48d1f7e64020f2e70697647547570a9",
+        "version": "d9416a41ce4abe9caa89013a83396f721bebc2f4cf88e97e0b146f7014037393",
+        "signature": "ab66a1bb66077ee08942b716d071e9fb9b027908f1fb056051db419b7ce95a32",
         "affectsGlobalScope": false
       },
       "./src/auth/auth.module.ts": {
@@ -5380,6 +5380,11 @@
         "signature": "c9b5c80cceb5b6bd4e4e980c3c14b4c912a2569cc6534b50caeb01e1ac1a3cfd",
         "affectsGlobalScope": false
       },
+      "./src/stock/interfaces/change-stock.interface.ts": {
+        "version": "f18359ef340159afe616fb98acc0ad53cda01351f7ddc8cc91e203ce94ca58d2",
+        "signature": "6bb1e7b1b8ecddfcb186ce13e4dcae475920eaaf25eae815f9f33188d1f34b9d",
+        "affectsGlobalScope": false
+      },
       "./node_modules/graphql-subscriptions/dist/pubsub-engine.d.ts": {
         "version": "4c9aded23c1eb21c4d7a4b03edb29e0611ee88975520a4aa8514186bb22cf20c",
         "signature": "4c9aded23c1eb21c4d7a4b03edb29e0611ee88975520a4aa8514186bb22cf20c",
@@ -5401,8 +5406,8 @@
         "affectsGlobalScope": false
       },
       "./src/common/constants/pubsub.constants.ts": {
-        "version": "f7f3712ab28ffcb3519d2365deb671010d61929924d707f0ef9a5e03b87b1ab7",
-        "signature": "fb17aa66884ed5dead317f7ca781660797fbb08117301f90a13016218cacf8e6",
+        "version": "ca7b0a30a69d1a32ce56b1b8c15c75552a7154cbccfbe6c57f8da4c0b7314dfa",
+        "signature": "3be5a54081e6c6c0ee867a272f86c20630078bc3101e4dd714a24c3f7dd448f4",
         "affectsGlobalScope": false
       },
       "./src/stock/dtos/search-stock.dto.ts": {
@@ -5416,8 +5421,8 @@
         "affectsGlobalScope": false
       },
       "./src/stock/stock.resolver.ts": {
-        "version": "4f99e9a9095e8643f1351ddc2a329fee4f44a08632208a4f20f007bfb42afdc4",
-        "signature": "f7f0fd0a480ae27cf6e1d2003ce61b5e030f2d9275a2601c42b6ea2391dbc170",
+        "version": "288803176fdab8012d60ddb1bbab8c3919e3f84fabc0283dafe304385b28b264",
+        "signature": "f0ee6a257425119c49ff408b412b58ae0589eb1dd43a36aef13438cffcfa8e6e",
         "affectsGlobalScope": false
       },
       "./src/stock/stock.module.ts": {
@@ -10488,6 +10493,7 @@
         "./src/stock/dtos/search-stock.dto.ts",
         "./src/stock/entities/stock-meta.entity.ts",
         "./src/stock/entities/stock.entity.ts",
+        "./src/stock/interfaces/change-stock.interface.ts",
         "./src/stock/stock.service.ts"
       ],
       "./src/stock/stock.service.ts": [
@@ -16312,6 +16318,7 @@
       "./src/stock/entities/exchange.entity.ts",
       "./src/stock/entities/stock-meta.entity.ts",
       "./src/stock/entities/stock.entity.ts",
+      "./src/stock/interfaces/change-stock.interface.ts",
       "./src/stock/repositories/stock.repository.ts",
       "./src/stock/stock.module.ts",
       "./src/stock/stock.resolver.ts",
