@@ -1,3 +1,5 @@
+import { GetStockResponse } from './dtos/get-stock.dto';
+import { StockMetaResponse } from './dtos/stock-meta-response.dto';
 import { IChangeStockMetaSubscriptionVariables } from './interfaces/change-stock.interface';
 import { PubSub } from 'graphql-subscriptions';
 import {
@@ -9,7 +11,6 @@ import { SearchStockResponse } from './dtos/search-stock.dto';
 import { Stock } from './entities/stock.entity';
 import { Resolver, Query, Args, Subscription } from '@nestjs/graphql';
 import { Inject } from '@nestjs/common';
-import { StockMeta } from './entities/stock-meta.entity';
 
 @Resolver(() => Stock)
 export class StockResolver {
@@ -22,9 +23,14 @@ export class StockResolver {
     return this.stockService.search(query);
   }
 
-  @Subscription(() => StockMeta, {
+  @Query(() => GetStockResponse)
+  getStock(@Args('symbol') symbol: string): Promise<GetStockResponse> {
+    return this.stockService.getStock(symbol);
+  }
+
+  @Subscription(() => StockMetaResponse, {
     filter: (
-      payload: StockMeta,
+      payload: StockMetaResponse,
       variables: IChangeStockMetaSubscriptionVariables,
     ) => {
       return variables.symbols.includes(payload.symbol);

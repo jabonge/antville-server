@@ -22,27 +22,31 @@ export class StockMeta extends CoreEntity {
   })
   marketCap!: number;
 
-  @Field(() => Float)
+  @Field(() => Float, { nullable: true })
   @Column({
     type: 'double',
+    nullable: true,
   })
   dayLow!: number;
 
-  @Field(() => Float)
+  @Field(() => Float, { nullable: true })
   @Column({
     type: 'double',
+    nullable: true,
   })
   dayHigh!: number;
 
-  @Field(() => Float)
+  @Field(() => Float, { nullable: true })
   @Column({
     type: 'double',
+    nullable: true,
   })
   open!: number;
 
-  @Field(() => Float)
+  @Field(() => Float, { nullable: true })
   @Column({
     type: 'double',
+    nullable: true,
   })
   previousClose!: number;
 
