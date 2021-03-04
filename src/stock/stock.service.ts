@@ -11,6 +11,12 @@ export class StockService {
     @Inject(REDIS_CLIENT) private readonly client: RedisClientWrapper,
   ) {}
 
+  async findById(stockId: number) {
+    return this.stockRepository.findOne({
+      id: stockId,
+    });
+  }
+
   async search(query: string): Promise<SearchStockResponse> {
     const stocks = await this.stockRepository.searchStock(query);
     return {

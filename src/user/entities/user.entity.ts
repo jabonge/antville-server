@@ -99,7 +99,6 @@ export class User extends CoreEntity {
       id: this.id,
       email: this.email,
       name: this.name,
-      nickname: this.nickname,
     };
   }
 }

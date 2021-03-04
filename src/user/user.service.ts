@@ -20,6 +20,15 @@ export class UserService {
     return user;
   }
 
+  async findById(id: number) {
+    const user = this.userRepository.findOne({ id });
+    return user;
+  }
+
+  async save(user: User) {
+    return this.userRepository.save(user);
+  }
+
   async saveRefreshToken(userId: number, token: string) {
     await this.userRepository.update({ id: userId }, { refreshToken: token });
     return;
