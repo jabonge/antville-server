@@ -21,14 +21,17 @@ export class RedisClientWrapper {
 
   async getStockMeta(symbol: string): Promise<StockMetaResponse> {
     const stockMetaString = await this.hgetAsync('stock', symbol);
-    const stockMeta = plainToClass(StockMetaResponse, stockMetaString);
+    const stockMeta = plainToClass(
+      StockMetaResponse,
+      JSON.parse(stockMetaString),
+    );
     return stockMeta;
   }
 
   async getStockMetas(symbols: [string]): Promise<StockMetaResponse[]> {
     const stockMetaStrings = await this.hmgetAsync('stock', [symbols]);
     const stockMetas = stockMetaStrings.map((s) => {
-      plainToClass(StockMetaResponse, s);
+      plainToClass(StockMetaResponse, JSON.parse(s));
     });
     return stockMetas;
   }

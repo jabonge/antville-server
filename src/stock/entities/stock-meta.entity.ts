@@ -1,4 +1,4 @@
-import { ObjectType, Field, Float, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Float } from '@nestjs/graphql';
 import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
 import { CoreEntity } from '../../common/entities/core.entity';
 import { Stock } from './stock.entity';
@@ -50,11 +50,11 @@ export class StockMeta extends CoreEntity {
   })
   previousClose!: number;
 
-  @Field(() => Int)
+  @Field(() => String)
   @Column({
-    type: 'integer',
+    type: 'timestamp',
   })
-  timestamp!: number;
+  timestamp!: Date;
 
   @RelationId((stockMeta: StockMeta) => stockMeta.stock)
   stockId!: number;

@@ -32,6 +32,11 @@ type Exchange {
   stocks: [Stock!]!
 }
 
+type GetStockResponse {
+  stock: Stock!
+  stockMeta: StockMetaResponse
+}
+
 type LoginDataType {
   accessToken: String!
   refreshToken: String!
@@ -44,11 +49,13 @@ type LoginResponse {
 }
 
 type Mutation {
+  addWatchList(id: Int!): CommonResponse!
   login(email: String!, password: String!): LoginResponse!
   signUp(input: CreateUserInput!): CommonResponse!
 }
 
 type Query {
+  getStock(symbol: String!): GetStockResponse!
   search(query: String!): SearchStockResponse!
 }
 
@@ -80,17 +87,28 @@ type Stock {
 
 type StockMeta {
   createdAt: DateTime!
-  dayHigh: Float!
-  dayLow: Float!
+  dayHigh: Float
+  dayLow: Float
   id: Int!
   latest: Float!
   marketCap: Float
-  open: Float!
-  previousClose: Float!
+  open: Float
+  previousClose: Float
   stock: Stock
   symbol: String!
-  timestamp: Int!
+  timestamp: String!
   updatedAt: DateTime!
+}
+
+type StockMetaResponse {
+  dayHigh: Float
+  dayLow: Float
+  latest: Float!
+  marketCap: Float
+  open: Float
+  previousClose: Float
+  symbol: String!
+  timestamp: String!
 }
 
 enum StockType {
@@ -99,5 +117,5 @@ enum StockType {
 }
 
 type Subscription {
-  changeStockMeta(symbols: [String!]!): StockMeta!
+  changeStockMeta(symbols: [String!]!): StockMetaResponse!
 }

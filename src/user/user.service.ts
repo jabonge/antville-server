@@ -1,3 +1,4 @@
+import { plainToClass } from 'class-transformer';
 import { CommonResponse } from './../common/dtos/common-response.dto';
 import { CreateUserInput } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -47,7 +48,8 @@ export class UserService {
     if (duplicatedNicknameUser) {
       throw new HttpException('Nickname is duplicated', HttpStatus.BAD_REQUEST);
     }
-    const user = input.toUser();
+
+    const user = plainToClass(CreateUserInput, input).toUser();
     await this.userRepository.save(user);
     return {
       ok: true,

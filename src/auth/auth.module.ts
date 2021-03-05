@@ -1,6 +1,6 @@
 import { LocalStrategy } from './strategies/local.strategy';
 import { UserModule } from './../user/user.module';
-import { JwtGqlWsAuthGuard } from './guards/auth.guard';
+import { JwtGqlWsAuthGuard, JwtGqlAuthGuard } from './guards/auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { Module } from '@nestjs/common';
@@ -26,6 +26,7 @@ import { PassportModule } from '@nestjs/passport';
     JwtStrategy,
     LocalStrategy,
     JwtGqlWsAuthGuard,
+    JwtGqlAuthGuard,
     AuthResolver,
   ],
 })

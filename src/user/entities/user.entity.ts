@@ -39,7 +39,7 @@ export class User extends CoreEntity {
   password!: string;
 
   @Field(() => String)
-  @Column({ select: false })
+  @Column({ select: false, nullable: true })
   refreshToken!: string;
 
   @Field(() => String, { nullable: true })

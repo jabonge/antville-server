@@ -3,7 +3,7 @@ import { JwtGqlAuthGuard } from './../auth/guards/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.dto';
 import { CommonResponse } from './../common/dtos/common-response.dto';
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Int } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CurrentUser } from '../common/decorators/user.decorator';
@@ -22,7 +22,10 @@ export class UserResolver {
 
   @Mutation(() => CommonResponse)
   @UseGuards(JwtGqlAuthGuard)
-  async addWatchList(@CurrentUser() user: User, @Args('id') stockId: number) {
+  async addWatchList(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => Int }) stockId: number,
+  ) {
     const stock = await this.stockService.findById(stockId);
     user.stocks = [stock];
     await this.userService.save(user);

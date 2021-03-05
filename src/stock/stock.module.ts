@@ -12,5 +12,6 @@ import { StockService } from './stock.service';
     TypeOrmModule.forFeature([StockRepository, StockMeta]),
   ],
   providers: [StockResolver, StockService],
+  exports: [StockService],
 })
 export class StockModule {}
