@@ -1,6 +1,6 @@
 import { StockService } from './../stock/stock.service';
 import { JwtGqlAuthGuard } from './../auth/guards/auth.guard';
-import { UseGuards } from '@nestjs/common';
+import { BadRequestException, UseGuards } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.dto';
 import { CommonResponse } from './../common/dtos/common-response.dto';
 import { Resolver, Mutation, Args, Int } from '@nestjs/graphql';
@@ -29,6 +29,22 @@ export class UserResolver {
     const stock = await this.stockService.findById(stockId);
     user.stocks = [stock];
     await this.userService.save(user);
+    return {
+      ok: true,
+    };
+  }
+
+  @Mutation(() => CommonResponse)
+  @UseGuards(JwtGqlAuthGuard)
+  async removeWatchList(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => Int }) stockId: number,
+  ) {
+    const stock = await this.stockService.findById(stockId);
+    if (!stock) {
+      throw new BadRequestException('Stock Not Found');
+    }
+    await this.userService.removeWatchList(stock.id, user.id);
     return {
       ok: true,
     };

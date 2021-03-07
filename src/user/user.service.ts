@@ -26,6 +26,24 @@ export class UserService {
     return user;
   }
 
+  async getWatchList(id: number) {
+    const userAndStocks = this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['stock'],
+    });
+    return userAndStocks;
+  }
+
+  removeWatchList(stockId: number, userId: number) {
+    return this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'stocks')
+      .of(stockId)
+      .remove(userId);
+  }
+
   async save(user: User) {
     return this.userRepository.save(user);
   }

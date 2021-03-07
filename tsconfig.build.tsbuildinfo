@@ -5656,8 +5656,8 @@
         "affectsGlobalScope": false
       },
       "./src/user/user.service.ts": {
-        "version": "631d04ded4f86bc031e5e0c5adc8976e6507242f51615cd0de10db078b4a5a6a",
-        "signature": "81b8b070debf47664d67b44fef2eb2e5357fa8b82c607ec8e49d5a7cebba0fee",
+        "version": "12318e46ac84cabf3926910c85aafd7435b6927b2b76fe6a557c9951fabcab8e",
+        "signature": "a645bd5cd67a1faa38be59acf38284f34b995e027f5f2d2eac48f51293800cb2",
         "affectsGlobalScope": false
       },
       "./node_modules/@nestjs/config/dist/interfaces/config-factory.interface.d.ts": {
@@ -5771,8 +5771,8 @@
         "affectsGlobalScope": false
       },
       "./src/stock/repositories/stock.repository.ts": {
-        "version": "3a4d6457d0da8ccc30672cc8e94b949d0d4a98b648706c050e73a566b01142ee",
-        "signature": "d76c6e903b12d9a9e4e6539b42c6d5f55fd5aa6cfa255d9cb970be2afc37f5c4",
+        "version": "628e13d146504384502e38da2a9288fde75411cfa000be3702487057ca889201",
+        "signature": "ab5a6a8114663705cd61b66afad4c892fece0d84d6f772e25308f0d9a6acaaa8",
         "affectsGlobalScope": false
       },
       "./src/lib/financial-api/financial-api.interfaces.ts": {
@@ -5790,14 +5790,19 @@
         "signature": "c9b5c80cceb5b6bd4e4e980c3c14b4c912a2569cc6534b50caeb01e1ac1a3cfd",
         "affectsGlobalScope": false
       },
+      "./src/auth/guards/auth.guard.ts": {
+        "version": "56fb1f078d201989f37af0e43f7168aa9296725d131601de37e62a6941929f24",
+        "signature": "afc274d13343f13da8b77ba9b1d20cbb2d3b2f8daa133db25220e5a1d5df1bdc",
+        "affectsGlobalScope": false
+      },
       "./src/stock/dtos/stock-meta-response.dto.ts": {
         "version": "12355608d786f558c8b80cb7c8dcc901fb7af6c3425a062dc0e5ddc8cf7d517f",
-        "signature": "b48479b7b1b8a2019d277605e8799254d859984ba34c1c93025512ceb06727aa",
+        "signature": "3b4886df036cb610ffd2e5506bf217f2f471c7493ff8648b9f3797b3894dfd27",
         "affectsGlobalScope": false
       },
       "./src/stock/dtos/get-stock.dto.ts": {
-        "version": "09e18214831fe9d1ffd574df12aa0770e9bf470957270d5045af494cf58cc4e5",
-        "signature": "858ff389ad6efef4a737ccc4cb8866198ddefa0b0605bd6ff15d5fe71f93b30f",
+        "version": "a350f4716810d45a28cbd8ac63d0a678c996089320758d4de3f0fc524f936024",
+        "signature": "5420ccf7f974adaadf790cf079963df203d2d3dd90a2eb37ddf2efd453251a90",
         "affectsGlobalScope": false
       },
       "./src/stock/interfaces/change-stock.interface.ts": {
@@ -5835,39 +5840,24 @@
         "signature": "1b5f23ca3513d48f2952bde729d834a949511a678e4efc02e90268f0f4493f0b",
         "affectsGlobalScope": false
       },
-      "./src/stock/dtos/search-stock.dto.ts": {
-        "version": "dd78bd1f516806e95e0907ac329a82c79c0290b412dbd287571d42b9a59cb1c7",
-        "signature": "0824a5f27e91f5a2c313d36bf1441e0efe2ecd6f8316585d3edb23d5bd46e800",
-        "affectsGlobalScope": false
-      },
       "./node_modules/@types/redis/index.d.ts": {
         "version": "c6f0fb24005dfe5c741b2f0877bcd2e3a7602907f0233caf581a791d4da2c753",
         "signature": "c6f0fb24005dfe5c741b2f0877bcd2e3a7602907f0233caf581a791d4da2c753",
         "affectsGlobalScope": false
       },
       "./src/common/providers/redis-client.service.ts": {
-        "version": "2bbc5892c9eca34c0fa245243847ef1d634f062cdff9cae24506106f5bc72e37",
-        "signature": "ae65ef4f6e81422473149ee9890473a30ca76d9ebb6df851d1138badbed107fe",
+        "version": "5f2efa5f25b909d66819818b5b2e54891d5fff6cd4b93731feae1525bfff0916",
+        "signature": "574c7673c3f90b4b9f63a5a82295abe2c3e9af32e16ac2d00f49e4c1c0b7d271",
+        "affectsGlobalScope": false
+      },
+      "./src/stock/dtos/search-stock.dto.ts": {
+        "version": "362e5840e1bcf70b3cfd92f33ccfff889c1155046482a437c869f8692edb94c3",
+        "signature": "2d4af37b671fe34b70bde67677babe45ea283fddd1fc8ac29d7d6188e493c10e",
         "affectsGlobalScope": false
       },
       "./src/stock/stock.service.ts": {
-        "version": "78599cee1b5cad349b04868c197eab2e829e5a06f0624e0957e9fbf1e723f859",
-        "signature": "00f16fa8d5d0083f3bf65b39c147b74f6638ddd3180a1a501b2af97ee6ff3947",
-        "affectsGlobalScope": false
-      },
-      "./src/stock/stock.resolver.ts": {
-        "version": "58624452be49fd87210840895d6aae8547d984257fe2846160a7dafd55a1acfb",
-        "signature": "09ae8fcd1d8c81259fae29f6c36c3814729c338ac535009ccea0204f2017fbc1",
-        "affectsGlobalScope": false
-      },
-      "./src/stock/stock.module.ts": {
-        "version": "c7e6d866bd5092966ec5b4b6e2ee8a36a66b1657ec28f35c35d7ec54f97f48f8",
-        "signature": "18362038a51c767218d06d76cc8ece1567c1d7560daafa43047792876c5a482f",
-        "affectsGlobalScope": false
-      },
-      "./src/auth/guards/auth.guard.ts": {
-        "version": "56fb1f078d201989f37af0e43f7168aa9296725d131601de37e62a6941929f24",
-        "signature": "afc274d13343f13da8b77ba9b1d20cbb2d3b2f8daa133db25220e5a1d5df1bdc",
+        "version": "c952e23cdd3e92cb7a93dca550ca2c61bb216300554ba9eaffd1b262cd32a689",
+        "signature": "b9d64abdbf2187d264fde776f05cae5a2a0a6763ebea652959098b068aca409f",
         "affectsGlobalScope": false
       },
       "./src/common/decorators/user.decorator.ts": {
@@ -5875,9 +5865,19 @@
         "signature": "bd0813652a9ed3e299ab055c72aff6e68142f79003094e14411460a28fb5d21e",
         "affectsGlobalScope": false
       },
+      "./src/stock/stock.resolver.ts": {
+        "version": "6cd1cf67059667cf7c519a9f0a5b739699377ae691194ab8d671db929c946136",
+        "signature": "e9121ee93ec13f92a1d1992e25e209f51bf9cfd44139af648be3f36a491b2e0e",
+        "affectsGlobalScope": false
+      },
+      "./src/stock/stock.module.ts": {
+        "version": "8dae73ebaa35f218507ae0d93f83072a75664c7aa9c4995b5c5aca5c61be316c",
+        "signature": "18362038a51c767218d06d76cc8ece1567c1d7560daafa43047792876c5a482f",
+        "affectsGlobalScope": false
+      },
       "./src/user/user.resolver.ts": {
-        "version": "8e222dce8c8bd0d73b7318656c2341a0110f8a802105c677790952896fcd4404",
-        "signature": "3691078d56c67e9fdac88cbd4966a8a094ebadd19bb36d232ffbc0ef0c45ae65",
+        "version": "2771bb50e9fddb421ed485df8e5fd3277e3f5d834a62a9dc17e7e0c80d138397",
+        "signature": "f6c3916fa8257f4fe3167ea66e19652ef4afc60df24a5b83381624e1b5ef0d63",
         "affectsGlobalScope": false
       },
       "./src/user/user.module.ts": {
@@ -11210,7 +11210,7 @@
       "./src/stock/dtos/search-stock.dto.ts": [
         "./node_modules/@nestjs/graphql/index.d.ts",
         "./src/common/dtos/common-response.dto.ts",
-        "./src/stock/entities/stock.entity.ts"
+        "./src/stock/dtos/get-stock.dto.ts"
       ],
       "./src/stock/dtos/stock-meta-response.dto.ts": [
         "./node_modules/@nestjs/graphql/index.d.ts",
@@ -11241,13 +11241,13 @@
       ],
       "./src/stock/repositories/stock.repository.ts": [
         "./node_modules/typeorm/index.d.ts",
-        "./src/stock/entities/stock.entity.ts"
+        "./src/stock/entities/stock.entity.ts",
+        "./src/user/entities/user.entity.ts"
       ],
       "./src/stock/stock.module.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
         "./node_modules/@nestjs/typeorm/index.d.ts",
         "./src/lib/financial-api/financial-api.module.ts",
-        "./src/stock/entities/stock-meta.entity.ts",
         "./src/stock/repositories/stock.repository.ts",
         "./src/stock/stock.resolver.ts",
         "./src/stock/stock.service.ts"
@@ -11256,13 +11256,16 @@
         "./node_modules/@nestjs/common/index.d.ts",
         "./node_modules/@nestjs/graphql/index.d.ts",
         "./node_modules/graphql-subscriptions/dist/index.d.ts",
+        "./src/auth/guards/auth.guard.ts",
         "./src/common/constants/pubsub.constants.ts",
+        "./src/common/decorators/user.decorator.ts",
         "./src/stock/dtos/get-stock.dto.ts",
         "./src/stock/dtos/search-stock.dto.ts",
         "./src/stock/dtos/stock-meta-response.dto.ts",
         "./src/stock/entities/stock.entity.ts",
         "./src/stock/interfaces/change-stock.interface.ts",
-        "./src/stock/stock.service.ts"
+        "./src/stock/stock.service.ts",
+        "./src/user/entities/user.entity.ts"
       ],
       "./src/stock/stock.service.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
@@ -11390,7 +11393,7 @@
     "exportedModulesMap": {
       "./node_modules/@apollo/federation/dist/composition/compose.d.ts": [
         "./node_modules/@apollo/federation/dist/composition/types.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-env/dist/index.d.ts",
+        "./node_modules/apollo-server-env/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/@apollo/federation/dist/composition/composeandvalidate.d.ts": [
@@ -11417,7 +11420,7 @@
       ],
       "./node_modules/@apollo/federation/dist/composition/utils.d.ts": [
         "./node_modules/@apollo/federation/dist/composition/types.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-env/dist/index.d.ts",
+        "./node_modules/apollo-server-env/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/@apollo/federation/dist/index.d.ts": [
@@ -11425,8 +11428,8 @@
         "./node_modules/@apollo/federation/dist/service/index.d.ts"
       ],
       "./node_modules/@apollo/federation/dist/service/buildfederatedschema.d.ts": [
-        "./node_modules/@apollo/federation/node_modules/apollo-graphql/lib/index.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-env/dist/index.d.ts",
+        "./node_modules/apollo-graphql/lib/index.d.ts",
+        "./node_modules/apollo-server-env/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/@apollo/federation/dist/service/index.d.ts": [
@@ -11448,22 +11451,22 @@
       ],
       "./node_modules/@apollo/gateway/dist/datasources/localgraphqldatasource.d.ts": [
         "./node_modules/@apollo/gateway/dist/datasources/types.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-types/dist/index.d.ts",
+        "./node_modules/apollo-server-types/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/@apollo/gateway/dist/datasources/remotegraphqldatasource.d.ts": [
         "./node_modules/@apollo/gateway/dist/datasources/types.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-env/dist/index.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-types/dist/index.d.ts",
-        "./node_modules/apollo-server-errors/dist/index.d.ts"
+        "./node_modules/apollo-server-env/dist/index.d.ts",
+        "./node_modules/apollo-server-errors/dist/index.d.ts",
+        "./node_modules/apollo-server-types/dist/index.d.ts"
       ],
       "./node_modules/@apollo/gateway/dist/datasources/types.d.ts": [
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-types/dist/index.d.ts"
+        "./node_modules/apollo-server-types/dist/index.d.ts"
       ],
       "./node_modules/@apollo/gateway/dist/executequeryplan.d.ts": [
         "./node_modules/@apollo/gateway/dist/datasources/types.d.ts",
         "./node_modules/@apollo/gateway/dist/queryplan.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-types/dist/index.d.ts",
+        "./node_modules/apollo-server-types/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/@apollo/gateway/dist/fieldset.d.ts": [
@@ -11477,23 +11480,23 @@
         "./node_modules/@apollo/gateway/dist/executequeryplan.d.ts",
         "./node_modules/@apollo/gateway/dist/loadservicesfromstorage.d.ts",
         "./node_modules/@apollo/gateway/dist/queryplan.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/@types/node-fetch/index.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-env/dist/index.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-types/dist/index.d.ts",
         "./node_modules/@apollo/gateway/src/make-fetch-happen.d.ts",
+        "./node_modules/@types/node-fetch/index.d.ts",
         "./node_modules/apollo-server-caching/dist/index.d.ts",
         "./node_modules/apollo-server-core/dist/index.d.ts",
+        "./node_modules/apollo-server-env/dist/index.d.ts",
+        "./node_modules/apollo-server-types/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/@apollo/gateway/dist/loadservicesfromstorage.d.ts": [
         "./node_modules/@apollo/gateway/dist/index.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-env/dist/index.d.ts"
+        "./node_modules/apollo-server-env/dist/index.d.ts"
       ],
       "./node_modules/@apollo/gateway/dist/queryplan.d.ts": [
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/@apollo/gateway/src/make-fetch-happen.d.ts": [
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-env/dist/index.d.ts"
+        "./node_modules/apollo-server-env/dist/index.d.ts"
       ],
       "./node_modules/@apollo/protobufjs/index.d.ts": [
         "./node_modules/@types/long/index.d.ts"
@@ -11506,15 +11509,15 @@
         "./node_modules/@apollographql/apollo-tools/lib/buildservicedefinition.d.ts",
         "./node_modules/@apollographql/apollo-tools/lib/schema/index.d.ts",
         "./node_modules/@apollographql/apollo-tools/lib/utilities/index.d.ts",
-        "./node_modules/apollo-env/lib/index.d.ts"
+        "./node_modules/@apollographql/apollo-tools/node_modules/apollo-env/lib/index.d.ts"
       ],
       "./node_modules/@apollographql/apollo-tools/lib/schema/index.d.ts": [
         "./node_modules/@apollographql/apollo-tools/lib/schema/resolveobject.d.ts",
         "./node_modules/@apollographql/apollo-tools/lib/schema/resolvermap.d.ts"
       ],
       "./node_modules/@apollographql/apollo-tools/lib/schema/resolveobject.d.ts": [
-        "./node_modules/@apollo/federation/node_modules/apollo-graphql/lib/schema/resolveobject.d.ts",
         "./node_modules/apollo-cache-control/dist/index.d.ts",
+        "./node_modules/apollo-graphql/lib/schema/resolveobject.d.ts",
         "./node_modules/graphql/index.d.ts",
         "./node_modules/graphql/type/definition.d.ts"
       ],
@@ -12448,13 +12451,13 @@
         "./node_modules/@nestjs/graphql/dist/graphql-types.loader.d.ts",
         "./node_modules/@nestjs/graphql/dist/graphql.factory.d.ts",
         "./node_modules/@nestjs/graphql/dist/interfaces/index.d.ts",
-        "./node_modules/@nestjs/graphql/node_modules/apollo-server-core/dist/index.d.ts"
+        "./node_modules/apollo-server-core/dist/index.d.ts"
       ],
       "./node_modules/@nestjs/graphql/dist/federation/graphql-gateway.module.d.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
         "./node_modules/@nestjs/core/index.d.ts",
         "./node_modules/@nestjs/graphql/dist/interfaces/index.d.ts",
-        "./node_modules/@nestjs/graphql/node_modules/apollo-server-core/dist/index.d.ts"
+        "./node_modules/apollo-server-core/dist/index.d.ts"
       ],
       "./node_modules/@nestjs/graphql/dist/federation/index.d.ts": [
         "./node_modules/@nestjs/graphql/dist/federation/federation.constants.d.ts",
@@ -12493,7 +12496,7 @@
         "./node_modules/@nestjs/graphql/dist/graphql-types.loader.d.ts",
         "./node_modules/@nestjs/graphql/dist/graphql.factory.d.ts",
         "./node_modules/@nestjs/graphql/dist/interfaces/gql-module-options.interface.d.ts",
-        "./node_modules/@nestjs/graphql/node_modules/apollo-server-core/dist/index.d.ts"
+        "./node_modules/apollo-server-core/dist/index.d.ts"
       ],
       "./node_modules/@nestjs/graphql/dist/index.d.ts": [
         "./node_modules/@nestjs/graphql/dist/decorators/index.d.ts",
@@ -12545,7 +12548,7 @@
         "./node_modules/@nestjs/common/interfaces/index.d.ts",
         "./node_modules/@nestjs/graphql/dist/graphql-ast.explorer.d.ts",
         "./node_modules/@nestjs/graphql/dist/interfaces/build-schema-options.interface.d.ts",
-        "./node_modules/@nestjs/graphql/node_modules/apollo-server-core/dist/index.d.ts",
+        "./node_modules/apollo-server-core/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/@nestjs/graphql/dist/interfaces/index.d.ts": [
@@ -12861,7 +12864,7 @@
       ],
       "./node_modules/@nestjs/graphql/dist/utils/get-apollo-server.d.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
-        "./node_modules/@nestjs/graphql/node_modules/apollo-server-core/dist/index.d.ts"
+        "./node_modules/apollo-server-core/dist/index.d.ts"
       ],
       "./node_modules/@nestjs/graphql/dist/utils/index.d.ts": [
         "./node_modules/@nestjs/graphql/dist/utils/async-iterator.util.d.ts",
@@ -13483,10 +13486,10 @@
         "./node_modules/@types/yargs-parser/index.d.ts"
       ],
       "./node_modules/apollo-cache-control/dist/index.d.ts": [
-        "./node_modules/@apollo/federation/node_modules/apollo-graphql/lib/schema/resolveobject.d.ts",
         "./node_modules/@apollographql/apollo-tools/lib/schema/resolveobject.d.ts",
-        "./node_modules/apollo-server-plugin-base/dist/index.d.ts",
-        "./node_modules/apollo-server-types/dist/index.d.ts",
+        "./node_modules/apollo-cache-control/node_modules/apollo-server-plugin-base/dist/index.d.ts",
+        "./node_modules/apollo-graphql/lib/schema/resolveobject.d.ts",
+        "./node_modules/graphql-extensions/node_modules/apollo-server-types/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts",
         "./node_modules/graphql/type/definition.d.ts"
       ],
@@ -13510,15 +13513,15 @@
         "./node_modules/@types/long/index.d.ts"
       ],
       "./node_modules/apollo-engine-reporting/dist/agent.d.ts": [
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-env/dist/index.d.ts",
-        "./node_modules/@apollo/gateway/node_modules/apollo-server-types/dist/index.d.ts",
-        "./node_modules/@nestjs/graphql/node_modules/apollo-server-plugin-base/dist/index.d.ts",
         "./node_modules/apollo-engine-reporting-protobuf/dist/index.d.ts",
+        "./node_modules/apollo-server-env/dist/index.d.ts",
+        "./node_modules/apollo-server-plugin-base/dist/index.d.ts",
+        "./node_modules/apollo-server-types/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/apollo-engine-reporting/dist/federatedplugin.d.ts": [
-        "./node_modules/@nestjs/graphql/node_modules/apollo-server-plugin-base/dist/index.d.ts",
-        "./node_modules/apollo-engine-reporting/dist/agent.d.ts"
+        "./node_modules/apollo-engine-reporting/dist/agent.d.ts",
+        "./node_modules/apollo-server-plugin-base/dist/index.d.ts"
       ],
       "./node_modules/apollo-engine-reporting/dist/index.d.ts": [
         "./node_modules/apollo-engine-reporting/dist/agent.d.ts",
@@ -14018,8 +14021,8 @@
         "./node_modules/@types/node/index.d.ts"
       ],
       "./node_modules/graphql-extensions/dist/index.d.ts": [
-        "./node_modules/apollo-server-env/dist/index.d.ts",
-        "./node_modules/apollo-server-types/dist/index.d.ts",
+        "./node_modules/graphql-extensions/node_modules/apollo-server-env/dist/index.d.ts",
+        "./node_modules/graphql-extensions/node_modules/apollo-server-types/dist/index.d.ts",
         "./node_modules/graphql/index.d.ts"
       ],
       "./node_modules/graphql-extensions/node_modules/apollo-server-env/dist/fetch.d.ts": [
@@ -16152,13 +16155,13 @@
         "./node_modules/typeorm/index.d.ts"
       ],
       "./src/stock/dtos/get-stock.dto.ts": [
+        "./node_modules/@nestjs/common/index.d.ts",
         "./src/stock/dtos/stock-meta-response.dto.ts",
         "./src/stock/entities/stock.entity.ts"
       ],
       "./src/stock/dtos/search-stock.dto.ts": [
-        "./node_modules/@nestjs/common/index.d.ts",
         "./src/common/dtos/common-response.dto.ts",
-        "./src/stock/entities/stock.entity.ts"
+        "./src/stock/dtos/get-stock.dto.ts"
       ],
       "./src/stock/dtos/stock-meta-response.dto.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
@@ -16185,7 +16188,8 @@
         "./node_modules/graphql-subscriptions/dist/index.d.ts",
         "./src/stock/dtos/get-stock.dto.ts",
         "./src/stock/dtos/search-stock.dto.ts",
-        "./src/stock/stock.service.ts"
+        "./src/stock/stock.service.ts",
+        "./src/user/entities/user.entity.ts"
       ],
       "./src/stock/stock.service.ts": [
         "./src/common/providers/redis-client.service.ts",

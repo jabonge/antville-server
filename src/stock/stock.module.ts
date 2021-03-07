@@ -1,4 +1,3 @@
-import { StockMeta } from './entities/stock-meta.entity';
 import { StockRepository } from './repositories/stock.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FinancialApiModule } from '../lib/financial-api/financial-api.module';
@@ -7,10 +6,7 @@ import { StockResolver } from './stock.resolver';
 import { StockService } from './stock.service';
 
 @Module({
-  imports: [
-    FinancialApiModule,
-    TypeOrmModule.forFeature([StockRepository, StockMeta]),
-  ],
+  imports: [FinancialApiModule, TypeOrmModule.forFeature([StockRepository])],
   providers: [StockResolver, StockService],
   exports: [StockService],
 })

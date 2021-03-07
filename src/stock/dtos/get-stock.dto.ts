@@ -1,11 +1,19 @@
 import { StockMetaResponse } from './stock-meta-response.dto';
 import { Stock } from './../entities/stock.entity';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, PickType } from '@nestjs/graphql';
+
+@ObjectType()
+export class StockResponse extends PickType(Stock, [
+  'symbol',
+  'id',
+  'enName',
+  'krName',
+] as const) {}
 
 @ObjectType()
 export class GetStockResponse {
-  @Field(() => Stock)
-  stock: Stock;
+  @Field(() => StockResponse)
+  stock: StockResponse;
 
   @Field(() => StockMetaResponse, { nullable: true })
   stockMeta: StockMetaResponse;
@@ -13,8 +21,8 @@ export class GetStockResponse {
 
 @ObjectType()
 export class GetStocksResponse {
-  @Field(() => [Stock])
-  stocks: Stock[];
+  @Field(() => [StockResponse])
+  stocks: StockResponse[];
 
   @Field(() => [StockMetaResponse], { nullable: 'items' })
   stockMetas: StockMetaResponse[];

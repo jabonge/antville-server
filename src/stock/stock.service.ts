@@ -1,8 +1,8 @@
 import { REDIS_CLIENT } from './../common/constants/index';
+import { RedisClientWrapper } from './../common/providers/redis-client.service';
 import { StockRepository } from './repositories/stock.repository';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { SearchStockResponse } from './dtos/search-stock.dto';
-import { RedisClientWrapper } from '../common/providers/redis-client.service';
 
 @Injectable()
 export class StockService {
@@ -31,6 +31,17 @@ export class StockService {
     return {
       stock,
       stockMeta,
+    };
+  }
+
+  async getWatchList(userId: number) {
+    const stocks = await this.stockRepository.getWatchList(userId);
+    const symbols = stocks.map((v) => v.symbol);
+    const stockMetas = await this.client.getStockMetas(symbols);
+
+    return {
+      stocks,
+      stockMetas,
     };
   }
 }

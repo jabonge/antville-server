@@ -1,4 +1,6 @@
-import { GetStockResponse } from './dtos/get-stock.dto';
+import { User } from './../user/entities/user.entity';
+import { JwtGqlAuthGuard } from './../auth/guards/auth.guard';
+import { GetStockResponse, GetStocksResponse } from './dtos/get-stock.dto';
 import { StockMetaResponse } from './dtos/stock-meta-response.dto';
 import { IChangeStockMetaSubscriptionVariables } from './interfaces/change-stock.interface';
 import { PubSub } from 'graphql-subscriptions';
@@ -10,7 +12,8 @@ import { StockService } from './stock.service';
 import { SearchStockResponse } from './dtos/search-stock.dto';
 import { Stock } from './entities/stock.entity';
 import { Resolver, Query, Args, Subscription } from '@nestjs/graphql';
-import { Inject } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
+import { CurrentUser } from '../common/decorators/user.decorator';
 
 @Resolver(() => Stock)
 export class StockResolver {
@@ -26,6 +29,12 @@ export class StockResolver {
   @Query(() => GetStockResponse)
   getStock(@Args('symbol') symbol: string): Promise<GetStockResponse> {
     return this.stockService.getStock(symbol);
+  }
+
+  @Query(() => GetStocksResponse)
+  @UseGuards(JwtGqlAuthGuard)
+  getWatchList(@CurrentUser() user: User): Promise<GetStocksResponse> {
+    return this.stockService.getWatchList(user.id);
   }
 
   @Subscription(() => StockMetaResponse, {

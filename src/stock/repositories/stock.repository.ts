@@ -1,3 +1,4 @@
+import { User } from './../../user/entities/user.entity';
 import { Stock } from './../entities/stock.entity';
 import { EntityRepository, Repository } from 'typeorm';
 
@@ -15,5 +16,12 @@ export class StockRepository extends Repository<Stock> {
         `MATCH(enName,krName) AGAINST ('*${query}* *${query}*' IN BOOLEAN MODE)`,
       )
       .getMany();
+  }
+
+  async getWatchList(userId: number): Promise<Stock[]> {
+    return this.createQueryBuilder()
+      .relation(User, 'stocks')
+      .of(userId)
+      .loadMany();
   }
 }

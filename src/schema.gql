@@ -33,8 +33,13 @@ type Exchange {
 }
 
 type GetStockResponse {
-  stock: Stock!
+  stock: StockResponse!
   stockMeta: StockMetaResponse
+}
+
+type GetStocksResponse {
+  stockMetas: [StockMetaResponse]!
+  stocks: [StockResponse!]!
 }
 
 type LoginDataType {
@@ -51,23 +56,18 @@ type LoginResponse {
 type Mutation {
   addWatchList(id: Int!): CommonResponse!
   login(email: String!, password: String!): LoginResponse!
+  removeWatchList(id: Int!): CommonResponse!
   signUp(input: CreateUserInput!): CommonResponse!
 }
 
 type Query {
   getStock(symbol: String!): GetStockResponse!
+  getWatchList: GetStocksResponse!
   search(query: String!): SearchStockResponse!
 }
 
-type SearchStock {
-  enName: String!
-  id: Int!
-  krName: String!
-  symbol: String!
-}
-
 type SearchStockResponse {
-  data: [SearchStock!]!
+  data: [StockResponse!]!
   error: String
   ok: Boolean!
 }
@@ -109,6 +109,13 @@ type StockMetaResponse {
   previousClose: Float
   symbol: String!
   timestamp: String!
+}
+
+type StockResponse {
+  enName: String!
+  id: Int!
+  krName: String!
+  symbol: String!
 }
 
 enum StockType {

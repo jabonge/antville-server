@@ -28,11 +28,15 @@ export class RedisClientWrapper {
     return stockMeta;
   }
 
-  async getStockMetas(symbols: [string]): Promise<StockMetaResponse[]> {
-    const stockMetaStrings = await this.hmgetAsync('stock', [symbols]);
+  async getStockMetas(symbols: string[]): Promise<StockMetaResponse[]> {
+    if (symbols.length <= 0) {
+      return [];
+    }
+    const stockMetaStrings = await this.hmgetAsync('stock', symbols);
     const stockMetas = stockMetaStrings.map((s) => {
-      plainToClass(StockMetaResponse, JSON.parse(s));
+      return plainToClass(StockMetaResponse, JSON.parse(s));
     });
+    console.log(stockMetas);
     return stockMetas;
   }
 }
