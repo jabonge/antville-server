@@ -5761,8 +5761,8 @@
         "affectsGlobalScope": false
       },
       "./src/auth/auth.service.ts": {
-        "version": "b47687dff1aecb3cc8a15e7ce718a2f412c8f31b8800e1913f83f45c0ed49590",
-        "signature": "8069a7345606b43c4c09d5c9fa8e2f3d69dfce8732452141d97c9f6cdad21471",
+        "version": "ee084663a0420028fdb8a536ddd3d6a7e11dcc5cb70378abeff3b729ac20cbe9",
+        "signature": "ce91e64fdfee265d43dbc5b8c939ba979388e349af739b26a8165c4113858f1d",
         "affectsGlobalScope": false
       },
       "./src/auth/strategies/local.strategy.ts": {
@@ -5896,8 +5896,8 @@
         "affectsGlobalScope": false
       },
       "./src/auth/auth.resolver.ts": {
-        "version": "d9416a41ce4abe9caa89013a83396f721bebc2f4cf88e97e0b146f7014037393",
-        "signature": "ab66a1bb66077ee08942b716d071e9fb9b027908f1fb056051db419b7ce95a32",
+        "version": "51548721d24dade1b0749f702cdc7c8f31b57ac48d73bf1ea832d8ca4a23f8e5",
+        "signature": "b001dfd45eac91af365fdf3e2890cba79adc6e4b2d6f89ef8d7323210f4431f4",
         "affectsGlobalScope": false
       },
       "./src/auth/auth.module.ts": {
@@ -5933,11 +5933,6 @@
       "./src/migration/1612663273371-addcountries.ts": {
         "version": "80c3f054dc29c7dd7a8d96be9587c163384d0ec64842852c158940678aafe550",
         "signature": "55dc3d00b309c19219bbfd572b744114adb2586243077cfe0c8772733480659b",
-        "affectsGlobalScope": false
-      },
-      "./src/stock/subscribers/stock-meta.subscriber.ts": {
-        "version": "ef1cc1c7ab72e82fe22ef1ada6ea75bbe7d3e0cc265b7f35bb5a59c561ca2556",
-        "signature": "a675460486072e72961e35ed4fe427e82cea424cbf14b2d53edb85b65872d73d",
         "affectsGlobalScope": false
       },
       "./src/sync/abroad/client.ts": {
@@ -11274,13 +11269,6 @@
         "./src/stock/dtos/search-stock.dto.ts",
         "./src/stock/repositories/stock.repository.ts"
       ],
-      "./src/stock/subscribers/stock-meta.subscriber.ts": [
-        "./node_modules/@nestjs/common/index.d.ts",
-        "./node_modules/graphql-subscriptions/dist/index.d.ts",
-        "./node_modules/typeorm/index.d.ts",
-        "./src/common/constants/pubsub.constants.ts",
-        "./src/stock/entities/stock-meta.entity.ts"
-      ],
       "./src/sync/abroad/api/getprofile.ts": [
         "./src/lib/financial-api/financial-api.interfaces.ts",
         "./src/sync/abroad/client.ts"
@@ -16198,11 +16186,6 @@
         "./src/stock/entities/stock.entity.ts",
         "./src/stock/repositories/stock.repository.ts"
       ],
-      "./src/stock/subscribers/stock-meta.subscriber.ts": [
-        "./node_modules/graphql-subscriptions/dist/index.d.ts",
-        "./node_modules/typeorm/index.d.ts",
-        "./src/stock/entities/stock-meta.entity.ts"
-      ],
       "./src/sync/abroad/api/getprofile.ts": [
         "./src/lib/financial-api/financial-api.interfaces.ts"
       ],
@@ -17499,7 +17482,6 @@
       "./src/stock/stock.module.ts",
       "./src/stock/stock.resolver.ts",
       "./src/stock/stock.service.ts",
-      "./src/stock/subscribers/stock-meta.subscriber.ts",
       "./src/sync/abroad/api/getprofile.ts",
       "./src/sync/abroad/api/getquotes.ts",
       "./src/sync/abroad/client.ts",

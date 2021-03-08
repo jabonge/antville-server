@@ -4,7 +4,7 @@ import { JwtPayload } from './auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { User } from './../user/entities/user.entity';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
     this.jwtRefreshKey = this.configService.get<string>('JWT_REFRESH_KEY');
   }
 
-  issueToken(user: User, isRefresh = false) {
+  issueToken(payload: JwtPayload, isRefresh = false) {
     const signOption: JwtSignOptions = isRefresh
       ? {
           secret: this.jwtRefreshKey,
@@ -25,8 +25,17 @@ export class AuthService {
         }
       : undefined;
 
-    const token = this.jwtService.sign(user.toJwtPayload(), signOption);
+    const token = this.jwtService.sign(payload, signOption);
     return token;
+  }
+
+  reissueAccessToken(token: string) {
+    const decodedUser = this.verifyRefreshToken(token);
+    if (decodedUser) {
+      return this.issueToken(decodedUser);
+    } else {
+      throw new BadRequestException('Invalid Token');
+    }
   }
 
   verifyRefreshToken(token: string) {
@@ -43,8 +52,8 @@ export class AuthService {
   }
 
   async login(user: User): Promise<LoginResponse> {
-    const accessToken = this.issueToken(user);
-    const refreshToken = this.issueToken(user, true);
+    const accessToken = this.issueToken(user.toJwtPayload());
+    const refreshToken = this.issueToken(user.toJwtPayload(), true);
     await this.userService.saveRefreshToken(user.id, refreshToken);
     return {
       ok: true,

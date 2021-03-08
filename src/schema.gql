@@ -63,6 +63,7 @@ type Mutation {
 type Query {
   getStock(symbol: String!): GetStockResponse!
   getWatchList: GetStocksResponse!
+  reIssueAccessToken(token: String!): String!
   search(query: String!): SearchStockResponse!
 }
 

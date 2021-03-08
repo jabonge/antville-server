@@ -1,7 +1,7 @@
 import { User } from './../user/entities/user.entity';
 import { LoginResponse } from './dtos/login.dto';
 import { AuthService } from './auth.service';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { CurrentUser } from '../common/decorators/user.decorator';
 import { UseGuards } from '@nestjs/common';
 import { LocalAuthGuard } from './guards/auth.guard';
@@ -18,5 +18,10 @@ export class AuthResolver {
     @Args('password') __: string,
   ): Promise<LoginResponse> {
     return this.authService.login(user);
+  }
+
+  @Query(() => String)
+  reIssueAccessToken(@Args('token') token: string) {
+    return this.authService.reissueAccessToken(token);
   }
 }
