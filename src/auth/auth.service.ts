@@ -17,22 +17,29 @@ export class AuthService {
     this.jwtRefreshKey = this.configService.get<string>('JWT_REFRESH_KEY');
   }
 
-  issueToken(payload: JwtPayload, isRefresh = false) {
-    const signOption: JwtSignOptions = isRefresh
-      ? {
-          secret: this.jwtRefreshKey,
-          expiresIn: '365d',
-        }
-      : undefined;
+  issueAccessToken(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token;
+  }
+
+  issueRefreshToken(payload: JwtPayload) {
+    const signOption: JwtSignOptions = {
+      secret: this.jwtRefreshKey,
+      expiresIn: '365d',
+    };
 
     const token = this.jwtService.sign(payload, signOption);
     return token;
   }
 
-  reissueAccessToken(token: string) {
+  reIssueAccessToken(token: string) {
     const decodedUser = this.verifyRefreshToken(token);
     if (decodedUser) {
-      return this.issueToken(decodedUser);
+      return this.issueRefreshToken({
+        id: decodedUser.id,
+        email: decodedUser.email,
+        name: decodedUser.name,
+      });
     } else {
       throw new BadRequestException('Invalid Token');
     }
@@ -48,12 +55,14 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
     await user.checkPassword(password);
+    delete user.password;
     return user;
   }
 
   async login(user: User): Promise<LoginResponse> {
-    const accessToken = this.issueToken(user.toJwtPayload());
-    const refreshToken = this.issueToken(user.toJwtPayload(), true);
+    console.log(user);
+    const accessToken = this.issueAccessToken(user.toJwtPayload());
+    const refreshToken = this.issueRefreshToken(user.toJwtPayload());
     await this.userService.saveRefreshToken(user.id, refreshToken);
     return {
       ok: true,

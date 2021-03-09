@@ -5656,7 +5656,7 @@
         "affectsGlobalScope": false
       },
       "./src/user/user.service.ts": {
-        "version": "12318e46ac84cabf3926910c85aafd7435b6927b2b76fe6a557c9951fabcab8e",
+        "version": "ad49e8244e961436957268cf0479d4f8051dd6b3b13a17883036cc4ee8ade9b4",
         "signature": "a645bd5cd67a1faa38be59acf38284f34b995e027f5f2d2eac48f51293800cb2",
         "affectsGlobalScope": false
       },
@@ -5761,8 +5761,8 @@
         "affectsGlobalScope": false
       },
       "./src/auth/auth.service.ts": {
-        "version": "ee084663a0420028fdb8a536ddd3d6a7e11dcc5cb70378abeff3b729ac20cbe9",
-        "signature": "ce91e64fdfee265d43dbc5b8c939ba979388e349af739b26a8165c4113858f1d",
+        "version": "7ee81389417478be386749b2ac74223b2dbb61f298fedc23978f566b583b5e30",
+        "signature": "be31c55525025d8c771909a6d5f79653ea1b344e425e5c84d2af8937f546d3d7",
         "affectsGlobalScope": false
       },
       "./src/auth/strategies/local.strategy.ts": {
@@ -5795,14 +5795,19 @@
         "signature": "afc274d13343f13da8b77ba9b1d20cbb2d3b2f8daa133db25220e5a1d5df1bdc",
         "affectsGlobalScope": false
       },
+      "./src/stock/dtos/stock-response.dto.ts": {
+        "version": "7ef469fc09d07fb0aba69771ec6df13c0ab98bbd4d9e89dbc245f6f719eca0ba",
+        "signature": "2e61911c2bc30900d25073bec798302c91b97988f97ea1d386592650368d4404",
+        "affectsGlobalScope": false
+      },
       "./src/stock/dtos/stock-meta-response.dto.ts": {
         "version": "12355608d786f558c8b80cb7c8dcc901fb7af6c3425a062dc0e5ddc8cf7d517f",
         "signature": "3b4886df036cb610ffd2e5506bf217f2f471c7493ff8648b9f3797b3894dfd27",
         "affectsGlobalScope": false
       },
       "./src/stock/dtos/get-stock.dto.ts": {
-        "version": "a350f4716810d45a28cbd8ac63d0a678c996089320758d4de3f0fc524f936024",
-        "signature": "5420ccf7f974adaadf790cf079963df203d2d3dd90a2eb37ddf2efd453251a90",
+        "version": "3bc13ddc478caf6ef0fbf38236159ecd62d19fb96afe7f84edbb9084b1918490",
+        "signature": "c1a3f81ab162ed78fbbba0eec216a38434a2231522bfebd4245543f421dca245",
         "affectsGlobalScope": false
       },
       "./src/stock/interfaces/change-stock.interface.ts": {
@@ -5851,8 +5856,8 @@
         "affectsGlobalScope": false
       },
       "./src/stock/dtos/search-stock.dto.ts": {
-        "version": "362e5840e1bcf70b3cfd92f33ccfff889c1155046482a437c869f8692edb94c3",
-        "signature": "2d4af37b671fe34b70bde67677babe45ea283fddd1fc8ac29d7d6188e493c10e",
+        "version": "b07de663928de64cbd2d30e9afd56ea4e7bcac792726563669f189e1e86d3905",
+        "signature": "8a9e2856e30496ab5277f253788b17dbbe484c3086a6e60a1fc7bdf6b5f31e97",
         "affectsGlobalScope": false
       },
       "./src/stock/stock.service.ts": {
@@ -5895,13 +5900,23 @@
         "signature": "d189e0bce1345414182aecb9cbe94bf8fbd10784af9540ee9302a4ad55295809",
         "affectsGlobalScope": false
       },
+      "./src/auth/dtos/get-me.dto.ts": {
+        "version": "4c7a857fd477fc6cafc86a60de6a44dc526a2767fead3bb6a7e6c6a829ba02df",
+        "signature": "795cbe5959a9782d43ed30be8cee7819b2cbe5773f12e6c01c705819d2765559",
+        "affectsGlobalScope": false
+      },
       "./src/auth/auth.resolver.ts": {
-        "version": "51548721d24dade1b0749f702cdc7c8f31b57ac48d73bf1ea832d8ca4a23f8e5",
-        "signature": "b001dfd45eac91af365fdf3e2890cba79adc6e4b2d6f89ef8d7323210f4431f4",
+        "version": "22ef7c2ecaf2f17569b09a89ae6d1b7c613c8d16d2dcf5393f5da19f92e3d960",
+        "signature": "151b10a0b5f166542e561f29782c90c633d02f4ad6efa6bd9135aea65cf03fe9",
+        "affectsGlobalScope": false
+      },
+      "./src/auth/auth.controller.ts": {
+        "version": "0405e0f0e802e6abe61e5eb5edcf0793ecea9d2c795aeb253e0e40cc35225c19",
+        "signature": "84293ac93593b82161077584ffc4f32dd3cec5b9f31ce7e718e85490e18183d6",
         "affectsGlobalScope": false
       },
       "./src/auth/auth.module.ts": {
-        "version": "5f3ece0f3b29434264a5b89ca56652d477347079974007f45f671d5bee1f6273",
+        "version": "9bc703a70f2b78ab06c164f5781b61e41ec89741fb9596c3ceda418569ecda77",
         "signature": "a28b5c0c372fb375910b3fe3c3ce4331509bc18ccef7cc39c9ee9d8daf8225d1",
         "affectsGlobalScope": false
       },
@@ -11096,11 +11111,16 @@
         "./src/stock/stock.module.ts",
         "./src/user/user.module.ts"
       ],
+      "./src/auth/auth.controller.ts": [
+        "./node_modules/@nestjs/common/index.d.ts",
+        "./src/auth/auth.service.ts"
+      ],
       "./src/auth/auth.module.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
         "./node_modules/@nestjs/config/index.d.ts",
         "./node_modules/@nestjs/jwt/index.d.ts",
         "./node_modules/@nestjs/passport/index.d.ts",
+        "./src/auth/auth.controller.ts",
         "./src/auth/auth.resolver.ts",
         "./src/auth/auth.service.ts",
         "./src/auth/guards/auth.guard.ts",
@@ -11112,6 +11132,7 @@
         "./node_modules/@nestjs/common/index.d.ts",
         "./node_modules/@nestjs/graphql/index.d.ts",
         "./src/auth/auth.service.ts",
+        "./src/auth/dtos/get-me.dto.ts",
         "./src/auth/dtos/login.dto.ts",
         "./src/auth/guards/auth.guard.ts",
         "./src/common/decorators/user.decorator.ts",
@@ -11125,6 +11146,10 @@
         "./src/auth/dtos/login.dto.ts",
         "./src/user/entities/user.entity.ts",
         "./src/user/user.service.ts"
+      ],
+      "./src/auth/dtos/get-me.dto.ts": [
+        "./node_modules/@nestjs/graphql/index.d.ts",
+        "./src/user/entities/user.entity.ts"
       ],
       "./src/auth/dtos/login.dto.ts": [
         "./node_modules/@nestjs/graphql/index.d.ts",
@@ -11200,16 +11225,20 @@
       "./src/stock/dtos/get-stock.dto.ts": [
         "./node_modules/@nestjs/graphql/index.d.ts",
         "./src/stock/dtos/stock-meta-response.dto.ts",
-        "./src/stock/entities/stock.entity.ts"
+        "./src/stock/dtos/stock-response.dto.ts"
       ],
       "./src/stock/dtos/search-stock.dto.ts": [
         "./node_modules/@nestjs/graphql/index.d.ts",
         "./src/common/dtos/common-response.dto.ts",
-        "./src/stock/dtos/get-stock.dto.ts"
+        "./src/stock/dtos/stock-response.dto.ts"
       ],
       "./src/stock/dtos/stock-meta-response.dto.ts": [
         "./node_modules/@nestjs/graphql/index.d.ts",
         "./src/stock/entities/stock-meta.entity.ts"
+      ],
+      "./src/stock/dtos/stock-response.dto.ts": [
+        "./node_modules/@nestjs/graphql/index.d.ts",
+        "./src/stock/entities/stock.entity.ts"
       ],
       "./src/stock/entities/country.entity.ts": [
         "./node_modules/@nestjs/graphql/index.d.ts",
@@ -16095,8 +16124,12 @@
       "./node_modules/zen-observable-ts/lib/zenobservable.d.ts": [
         "./node_modules/zen-observable-ts/lib/types.d.ts"
       ],
+      "./src/auth/auth.controller.ts": [
+        "./src/auth/auth.service.ts"
+      ],
       "./src/auth/auth.resolver.ts": [
         "./src/auth/auth.service.ts",
+        "./src/auth/dtos/get-me.dto.ts",
         "./src/auth/dtos/login.dto.ts",
         "./src/user/entities/user.entity.ts"
       ],
@@ -16107,6 +16140,10 @@
         "./src/auth/dtos/login.dto.ts",
         "./src/user/entities/user.entity.ts",
         "./src/user/user.service.ts"
+      ],
+      "./src/auth/dtos/get-me.dto.ts": [
+        "./node_modules/@nestjs/common/index.d.ts",
+        "./src/user/entities/user.entity.ts"
       ],
       "./src/auth/dtos/login.dto.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
@@ -16143,17 +16180,20 @@
         "./node_modules/typeorm/index.d.ts"
       ],
       "./src/stock/dtos/get-stock.dto.ts": [
-        "./node_modules/@nestjs/common/index.d.ts",
         "./src/stock/dtos/stock-meta-response.dto.ts",
-        "./src/stock/entities/stock.entity.ts"
+        "./src/stock/dtos/stock-response.dto.ts"
       ],
       "./src/stock/dtos/search-stock.dto.ts": [
         "./src/common/dtos/common-response.dto.ts",
-        "./src/stock/dtos/get-stock.dto.ts"
+        "./src/stock/dtos/stock-response.dto.ts"
       ],
       "./src/stock/dtos/stock-meta-response.dto.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
         "./src/stock/entities/stock-meta.entity.ts"
+      ],
+      "./src/stock/dtos/stock-response.dto.ts": [
+        "./node_modules/@nestjs/common/index.d.ts",
+        "./src/stock/entities/stock.entity.ts"
       ],
       "./src/stock/entities/exchange.entity.ts": [
         "./src/stock/entities/stock.entity.ts"
@@ -17450,10 +17490,12 @@
       "./node_modules/zen-observable-ts/lib/types.d.ts",
       "./node_modules/zen-observable-ts/lib/zenobservable.d.ts",
       "./src/app.module.ts",
+      "./src/auth/auth.controller.ts",
       "./src/auth/auth.interface.ts",
       "./src/auth/auth.module.ts",
       "./src/auth/auth.resolver.ts",
       "./src/auth/auth.service.ts",
+      "./src/auth/dtos/get-me.dto.ts",
       "./src/auth/dtos/login.dto.ts",
       "./src/auth/guards/auth.guard.ts",
       "./src/auth/strategies/jwt.strategy.ts",
@@ -17473,6 +17515,7 @@
       "./src/stock/dtos/get-stock.dto.ts",
       "./src/stock/dtos/search-stock.dto.ts",
       "./src/stock/dtos/stock-meta-response.dto.ts",
+      "./src/stock/dtos/stock-response.dto.ts",
       "./src/stock/entities/country.entity.ts",
       "./src/stock/entities/exchange.entity.ts",
       "./src/stock/entities/stock-meta.entity.ts",

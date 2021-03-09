@@ -1,10 +1,11 @@
+import { GetMeResponse } from './dtos/get-me.dto';
 import { User } from './../user/entities/user.entity';
 import { LoginResponse } from './dtos/login.dto';
 import { AuthService } from './auth.service';
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { CurrentUser } from '../common/decorators/user.decorator';
 import { UseGuards } from '@nestjs/common';
-import { LocalAuthGuard } from './guards/auth.guard';
+import { LocalAuthGuard, JwtGqlAuthGuard } from './guards/auth.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -20,8 +21,9 @@ export class AuthResolver {
     return this.authService.login(user);
   }
 
-  @Query(() => String)
-  reIssueAccessToken(@Args('token') token: string) {
-    return this.authService.reissueAccessToken(token);
+  @UseGuards(JwtGqlAuthGuard)
+  @Query(() => GetMeResponse)
+  getMe(@CurrentUser() user: User): GetMeResponse {
+    return user;
   }
 }

@@ -1,14 +1,6 @@
+import { StockResponse } from './stock-response.dto';
 import { StockMetaResponse } from './stock-meta-response.dto';
-import { Stock } from './../entities/stock.entity';
-import { Field, ObjectType, PickType } from '@nestjs/graphql';
-
-@ObjectType()
-export class StockResponse extends PickType(Stock, [
-  'symbol',
-  'id',
-  'enName',
-  'krName',
-] as const) {}
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class GetStockResponse {

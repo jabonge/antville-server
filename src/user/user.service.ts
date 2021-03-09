@@ -16,7 +16,7 @@ export class UserService {
   async findByEmail(email: string) {
     const user = this.userRepository.findOneOrFail(
       { email },
-      { select: ['id', 'password'] },
+      { select: ['id', 'password', 'email', 'name'] },
     );
     return user;
   }

@@ -32,6 +32,15 @@ type Exchange {
   stocks: [Stock!]!
 }
 
+type GetMeResponse {
+  bio: String
+  email: String!
+  id: Int!
+  name: String!
+  nickname: String!
+  profileImg: String
+}
+
 type GetStockResponse {
   stock: StockResponse!
   stockMeta: StockMetaResponse
@@ -56,14 +65,13 @@ type LoginResponse {
 type Mutation {
   addWatchList(id: Int!): CommonResponse!
   login(email: String!, password: String!): LoginResponse!
-  removeWatchList(id: Int!): CommonResponse!
   signUp(input: CreateUserInput!): CommonResponse!
 }
 
 type Query {
+  getMe: GetMeResponse!
   getStock(symbol: String!): GetStockResponse!
   getWatchList: GetStocksResponse!
-  reIssueAccessToken(token: String!): String!
   search(query: String!): SearchStockResponse!
 }
 

@@ -8,13 +8,14 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthResolver } from './auth.resolver';
 import { PassportModule } from '@nestjs/passport';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => {
         const secret = configService.get<string>('JWT_ACCESS_KEY');
-        return { secret, signOptions: { expiresIn: '1h' } };
+        return { secret };
       },
       inject: [ConfigService],
     }),
@@ -29,5 +30,6 @@ import { PassportModule } from '@nestjs/passport';
     JwtGqlAuthGuard,
     AuthResolver,
   ],
+  controllers: [AuthController],
 })
 export class AuthModule {}
