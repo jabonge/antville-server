@@ -28,11 +28,20 @@ import { JwtModule } from '@nestjs/jwt';
       inject: [ConfigService],
     },
     {
+      provide: 'REDIS_SUB',
+      useFactory: (configService: ConfigService) => {
+        const host = configService.get<string>('REDIS_HOST');
+        const port = configService.get<number>('REDIS_PORT');
+        return redis.createClient(port, host);
+      },
+      inject: [ConfigService],
+    },
+    {
       provide: REDIS_CLIENT,
       useClass: RedisClientWrapper,
       inject: [ConfigService],
     },
   ],
-  exports: [PUB_SUB, REDIS_CLIENT, JwtModule],
+  exports: [PUB_SUB, REDIS_CLIENT, 'REDIS_SUB', JwtModule],
 })
 export class CommonModule {}
