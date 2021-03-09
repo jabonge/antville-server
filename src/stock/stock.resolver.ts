@@ -1,5 +1,8 @@
 import { User } from './../user/entities/user.entity';
-import { JwtGqlAuthGuard } from './../auth/guards/auth.guard';
+import {
+  JwtGqlAuthGuard,
+  JwtGqlWsAuthGuard,
+} from './../auth/guards/auth.guard';
 import { GetStockResponse, GetStocksResponse } from './dtos/get-stock.dto';
 import { StockMetaResponse } from './dtos/stock-meta-response.dto';
 import { IChangeStockMetaSubscriptionVariables } from './interfaces/change-stock.interface';
@@ -48,6 +51,7 @@ export class StockResolver {
       return value;
     },
   })
+  @UseGuards(JwtGqlWsAuthGuard)
   changeStockMeta(@Args('symbols', { type: () => [String] }) _: [string]) {
     return this.pubsub.asyncIterator(CHANGE_STOCK_META);
   }

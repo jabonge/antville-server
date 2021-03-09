@@ -21,14 +21,16 @@ export class JwtGqlAuthGuard extends AuthGuard('jwt') {
 export class JwtGqlWsAuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
   canActivate(context: ExecutionContext) {
-    const token = context.switchToWs().getData().token;
+    console.log('hello');
+    const gqlContext = GqlExecutionContext.create(context).getContext();
+    const token = gqlContext.token;
+    console.log(token);
     if (!token) {
       throw new BadRequestException('Bearer Token Not Found');
     }
     const decoded = this.jwtService.verify<JwtPayload>(token);
 
     if (decoded) {
-      const gqlContext = GqlExecutionContext.create(context).getContext();
       gqlContext['user'] = decoded;
       return true;
     }

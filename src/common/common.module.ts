@@ -5,9 +5,15 @@ import { Global, Module } from '@nestjs/common';
 import redis from 'redis';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { RedisClientWrapper } from './providers/redis-client.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Global()
 @Module({
+  imports: [
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_KEY,
+    }),
+  ],
   providers: [
     {
       provide: PUB_SUB,
@@ -27,6 +33,6 @@ import { RedisClientWrapper } from './providers/redis-client.service';
       inject: [ConfigService],
     },
   ],
-  exports: [PUB_SUB, REDIS_CLIENT],
+  exports: [PUB_SUB, REDIS_CLIENT, JwtModule],
 })
 export class CommonModule {}

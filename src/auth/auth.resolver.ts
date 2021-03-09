@@ -21,8 +21,8 @@ export class AuthResolver {
     return this.authService.login(user);
   }
 
-  @UseGuards(JwtGqlAuthGuard)
   @Query(() => GetMeResponse)
+  @UseGuards(JwtGqlAuthGuard)
   getMe(@CurrentUser() user: User): GetMeResponse {
     return user;
   }

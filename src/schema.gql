@@ -65,6 +65,7 @@ type LoginResponse {
 type Mutation {
   addWatchList(id: Int!): CommonResponse!
   login(email: String!, password: String!): LoginResponse!
+  removeWatchList(id: Int!): CommonResponse!
   signUp(input: CreateUserInput!): CommonResponse!
 }
 

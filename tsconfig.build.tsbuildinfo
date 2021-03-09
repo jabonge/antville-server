@@ -5791,13 +5791,13 @@
         "affectsGlobalScope": false
       },
       "./src/auth/guards/auth.guard.ts": {
-        "version": "56fb1f078d201989f37af0e43f7168aa9296725d131601de37e62a6941929f24",
+        "version": "141a0ef97335ca36bcb910f191b215d85d1e31e90a6dfd0c28c9c613d8b4dc93",
         "signature": "afc274d13343f13da8b77ba9b1d20cbb2d3b2f8daa133db25220e5a1d5df1bdc",
         "affectsGlobalScope": false
       },
       "./src/stock/dtos/stock-response.dto.ts": {
         "version": "7ef469fc09d07fb0aba69771ec6df13c0ab98bbd4d9e89dbc245f6f719eca0ba",
-        "signature": "2e61911c2bc30900d25073bec798302c91b97988f97ea1d386592650368d4404",
+        "signature": "ccd41307521c5a28047d27e5854cf99f6fad8e0a290a4ee1a7b909c1e5780863",
         "affectsGlobalScope": false
       },
       "./src/stock/dtos/stock-meta-response.dto.ts": {
@@ -5871,7 +5871,7 @@
         "affectsGlobalScope": false
       },
       "./src/stock/stock.resolver.ts": {
-        "version": "6cd1cf67059667cf7c519a9f0a5b739699377ae691194ab8d671db929c946136",
+        "version": "670b15cfa0a1cc5dca0153808a2d5b8165dae6635d8667925579e2f3ee31e12d",
         "signature": "e9121ee93ec13f92a1d1992e25e209f51bf9cfd44139af648be3f36a491b2e0e",
         "affectsGlobalScope": false
       },
@@ -5902,11 +5902,11 @@
       },
       "./src/auth/dtos/get-me.dto.ts": {
         "version": "4c7a857fd477fc6cafc86a60de6a44dc526a2767fead3bb6a7e6c6a829ba02df",
-        "signature": "795cbe5959a9782d43ed30be8cee7819b2cbe5773f12e6c01c705819d2765559",
+        "signature": "4e025b169cdafa4f2c89928b2afbe6f596a6a02f37398af1a2b750572ff2b979",
         "affectsGlobalScope": false
       },
       "./src/auth/auth.resolver.ts": {
-        "version": "22ef7c2ecaf2f17569b09a89ae6d1b7c613c8d16d2dcf5393f5da19f92e3d960",
+        "version": "1deca9e4d11c8dca3e7f1109d9861e78d0561338a08fd724212e70b1771bd01e",
         "signature": "151b10a0b5f166542e561f29782c90c633d02f4ad6efa6bd9135aea65cf03fe9",
         "affectsGlobalScope": false
       },
@@ -5916,7 +5916,7 @@
         "affectsGlobalScope": false
       },
       "./src/auth/auth.module.ts": {
-        "version": "9bc703a70f2b78ab06c164f5781b61e41ec89741fb9596c3ceda418569ecda77",
+        "version": "6ac7a71cb11ccc0c660a6df476af221c9f6bc35ed7b21f991b212cdc64f11393",
         "signature": "a28b5c0c372fb375910b3fe3c3ce4331509bc18ccef7cc39c9ee9d8daf8225d1",
         "affectsGlobalScope": false
       },
@@ -5931,12 +5931,12 @@
         "affectsGlobalScope": false
       },
       "./src/common/common.module.ts": {
-        "version": "aed4f2639fafa27804bab902f6d7cdec519508aa5dfa0ceef34c262e1aa53030",
+        "version": "6cbc3441861d184ac28890dce5830c3512cbe78dcd056a5da53928c3885e3710",
         "signature": "7214164cfa10573d2bf79da5174719e21aa58d3745730ba5464fd4491e9d5c6c",
         "affectsGlobalScope": false
       },
       "./src/app.module.ts": {
-        "version": "baf7b610ce7a0eb743f990c5a4f1afe5769030eb3273de23876382005680b91b",
+        "version": "0987d1cf717769cebbe2aaadd7e4c9fb5b7617eb5d4cbfcad66b5824931be74e",
         "signature": "b82491e2990291580288c5602d4c017238977749d52b17391f0e45d9a29be644",
         "affectsGlobalScope": false
       },
@@ -11117,13 +11117,10 @@
       ],
       "./src/auth/auth.module.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
-        "./node_modules/@nestjs/config/index.d.ts",
-        "./node_modules/@nestjs/jwt/index.d.ts",
         "./node_modules/@nestjs/passport/index.d.ts",
         "./src/auth/auth.controller.ts",
         "./src/auth/auth.resolver.ts",
         "./src/auth/auth.service.ts",
-        "./src/auth/guards/auth.guard.ts",
         "./src/auth/strategies/jwt.strategy.ts",
         "./src/auth/strategies/local.strategy.ts",
         "./src/user/user.module.ts"
@@ -11180,6 +11177,7 @@
       "./src/common/common.module.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
         "./node_modules/@nestjs/config/index.d.ts",
+        "./node_modules/@nestjs/jwt/index.d.ts",
         "./node_modules/@types/redis/index.d.ts",
         "./node_modules/graphql-redis-subscriptions/dist/index.d.ts",
         "./src/common/constants/index.ts",

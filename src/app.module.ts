@@ -32,6 +32,13 @@ import { UserModule } from './user/user.module';
       playground: process.env.NODE_ENV !== 'production',
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      context: ({ req, connection }) => {
+        if (req) {
+          return req;
+        } else {
+          return { token: connection.context.authorization?.split(' ')[1] };
+        }
+      },
     }),
     StockModule,
     FinancialApiModule,
