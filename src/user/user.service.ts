@@ -1,5 +1,4 @@
 import { plainToClass } from 'class-transformer';
-import { CommonResponse } from './../common/dtos/common-response.dto';
 import { CreateUserInput } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
@@ -53,7 +52,7 @@ export class UserService {
     return;
   }
 
-  async signUp(input: CreateUserInput): Promise<CommonResponse> {
+  async signUp(input: CreateUserInput) {
     const duplicatedEmailUser = await this.userRepository.findOne({
       email: input.email,
     });
@@ -69,8 +68,6 @@ export class UserService {
 
     const user = plainToClass(CreateUserInput, input).toUser();
     await this.userRepository.save(user);
-    return {
-      ok: true,
-    };
+    return;
   }
 }

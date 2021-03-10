@@ -1,8 +1,7 @@
+import { PickType } from '@nestjs/swagger';
 import { StockMeta } from '../entities/stock-meta.entity';
-import { ObjectType, PickType } from '@nestjs/graphql';
 
-@ObjectType()
-export class StockMetaResponse extends PickType(StockMeta, [
+export class StockMetaResponseDto extends PickType(StockMeta, [
   'symbol',
   'latest',
   'dayHigh',

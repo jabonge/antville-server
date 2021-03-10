@@ -1,21 +1,12 @@
-import { StockResponse } from './stock-response.dto';
-import { StockMetaResponse } from './stock-meta-response.dto';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Stock } from './../entities/stock.entity';
+import { StockMetaResponseDto } from './stock-meta-response.dto';
 
-@ObjectType()
-export class GetStockResponse {
-  @Field(() => StockResponse)
-  stock: StockResponse;
-
-  @Field(() => StockMetaResponse, { nullable: true })
-  stockMeta: StockMetaResponse;
+export class GetStockResponseDto {
+  stock: Stock;
+  stockMeta: StockMetaResponseDto;
 }
 
-@ObjectType()
-export class GetStocksResponse {
-  @Field(() => [StockResponse])
-  stocks: StockResponse[];
-
-  @Field(() => [StockMetaResponse], { nullable: 'items' })
-  stockMetas: StockMetaResponse[];
+export class GetStocksResponseDto {
+  stocks: Stock[];
+  stockMetas: StockMetaResponseDto[];
 }

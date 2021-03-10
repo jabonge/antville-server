@@ -1,24 +1,9 @@
-import { CommonResponse } from './../../common/dtos/common-response.dto';
+import { PickType } from '@nestjs/swagger';
 import { User } from './../../user/entities/user.entity';
-import { InputType, ObjectType, PickType, Field } from '@nestjs/graphql';
 
-@ObjectType()
-class LoginDataType {
-  @Field(() => String)
+export class LoginInputDto extends PickType(User, ['email', 'password']) {}
+
+export class LoginResponseDto {
   accessToken: string;
-  @Field(() => String)
   refreshToken: string;
-}
-
-@InputType()
-export class LoginInput extends PickType(
-  User,
-  ['email', 'password'],
-  InputType,
-) {}
-
-@ObjectType()
-export class LoginResponse extends CommonResponse {
-  @Field(() => LoginDataType)
-  data: LoginDataType;
 }

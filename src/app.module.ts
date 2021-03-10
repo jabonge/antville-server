@@ -1,8 +1,6 @@
 import { AuthModule } from './auth/auth.module';
 import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { join } from 'path';
 import { StockModule } from './stock/stock.module';
 import { FinancialApiModule } from './lib/financial-api/financial-api.module';
 import { ConfigModule } from '@nestjs/config';
@@ -26,19 +24,6 @@ import { UserModule } from './user/user.module';
       entities: ['dist/**/*.entity{.ts,.js}'],
       logging: process.env.NODE_ENV !== 'production',
       synchronize: process.env.NODE_ENV !== 'production',
-    }),
-    GraphQLModule.forRoot({
-      installSubscriptionHandlers: true,
-      playground: process.env.NODE_ENV !== 'production',
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
-      context: ({ req, connection }) => {
-        if (req) {
-          return req;
-        } else {
-          return { token: connection.context.authorization?.split(' ')[1] };
-        }
-      },
     }),
     StockModule,
     FinancialApiModule,

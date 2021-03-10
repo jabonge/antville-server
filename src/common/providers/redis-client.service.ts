@@ -1,4 +1,4 @@
-import { StockMetaResponse } from '../../stock/dtos/stock-meta-response.dto';
+import { StockMetaResponseDto } from '../../stock/dtos/stock-meta-response.dto';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import redis, { RedisClient } from 'redis';
@@ -19,22 +19,22 @@ export class RedisClientWrapper {
     this.hmgetAsync = promisify(this.client.hmget).bind(this.client);
   }
 
-  async getStockMeta(symbol: string): Promise<StockMetaResponse> {
+  async getStockMeta(symbol: string): Promise<StockMetaResponseDto> {
     const stockMetaString = await this.hgetAsync('stock', symbol);
     const stockMeta = plainToClass(
-      StockMetaResponse,
+      StockMetaResponseDto,
       JSON.parse(stockMetaString),
     );
     return stockMeta;
   }
 
-  async getStockMetas(symbols: string[]): Promise<StockMetaResponse[]> {
+  async getStockMetas(symbols: string[]): Promise<StockMetaResponseDto[]> {
     if (symbols.length <= 0) {
       return [];
     }
     const stockMetaStrings = await this.hmgetAsync('stock', symbols);
     const stockMetas = stockMetaStrings.map((s) => {
-      return plainToClass(StockMetaResponse, JSON.parse(s));
+      return plainToClass(StockMetaResponseDto, JSON.parse(s));
     });
     console.log(stockMetas);
     return stockMetas;

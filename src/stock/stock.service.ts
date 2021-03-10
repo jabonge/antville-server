@@ -1,8 +1,8 @@
+import { StockMetaResponseDto } from './dtos/stock-meta-response.dto';
 import { REDIS_CLIENT } from './../common/constants/index';
 import { RedisClientWrapper } from './../common/providers/redis-client.service';
 import { StockRepository } from './repositories/stock.repository';
 import { Injectable, Inject } from '@nestjs/common';
-import { SearchStockResponse } from './dtos/search-stock.dto';
 
 @Injectable()
 export class StockService {
@@ -17,12 +17,9 @@ export class StockService {
     });
   }
 
-  async search(query: string): Promise<SearchStockResponse> {
+  async search(query: string) {
     const stocks = await this.stockRepository.searchStock(query);
-    return {
-      ok: true,
-      data: stocks,
-    };
+    return stocks;
   }
 
   async getStock(symbol: string) {
@@ -37,7 +34,9 @@ export class StockService {
   async getWatchList(userId: number) {
     const stocks = await this.stockRepository.getWatchList(userId);
     const symbols = stocks.map((v) => v.symbol);
-    const stockMetas = await this.client.getStockMetas(symbols);
+    const stockMetas = (await this.client.getStockMetas(
+      symbols,
+    )) as StockMetaResponseDto[];
 
     return {
       stocks,

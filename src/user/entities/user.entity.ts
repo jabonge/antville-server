@@ -1,7 +1,6 @@
 import { JwtPayload } from './../../auth/auth.interface';
 import { Stock } from './../../stock/entities/stock.entity';
 import { CoreEntity } from './../../common/entities/core.entity';
-import { ObjectType, Field } from '@nestjs/graphql';
 import bcrypt from 'bcrypt';
 import {
   Column,
@@ -14,47 +13,38 @@ import {
 } from 'typeorm';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-@ObjectType()
 @Entity()
 export class User extends CoreEntity {
-  @Field(() => String)
   @Column({
     length: 20,
   })
   name!: string;
 
-  @Field(() => String)
   @Index({ fulltext: true, parser: 'NGRAM' })
   @Column({
     length: 30,
   })
   nickname!: string;
 
-  @Field(() => String)
   @Column()
   email!: string;
 
-  @Field(() => String)
   @Column({ select: false })
   password!: string;
 
-  @Field(() => String)
   @Column({ select: false, nullable: true })
   refreshToken!: string;
 
-  @Field(() => String, { nullable: true })
   @Column({
     nullable: true,
   })
   bio!: string;
 
-  @Field(() => String, { nullable: true })
   @Column({
     nullable: true,
   })
   profileImg!: string;
 
-  @Field(() => [Stock], { nullable: true })
   @ManyToMany(() => Stock)
   @JoinTable({
     name: 'users_stocks',

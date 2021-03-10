@@ -1,4 +1,4 @@
-import { LoginResponse } from './dtos/login.dto';
+import { LoginResponseDto } from './dtos/login.dto';
 import { UserService } from './../user/user.service';
 import { JwtPayload } from './auth.interface';
 import { ConfigService } from '@nestjs/config';
@@ -59,17 +59,13 @@ export class AuthService {
     return user;
   }
 
-  async login(user: User): Promise<LoginResponse> {
-    console.log(user);
+  async login(user: User): Promise<LoginResponseDto> {
     const accessToken = this.issueAccessToken(user.toJwtPayload());
     const refreshToken = this.issueRefreshToken(user.toJwtPayload());
     await this.userService.saveRefreshToken(user.id, refreshToken);
     return {
-      ok: true,
-      data: {
-        accessToken,
-        refreshToken,
-      },
+      accessToken,
+      refreshToken,
     };
   }
 }
