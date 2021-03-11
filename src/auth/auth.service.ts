@@ -35,7 +35,7 @@ export class AuthService {
   reIssueAccessToken(token: string) {
     const decodedUser = this.verifyRefreshToken(token);
     if (decodedUser) {
-      return this.issueRefreshToken({
+      return this.issueAccessToken({
         id: decodedUser.id,
         email: decodedUser.email,
         name: decodedUser.name,

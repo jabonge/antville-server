@@ -57,6 +57,7 @@ export class StockGateway implements OnGatewayConnection {
           this.connectedClients.delete(userId);
         });
       } catch (e) {
+        console.log(e);
         client.close(1011, 'Unauthorized');
       }
     }
@@ -67,6 +68,7 @@ export class StockGateway implements OnGatewayConnection {
     @ConnectedSocket() client: WebSocket,
     @MessageBody() data: { id: number; symbols: string[] },
   ) {
+    console.log(data);
     const clientInMap = this.connectedClients.get(data.id);
     if (clientInMap) {
       this.connectedClients.get(data.id).symbols = data.symbols;

@@ -14,19 +14,19 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('stock')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
-  @Get(':query')
+  @Get(':query/search')
   search(@Param('query') query: string): Promise<Stock[]> {
     return this.stockService.search(query);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('watchList')
+  getWatchList(@CurrentUser() user: User): Promise<GetStocksResponseDto> {
+    return this.stockService.getWatchList(user.id);
   }
 
   @Get(':symbol')
   getStock(@Param('symbol') symbol: string): Promise<GetStockResponseDto> {
     return this.stockService.getStock(symbol);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  getWatchList(@CurrentUser() user: User): Promise<GetStocksResponseDto> {
-    return this.stockService.getWatchList(user.id);
   }
 }
