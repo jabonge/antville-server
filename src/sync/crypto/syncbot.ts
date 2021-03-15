@@ -1,4 +1,4 @@
-import { Stock, StockType } from './../../stock/entities/stock.entity';
+import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
 import { getCryptoList } from './api/getAllCrypto';
 

@@ -1,11 +1,12 @@
-import { AuthModule } from './auth/auth.module';
+import { PostModule } from './domain/post/post.module';
+import { AuthModule } from './domain/auth/auth.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { StockModule } from './stock/stock.module';
+import { StockModule } from './domain/stock/stock.module';
 import { FinancialApiModule } from './lib/financial-api/financial-api.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommonModule } from './common/common.module';
-import { UserModule } from './user/user.module';
+import { UserModule } from './domain/user/user.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserModule } from './user/user.module';
     CommonModule,
     UserModule,
     AuthModule,
+    PostModule,
   ],
   controllers: [],
   providers: [],

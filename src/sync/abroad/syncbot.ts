@@ -1,6 +1,6 @@
-import { Country } from './../../stock/entities/country.entity';
-import { Exchange } from './../../stock/entities/exchange.entity';
-import { Stock, StockType } from './../../stock/entities/stock.entity';
+import { Country } from '../../domain/stock/entities/country.entity';
+import { Exchange } from '../../domain/stock/entities/exchange.entity';
+import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
 import { getQuotes } from './api/getQuotes';
 

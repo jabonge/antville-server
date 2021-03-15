@@ -1,7 +1,7 @@
-import { Country } from './../../stock/entities/country.entity';
-import { Exchange } from './../../stock/entities/exchange.entity';
-import { StockMeta } from './../../stock/entities/stock-meta.entity';
-import { Stock } from './../../stock/entities/stock.entity';
+import { Country } from '../../domain/stock/entities/country.entity';
+import { Exchange } from '../../domain/stock/entities/exchange.entity';
+import { StockMeta } from '../../domain/stock/entities/stock-meta.entity';
+import { Stock } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
 import { KoreaStockInfoFromCsv, KoreaStockXML } from './korea-stock.interface';
 import { parseStringPromise } from 'xml2js';

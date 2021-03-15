@@ -1,4 +1,4 @@
-import { StockMetaResponseDto } from '../../stock/dtos/stock-meta-response.dto';
+import { StockMetaResponseDto } from '../../domain/stock/dtos/stock-meta-response.dto';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import redis, { RedisClient } from 'redis';

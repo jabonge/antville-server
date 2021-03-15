@@ -1,4 +1,4 @@
-import { Country } from './../stock/entities/country.entity';
+import { Country } from '../domain/stock/entities/country.entity';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class addCountries1612663273371 implements MigrationInterface {
