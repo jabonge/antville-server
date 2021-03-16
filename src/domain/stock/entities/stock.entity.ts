@@ -27,46 +27,46 @@ export class Stock extends CoreEntity {
   @Column({
     length: 12,
   })
-  symbol!: string;
+  symbol: string;
 
   @Column({
     length: 200,
   })
-  enName!: string;
+  enName: string;
 
   @Column({
     length: 200,
   })
-  krName!: string;
+  krName: string;
 
   @Column({
     nullable: true,
     type: 'enum',
     enum: StockType,
   })
-  type!: StockType;
+  type: StockType;
 
   @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock, {
     onDelete: 'CASCADE',
   })
-  stockMeta!: StockMeta;
+  stockMeta: StockMeta;
 
   @RelationId((stock: Stock) => stock.exchange)
-  exchangeId!: number;
+  exchangeId: number;
 
   @ManyToOne(() => Exchange, (exchange) => exchange.stocks)
-  exchange!: Exchange;
+  exchange: Exchange;
 
   @RelationId((stock: Stock) => stock.country)
-  countryId!: number;
+  countryId: number;
 
   @ManyToOne(() => Country)
-  country!: Country;
+  country: Country;
 
   @ManyToMany(() => Post, (post) => post.stocks)
-  posts!: Post[];
+  posts: Post[];
 
   @OneToOne(() => StockCount, { onDelete: 'CASCADE' })
   @JoinColumn()
-  stockCount!: StockCount;
+  stockCount: StockCount;
 }

@@ -8,6 +8,12 @@ export class StockRepository extends Repository<Stock> {
     return this.findOne({ where: { symbol } });
   }
 
+  async findBySymbols(symbols: string[]): Promise<Stock[]> {
+    return this.createQueryBuilder('stock')
+      .where('stock.symbol IN (:...symbols)', { symbols })
+      .getMany();
+  }
+
   async searchStock(query: string): Promise<Stock[]> {
     return this.createQueryBuilder()
       .select()

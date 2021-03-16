@@ -23,38 +23,38 @@ export class User extends CoreEntity {
   @Column({
     length: 20,
   })
-  name!: string;
+  name: string;
 
   @Index({ fulltext: true, parser: 'NGRAM' })
   @Column({
     length: 30,
   })
-  nickname!: string;
+  nickname: string;
 
   @Column()
-  email!: string;
+  email: string;
 
   @Column({ select: false })
-  password!: string;
+  password: string;
 
   @Column({ select: false, nullable: true })
-  refreshToken!: string;
+  refreshToken: string;
 
   @Column({
     nullable: true,
   })
-  bio!: string;
+  bio: string;
 
   @Column({
     nullable: true,
   })
-  profileImg!: string;
+  profileImg: string;
 
   @ManyToMany(() => Stock)
   @JoinTable({
     name: 'watchlist',
   })
-  stocks!: Stock[];
+  stocks: Stock[];
 
   @ManyToMany(() => User, (user) => user.following)
   @JoinTable({
@@ -68,17 +68,17 @@ export class User extends CoreEntity {
       referencedColumnName: 'id',
     },
   })
-  followers!: User[];
+  followers: User[];
 
   @ManyToMany(() => User, (user) => user.followers)
-  following!: User[];
+  following: User[];
 
   @OneToMany(() => Post, (post) => post.author)
-  posts!: Post[];
+  posts: Post[];
 
   @OneToOne(() => UserCount, { onDelete: 'CASCADE' })
   @JoinColumn()
-  userCount!: UserCount;
+  userCount: UserCount;
 
   @BeforeInsert()
   @BeforeUpdate()

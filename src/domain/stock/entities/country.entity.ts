@@ -3,16 +3,16 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class Country {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id: number;
 
   @Column({
     unique: true,
   })
-  code!: string;
+  code: string;
 
   @Column()
-  krName!: string;
+  krName: string;
 
   @Column()
-  usName!: string;
+  usName: string;
 }

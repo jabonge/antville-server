@@ -7,11 +7,11 @@ export class PostCount extends CoreEntity {
     type: 'int',
     default: 0,
   })
-  likeCount!: number;
+  likeCount: number;
 
   @Column({
     type: 'int',
     default: 0,
   })
-  commentCount!: number;
+  commentCount: number;
 }

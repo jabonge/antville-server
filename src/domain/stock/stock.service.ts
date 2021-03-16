@@ -31,6 +31,11 @@ export class StockService {
     };
   }
 
+  async getStocks(symbols: string[]) {
+    const stocks = await this.stockRepository.findBySymbols(symbols);
+    return stocks;
+  }
+
   async getWatchList(userId: number) {
     const stocks = await this.stockRepository.getWatchList(userId);
     const symbols = stocks.map((v) => v.symbol);

@@ -4,54 +4,54 @@ import { Stock } from './stock.entity';
 
 @Entity()
 export class StockMeta extends CoreEntity {
-  symbol!: string;
+  symbol: string;
 
   @Column({
     type: 'double',
   })
-  latest!: number;
-
-  @Column({
-    type: 'double',
-    nullable: true,
-  })
-  marketCap!: number;
+  latest: number;
 
   @Column({
     type: 'double',
     nullable: true,
   })
-  dayLow!: number;
+  marketCap: number;
 
   @Column({
     type: 'double',
     nullable: true,
   })
-  dayHigh!: number;
+  dayLow: number;
 
   @Column({
     type: 'double',
     nullable: true,
   })
-  open!: number;
+  dayHigh: number;
 
   @Column({
     type: 'double',
     nullable: true,
   })
-  previousClose!: number;
+  open: number;
+
+  @Column({
+    type: 'double',
+    nullable: true,
+  })
+  previousClose: number;
 
   @Column({
     type: 'timestamp',
   })
-  timestamp!: Date;
+  timestamp: Date;
 
   @RelationId((stockMeta: StockMeta) => stockMeta.stock)
-  stockId!: number;
+  stockId: number;
 
   @OneToOne(() => Stock, (stock) => stock.stockMeta, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  stock!: Stock;
+  stock: Stock;
 }

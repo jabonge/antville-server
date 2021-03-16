@@ -7,11 +7,11 @@ export class StockCount extends CoreEntity {
     type: 'int',
     default: 0,
   })
-  watchUserCount!: number;
+  watchUserCount: number;
 
   @Column({
     type: 'int',
     default: 0,
   })
-  postCount!: number;
+  postCount: number;
 }

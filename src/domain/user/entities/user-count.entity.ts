@@ -7,29 +7,29 @@ export class UserCount extends CoreEntity {
     type: 'int',
     default: 0,
   })
-  followers!: number;
+  followers: number;
 
   @Column({
     type: 'int',
     default: 0,
   })
-  following!: number;
+  following: number;
 
   @Column({
     type: 'int',
     default: 0,
   })
-  postCount!: number;
+  postCount: number;
 
   @Column({
     type: 'int',
     default: 0,
   })
-  watchStockCount!: number;
+  watchStockCount: number;
 
   @Column({
     type: 'int',
     default: 0,
   })
-  postLikeCount!: number;
+  postLikeCount: number;
 }

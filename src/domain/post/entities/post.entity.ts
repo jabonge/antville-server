@@ -25,32 +25,32 @@ export class Post extends CoreEntity {
   @Column({
     length: 1000,
   })
-  body!: string;
+  body: string;
 
   @Column({
     nullable: true,
   })
-  giphyId!: string;
+  gifUrl: string;
 
   @Column({
     nullable: true,
     type: 'enum',
     enum: Sentiment,
   })
-  sentiment!: Sentiment;
+  sentiment: Sentiment;
 
-  @OneToMany(() => PostImg, (img) => img.post)
-  postImgs!: PostImg[];
+  @OneToMany(() => PostImg, (img) => img.post, { cascade: ['insert'] })
+  postImgs: PostImg[];
 
   @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE' })
-  post!: Post;
+  post: Post;
 
   @OneToMany(() => Post, (p) => p.post)
-  comments!: Post[];
+  comments: Post[];
 
-  @OneToOne(() => PostLink, { onDelete: 'CASCADE' })
+  @OneToOne(() => PostLink, { onDelete: 'CASCADE', cascade: ['insert'] })
   @JoinColumn()
-  link!: PostLink;
+  link: PostLink;
 
   @ManyToMany(() => User)
   @JoinTable({
@@ -64,12 +64,12 @@ export class Post extends CoreEntity {
       referencedColumnName: 'id',
     },
   })
-  likers!: User[];
+  likers: User[];
 
   @ManyToOne(() => User, (user) => user.posts)
-  author!: User;
+  author: User;
 
-  @ManyToMany(() => Stock, (stock) => stock.posts)
+  @ManyToMany(() => Stock, (stock) => stock.posts, { cascade: ['insert'] })
   @JoinTable({
     name: 'posts_stocks',
     joinColumn: {
@@ -81,9 +81,9 @@ export class Post extends CoreEntity {
       referencedColumnName: 'id',
     },
   })
-  stocks!: Stock[];
+  stocks: Stock[];
 
-  @OneToOne(() => PostCount, { onDelete: 'CASCADE' })
+  @OneToOne(() => PostCount, { onDelete: 'CASCADE', cascade: ['insert'] })
   @JoinColumn()
-  postCount!: PostCount;
+  postCount: PostCount;
 }
