@@ -1,4 +1,8 @@
-import ogs, { Options, SuccessResult } from 'open-graph-scraper';
+import ogs, {
+  OpenGraphImage,
+  Options,
+  SuccessResult,
+} from 'open-graph-scraper';
 
 export function findCacheTags(str: string): string[] {
   const cacheTagRegex = /\$([a-zA-Z가-힣]{2,})/g;
@@ -20,7 +24,22 @@ export async function getOgTags(link: string) {
   if (ogTag.error) {
     return null;
   }
-  return (ogTag as SuccessResult).result;
+  const result = (ogTag as SuccessResult).result;
+  let ogImage: string;
+  if (typeof result.ogImage === 'string') {
+    ogImage = result.ogImage;
+  } else if (typeof result.ogImage === 'object') {
+    ogImage = (result.ogImage as OpenGraphImage).url;
+  } else if (Array.isArray(result.ogImage)) {
+    ogImage = (result.ogImage as OpenGraphImage[])[0].url;
+  }
+  return {
+    ogSiteName: result.ogSiteName,
+    ogImage: ogImage,
+    ogTitle: result.ogTitle,
+    ogDescription: result.ogDescription,
+    ogUrl: result.ogUrl,
+  };
 }
 
 export function findLinks(str: string): string | null {

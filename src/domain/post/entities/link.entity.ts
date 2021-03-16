@@ -1,7 +1,11 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { CoreEntity } from './../../../common/entities/core.entity';
+import { Post } from './post.entity';
 @Entity()
 export class PostLink extends CoreEntity {
+  @Column()
+  ogSiteName: string;
+
   @Column()
   ogImage: string;
 
@@ -13,4 +17,8 @@ export class PostLink extends CoreEntity {
 
   @Column()
   ogUrl: string;
+
+  @OneToOne(() => Post, (post) => post.link, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  post: Post;
 }

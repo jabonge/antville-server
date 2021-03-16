@@ -23,7 +23,7 @@ export class PostController {
 
   @Post('create')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(FilesInterceptor('posts'))
   create(
     @CurrentUser() user: User,
     @UploadedFiles() files: Express.MulterS3.File[],

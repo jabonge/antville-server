@@ -1,5 +1,6 @@
 import { CoreEntity } from './../../../common/entities/core.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Post } from './post.entity';
 
 @Entity()
 export class PostCount extends CoreEntity {
@@ -14,4 +15,8 @@ export class PostCount extends CoreEntity {
     default: 0,
   })
   commentCount: number;
+
+  @OneToOne(() => Post, (p) => p.postCount, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  post: Post;
 }

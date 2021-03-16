@@ -1791,9 +1791,9 @@
         "signature": "330a671c81525c627aa660f3f2e1a51cb4aabc4faeb3209dca0b830aea762d35",
         "affectsGlobalScope": false
       },
-      "./src/domain/post/entities/link.entity.ts": {
-        "version": "e61a9abd8a5681fe6f128b580349d5c9921fbe90594c84349ca0dcf79a214a75",
-        "signature": "0c2b48843893d47cde16b56bd39ef8880c6257b8b2f86c1b7d206dccd69a83aa",
+      "./src/domain/post/entities/post-img.entity.ts": {
+        "version": "ac617273664100a4597244355a93de07bf0e4f36b884ed454493125066e0d6f8",
+        "signature": "de6d6023c504b3d7f1cb9e1ce8a15af9487030cd1d45148d55835231b96089aa",
         "affectsGlobalScope": false
       },
       "./src/domain/auth/auth.interface.ts": {
@@ -1817,12 +1817,12 @@
         "affectsGlobalScope": false
       },
       "./src/domain/stock/entities/stock-count.entity.ts": {
-        "version": "5edc49dfbc49b3f6b0d98a376ce4f0281e264315116c1b1d68092239ad8eaf24",
-        "signature": "9b7a73d9e305659a2a17faa4319d601a3e02726d648b1e33673cb7d159e31322",
+        "version": "164b2689a62e7e34e52d6e4ad470f28f57a385f7694a90fb2be47aca62de20cb",
+        "signature": "ec493ac9190ac6ba5e2817367f22d3c5e25b30ff564990fd6612cf4a0c043797",
         "affectsGlobalScope": false
       },
       "./src/domain/stock/entities/stock.entity.ts": {
-        "version": "2451faa94d4a9798ebf2e1f4a07077f98f44b69256c451a9ccde8e7ce19061ab",
+        "version": "15ad40c28c2849e6ff8090133d52b1d4170a2c78ee0694d0f6ddc1c2c793501f",
         "signature": "440cd81c099a18cc82f9ee0943a884af2f10d583ecbda53898df631622f12112",
         "affectsGlobalScope": false
       },
@@ -2842,28 +2842,28 @@
         "affectsGlobalScope": false
       },
       "./src/domain/user/entities/user-count.entity.ts": {
-        "version": "16fce35b28f1946766188d8b88e998249fe8b36508f0db442702dbe2cd039808",
-        "signature": "380bd5b0a35d13beb298d5f2355d8a756c2adb174c66b3139769f54df8cfeffe",
+        "version": "18614073a1999c625f85c632b04c9de643f55eaf75a77405686e63e473f3d19f",
+        "signature": "9ae35966f34f68890b47c9f759173dc7484d3c50303930178a413fbfb687c090",
         "affectsGlobalScope": false
       },
       "./src/domain/user/entities/user.entity.ts": {
-        "version": "bcda2e94dd6415662656634a813904862696e2566080656ede7402e3a90fb372",
+        "version": "d015c5321297561a99884b487cc3edf7ff1d765037edd4b630ac125900727355",
         "signature": "91dc7bb71e23a8a908f39542c26f9777fbacabf4e856d26f5691a35b6ae7ab37",
         "affectsGlobalScope": false
       },
       "./src/domain/post/entities/post-count.entity.ts": {
-        "version": "bc944cb603ec2d2abc038c9064bbd5103b5eac1f8f5af1dd22f6e2bb26877c64",
-        "signature": "c2b24a5d0a0c20fd87756a222b959eda3dc7b2a48d4d088c89a2e97a8bebe0c8",
+        "version": "290e89b477e74bac72132e15ad215ba03a97124fd18ef6d69819a33144228c6e",
+        "signature": "2fb7b3b9baa9b78f2e46d4414ec8572f150dafed602cb647daa163861491258b",
         "affectsGlobalScope": false
       },
       "./src/domain/post/entities/post.entity.ts": {
-        "version": "22d2b2b3a9b2e0eee2c2388c40e68e86dac9b4a41af5f04f735f26074a4daeaa",
+        "version": "06ab991c86e83dafe37ffe2538d983b45bdd56c8edd0c3a5906b4e09c2433ff7",
         "signature": "430b2369a60722af66560a6372b218fb608dbad338a69c0758b57c46f98b5d05",
         "affectsGlobalScope": false
       },
-      "./src/domain/post/entities/post-img.entity.ts": {
-        "version": "ac617273664100a4597244355a93de07bf0e4f36b884ed454493125066e0d6f8",
-        "signature": "de6d6023c504b3d7f1cb9e1ce8a15af9487030cd1d45148d55835231b96089aa",
+      "./src/domain/post/entities/link.entity.ts": {
+        "version": "b727c922944a2bb806ed178227f0a277840f74c81eb201675f3a3c1760705d08",
+        "signature": "419213a28d14d05d61bba9d6dca09b6a8288efba60e9eab8dd6ef5413f2fbb74",
         "affectsGlobalScope": false
       },
       "./node_modules/@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type.d.ts": {
@@ -4867,7 +4867,7 @@
         "affectsGlobalScope": true
       },
       "./src/lib/multer/multer-s3.service.ts": {
-        "version": "e196c14a6bf092be02f20d4f2c102854ed46c212f71541d699260652ea7eeadb",
+        "version": "54282b14a1b0d8669f5b7cf81a7faca24e9ab6edf179a4a17afc6ed701276a11",
         "signature": "cf01308e1efd0132fe2736c36cc36c9ef9ef3698de982d7b94e8ebf63e99fea9",
         "affectsGlobalScope": false
       },
@@ -4882,8 +4882,8 @@
         "affectsGlobalScope": false
       },
       "./src/util/index.ts": {
-        "version": "5b0aa7b99f905b43ac1725a487341a1d8c287f2cb399436ffa0cf6be3ec80d29",
-        "signature": "9049728c9b9bf874a44eabe06c9c01738f12d02ae1a4c0d615efb64305e39fd7",
+        "version": "12a036cf88d08f43f102353f71f35a865e639f7979ac95cac687a487c8280477",
+        "signature": "f672df130660b04db6e701128e5a0f7395a71e4ae3c46f4b46872cd2bb4ab096",
         "affectsGlobalScope": false
       },
       "./node_modules/@nestjs/swagger/dist/decorators/api-basic.decorator.d.ts": {
@@ -5073,7 +5073,7 @@
       },
       "./src/domain/stock/dtos/stock-meta-response.dto.ts": {
         "version": "b08e60df0cb4d39c5acadefc62fd8a7178ad0d0887108e7a9a68a195dc75f1ca",
-        "signature": "188b138497eb213c900e639d85f92fc5719dc7525b678ca8d353f5721fd935bb",
+        "signature": "d88fae793ab6189300f2136eed823a81486868401997dd94ebb2401e074823c0",
         "affectsGlobalScope": false
       },
       "./src/common/constants/index.ts": {
@@ -5237,7 +5237,7 @@
         "affectsGlobalScope": false
       },
       "./src/domain/post/post.service.ts": {
-        "version": "ffadeab8ce3f8dc66768725ef9015539eb26b05b1058cf4895b612ef0aa65966",
+        "version": "35bc440d1cbcac7565068a9dcd9e1bc0c5acbe91ef03550ab6673370f332de66",
         "signature": "f1fc64dbcd33019bf373942f5913376a4a98eb154ff251d1b29251e0cfbf19d9",
         "affectsGlobalScope": false
       },
@@ -5307,7 +5307,7 @@
         "affectsGlobalScope": false
       },
       "./src/domain/post/post.controller.ts": {
-        "version": "11f38a6f4430389332d29d0ad907e72515e6cfbe0b38eb228a357d372fe327f0",
+        "version": "9e18bb5d428bc1b47ce9d6e93ce9d51dab4935a01b0fd9ebb39017aa06c4393c",
         "signature": "f137d9d492148f24a738ee8c3d939574c92c7cc2e3aed5a412daf1a26160bd71",
         "affectsGlobalScope": false
       },
@@ -5542,12 +5542,12 @@
         "affectsGlobalScope": false
       },
       "./src/domain/user/user.service.ts": {
-        "version": "63a7483f464d82faefea0ad457f7464b19af7fc391b3b632a45a61d65ad3504a",
+        "version": "9526867559ae26d7ea1fac47a3842fc33f0e50576856f025041a3e41f305ecc7",
         "signature": "fc3195c68b5e03b6371fcc375f28a2ef5c3f3fcfc1669c0c59ece4e1442000a3",
         "affectsGlobalScope": false
       },
       "./src/domain/auth/auth.service.ts": {
-        "version": "3eb2e930789378809c1b650b748853a8728ad8c2bf883f735312d1cdd447636a",
+        "version": "81e41f342b2e1212ffb30be1bcc583d532ae17c64797cec3d078df35cb123df9",
         "signature": "554fb9dfcf9a2440e4e52b400b7af2f552699517c61099db63298ab02ff06021",
         "affectsGlobalScope": false
       },
@@ -11727,11 +11727,13 @@
       ],
       "./src/domain/post/entities/link.entity.ts": [
         "./node_modules/typeorm/index.d.ts",
-        "./src/common/entities/core.entity.ts"
+        "./src/common/entities/core.entity.ts",
+        "./src/domain/post/entities/post.entity.ts"
       ],
       "./src/domain/post/entities/post-count.entity.ts": [
         "./node_modules/typeorm/index.d.ts",
-        "./src/common/entities/core.entity.ts"
+        "./src/common/entities/core.entity.ts",
+        "./src/domain/post/entities/post.entity.ts"
       ],
       "./src/domain/post/entities/post-img.entity.ts": [
         "./node_modules/typeorm/index.d.ts",
@@ -11801,7 +11803,8 @@
       ],
       "./src/domain/stock/entities/stock-count.entity.ts": [
         "./node_modules/typeorm/index.d.ts",
-        "./src/common/entities/core.entity.ts"
+        "./src/common/entities/core.entity.ts",
+        "./src/domain/stock/entities/stock.entity.ts"
       ],
       "./src/domain/stock/entities/stock-meta.entity.ts": [
         "./node_modules/typeorm/index.d.ts",
@@ -11866,7 +11869,8 @@
       ],
       "./src/domain/user/entities/user-count.entity.ts": [
         "./node_modules/typeorm/index.d.ts",
-        "./src/common/entities/core.entity.ts"
+        "./src/common/entities/core.entity.ts",
+        "./src/domain/user/entities/user.entity.ts"
       ],
       "./src/domain/user/entities/user.entity.ts": [
         "./node_modules/@nestjs/common/index.d.ts",
@@ -11906,6 +11910,7 @@
         "./node_modules/class-transformer/types/index.d.ts",
         "./node_modules/typeorm/index.d.ts",
         "./src/domain/user/dto/create-user.dto.ts",
+        "./src/domain/user/entities/user-count.entity.ts",
         "./src/domain/user/entities/user.entity.ts"
       ],
       "./src/infra/exception.filter.ts": [
@@ -17450,10 +17455,12 @@
         "./src/domain/post/entities/post.entity.ts"
       ],
       "./src/domain/post/entities/link.entity.ts": [
-        "./src/common/entities/core.entity.ts"
+        "./src/common/entities/core.entity.ts",
+        "./src/domain/post/entities/post.entity.ts"
       ],
       "./src/domain/post/entities/post-count.entity.ts": [
-        "./src/common/entities/core.entity.ts"
+        "./src/common/entities/core.entity.ts",
+        "./src/domain/post/entities/post.entity.ts"
       ],
       "./src/domain/post/entities/post-img.entity.ts": [
         "./src/common/entities/core.entity.ts",
@@ -17492,7 +17499,8 @@
         "./src/domain/stock/entities/stock.entity.ts"
       ],
       "./src/domain/stock/entities/stock-count.entity.ts": [
-        "./src/common/entities/core.entity.ts"
+        "./src/common/entities/core.entity.ts",
+        "./src/domain/stock/entities/stock.entity.ts"
       ],
       "./src/domain/stock/entities/stock-meta.entity.ts": [
         "./src/common/entities/core.entity.ts",
@@ -17534,7 +17542,8 @@
         "./src/domain/user/entities/user.entity.ts"
       ],
       "./src/domain/user/entities/user-count.entity.ts": [
-        "./src/common/entities/core.entity.ts"
+        "./src/common/entities/core.entity.ts",
+        "./src/domain/user/entities/user.entity.ts"
       ],
       "./src/domain/user/entities/user.entity.ts": [
         "./src/common/entities/core.entity.ts",
@@ -17590,9 +17599,6 @@
       "./src/sync/korea/syncbot.ts": [
         "./src/domain/stock/entities/stock.entity.ts",
         "./src/sync/korea/korea-stock.interface.ts"
-      ],
-      "./src/util/index.ts": [
-        "./node_modules/@types/open-graph-scraper/index.d.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [

@@ -5,7 +5,6 @@ import {
   Column,
   Entity,
   Index,
-  JoinColumn,
   ManyToMany,
   ManyToOne,
   OneToOne,
@@ -46,9 +45,7 @@ export class Stock extends CoreEntity {
   })
   type: StockType;
 
-  @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock, {
-    onDelete: 'CASCADE',
-  })
+  @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock)
   stockMeta: StockMeta;
 
   @RelationId((stock: Stock) => stock.exchange)
@@ -66,7 +63,6 @@ export class Stock extends CoreEntity {
   @ManyToMany(() => Post, (post) => post.stocks)
   posts: Post[];
 
-  @OneToOne(() => StockCount, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @OneToOne(() => StockCount, (c) => c.stock, { cascade: ['insert'] })
   stockCount: StockCount;
 }

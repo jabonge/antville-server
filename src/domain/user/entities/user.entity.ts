@@ -12,7 +12,6 @@ import {
   BeforeUpdate,
   OneToMany,
   OneToOne,
-  JoinColumn,
 } from 'typeorm';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Post } from '../../post/entities/post.entity';
@@ -76,8 +75,7 @@ export class User extends CoreEntity {
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
 
-  @OneToOne(() => UserCount, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @OneToOne(() => UserCount, (c) => c.user, { cascade: ['insert'] })
   userCount: UserCount;
 
   @BeforeInsert()

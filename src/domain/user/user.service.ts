@@ -4,6 +4,7 @@ import { User } from './entities/user.entity';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserCount } from './entities/user-count.entity';
 
 @Injectable()
 export class UserService {
@@ -13,7 +14,7 @@ export class UserService {
   ) {}
 
   async findByEmail(email: string) {
-    const user = this.userRepository.findOneOrFail(
+    const user = this.userRepository.findOne(
       { email },
       { select: ['id', 'password', 'email', 'name'] },
     );
@@ -67,6 +68,7 @@ export class UserService {
     }
 
     const user = plainToClass(CreateUserInput, input).toUser();
+    user.userCount = new UserCount();
     await this.userRepository.save(user);
     return;
   }

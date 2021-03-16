@@ -1,5 +1,6 @@
 import { CoreEntity } from '../../../common/entities/core.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity()
 export class UserCount extends CoreEntity {
@@ -32,4 +33,8 @@ export class UserCount extends CoreEntity {
     default: 0,
   })
   postLikeCount: number;
+
+  @OneToOne(() => User, (u) => u.userCount, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  user: User;
 }

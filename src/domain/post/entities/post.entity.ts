@@ -3,7 +3,6 @@ import { PostImg } from './post-img.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -42,17 +41,16 @@ export class Post extends CoreEntity {
   @OneToMany(() => PostImg, (img) => img.post, { cascade: ['insert'] })
   postImgs: PostImg[];
 
-  @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Post, (post) => post.comments)
   post: Post;
 
-  @OneToMany(() => Post, (p) => p.post)
+  @OneToMany(() => Post, (p) => p.post, { onDelete: 'CASCADE' })
   comments: Post[];
 
-  @OneToOne(() => PostLink, { onDelete: 'CASCADE', cascade: ['insert'] })
-  @JoinColumn()
+  @OneToOne(() => PostLink, (link) => link.post, { cascade: ['insert'] })
   link: PostLink;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, { onDelete: 'CASCADE' })
   @JoinTable({
     name: 'posts_likers',
     joinColumn: {
@@ -69,7 +67,10 @@ export class Post extends CoreEntity {
   @ManyToOne(() => User, (user) => user.posts)
   author: User;
 
-  @ManyToMany(() => Stock, (stock) => stock.posts, { cascade: ['insert'] })
+  @ManyToMany(() => Stock, (stock) => stock.posts, {
+    onDelete: 'CASCADE',
+    cascade: ['insert'],
+  })
   @JoinTable({
     name: 'posts_stocks',
     joinColumn: {
@@ -83,7 +84,6 @@ export class Post extends CoreEntity {
   })
   stocks: Stock[];
 
-  @OneToOne(() => PostCount, { onDelete: 'CASCADE', cascade: ['insert'] })
-  @JoinColumn()
+  @OneToOne(() => PostCount, (c) => c.post, { cascade: ['insert'] })
   postCount: PostCount;
 }

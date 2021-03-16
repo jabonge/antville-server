@@ -54,6 +54,9 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Email Not Exist');
+    }
     await user.checkPassword(password);
     delete user.password;
     return user;

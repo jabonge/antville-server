@@ -24,7 +24,7 @@ export class PostService {
   ) {
     let postImgs: PostImg[];
     let postLink: PostLink;
-    if (files) {
+    if (files.length > 0) {
       postImgs = [];
       files.forEach((f) => {
         const img = new PostImg();
@@ -37,10 +37,11 @@ export class PostService {
         const ogResult = await getOgTags(link);
         if (ogResult.ogImage) {
           postLink = new PostLink();
-          postLink.ogImage = ogResult.ogImage;
+          postLink.ogSiteName = ogResult.ogSiteName;
           postLink.ogTitle = ogResult.ogTitle;
           postLink.ogUrl = ogResult.ogUrl;
           postLink.ogDescription = ogResult.ogDescription;
+          postLink.ogImage = ogResult.ogImage;
         }
       }
     }
