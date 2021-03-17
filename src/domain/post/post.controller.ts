@@ -5,6 +5,9 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFiles,
+  Get,
+  Param,
+  Query,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -30,5 +33,14 @@ export class PostController {
     @Body() createPostDto: CreatePostDto,
   ) {
     return this.postService.createPost(createPostDto, user, files);
+  }
+
+  @Get(':id')
+  findAllPostBySymbol(
+    @Param('id') id: number,
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.postService.findAllPostBySymbol(+id, +cursor, +limit);
   }
 }

@@ -1,20 +1,18 @@
 import { PostLink } from './entities/link.entity';
 import { PostImg } from './entities/post-img.entity';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from './entities/post.entity';
 import { findCacheTags, findLinks, getOgTags } from '../../util';
 import { User } from '../user/entities/user.entity';
 import { PostCount } from './entities/post-count.entity';
 import { StockService } from '../stock/stock.service';
+import { PostRepository } from './repositories/post.repository';
 
 @Injectable()
 export class PostService {
   constructor(
-    @InjectRepository(Post)
-    private readonly postRepository: Repository<Post>,
+    private readonly postRepository: PostRepository,
     private readonly stockService: StockService,
   ) {}
   async createPost(
@@ -24,6 +22,7 @@ export class PostService {
   ) {
     let postImgs: PostImg[];
     let postLink: PostLink;
+    console.log(files);
     if (files.length > 0) {
       postImgs = [];
       files.forEach((f) => {
@@ -33,6 +32,7 @@ export class PostService {
       });
     } else if (!createPostDto.gifUrl) {
       const link = findLinks(createPostDto.body);
+      console.log(link);
       if (link) {
         const ogResult = await getOgTags(link);
         if (ogResult.ogImage) {
@@ -61,5 +61,14 @@ export class PostService {
     post.stocks = stocks;
     await this.postRepository.save(post);
     return;
+  }
+
+  async findAllPostBySymbol(stockId: number, cursor: number, limit: number) {
+    const posts = this.postRepository.findAllPostBySymbol(
+      stockId,
+      cursor,
+      limit,
+    );
+    return posts;
   }
 }
