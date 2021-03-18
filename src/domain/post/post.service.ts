@@ -8,10 +8,14 @@ import { User } from '../user/entities/user.entity';
 import { PostCount } from './entities/post-count.entity';
 import { StockService } from '../stock/stock.service';
 import { PostRepository } from './repositories/post.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 @Injectable()
 export class PostService {
   constructor(
+    @InjectRepository(PostCount)
+    private postCountRepository: Repository<PostCount>,
     private readonly postRepository: PostRepository,
     private readonly stockService: StockService,
   ) {}
@@ -22,7 +26,6 @@ export class PostService {
   ) {
     let postImgs: PostImg[];
     let postLink: PostLink;
-    console.log(files);
     if (files.length > 0) {
       postImgs = [];
       files.forEach((f) => {
@@ -32,7 +35,6 @@ export class PostService {
       });
     } else if (!createPostDto.gifUrl) {
       const link = findLinks(createPostDto.body);
-      console.log(link);
       if (link) {
         const ogResult = await getOgTags(link);
         if (ogResult.ogImage) {
@@ -53,22 +55,48 @@ export class PostService {
     post.postCount = new PostCount();
     post.postImgs = postImgs;
     post.link = postLink;
-    const cashTags = findCacheTags(createPostDto.body);
-    let stocks;
-    if (cashTags.length > 0) {
-      stocks = await this.stockService.getStocks(cashTags);
+    if (createPostDto.postId) {
+      const parent = await this.postRepository.findOneOrFail(
+        createPostDto.postId,
+        {
+          select: ['id'],
+          where: {
+            postId: IsNull(),
+          },
+        },
+      );
+      post.postId = parent.id;
+      await this.postCountRepository.increment(
+        {
+          postId: parent.id,
+        },
+        'commentCount',
+        1,
+      );
+    } else {
+      const cashTags = findCacheTags(createPostDto.body);
+      let stocks;
+      if (cashTags.length > 0) {
+        stocks = await this.stockService.getStocks(cashTags);
+      }
+      post.stocks = stocks;
     }
-    post.stocks = stocks;
     await this.postRepository.save(post);
     return;
   }
 
-  async findAllPostBySymbol(stockId: number, cursor: number, limit: number) {
-    const posts = this.postRepository.findAllPostBySymbol(
-      stockId,
-      cursor,
-      limit,
-    );
-    return posts;
+  async getComments(postId: number, cursor: number, limit: number) {
+    return this.postRepository.getComments(postId, cursor, limit);
   }
+
+  async findAllPostBySymbol(stockId: number, cursor: number, limit: number) {
+    return this.postRepository.findAllPostBySymbol(stockId, cursor, limit);
+  }
+
+  // async findAllPostByFollowings(
+  //   userId: number,
+  //   cursor: number,
+  //   limit: number,
+  // ) {}
+  // async findAllPostByWatchList(userId: number, cursor: number, limit: number) {}
 }

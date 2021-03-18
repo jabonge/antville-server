@@ -15,14 +15,10 @@ import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { User } from '../user/entities/user.entity';
-import { StockService } from '../stock/stock.service';
 
 @Controller('post')
 export class PostController {
-  constructor(
-    private readonly postService: PostService,
-    private readonly stockService: StockService,
-  ) {}
+  constructor(private readonly postService: PostService) {}
 
   @Post('create')
   @UseGuards(JwtAuthGuard)
@@ -42,5 +38,14 @@ export class PostController {
     @Query('limit') limit: string,
   ) {
     return this.postService.findAllPostBySymbol(+id, +cursor, +limit);
+  }
+
+  @Get(':id/comment')
+  findAllComment(
+    @Param('id') id: number,
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.postService.getComments(+id, +cursor, +limit);
   }
 }

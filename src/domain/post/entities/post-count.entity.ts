@@ -16,7 +16,10 @@ export class PostCount extends CoreEntity {
   })
   commentCount: number;
 
+  @Column({ type: 'int', nullable: true, select: false })
+  postId: number | null;
+
   @OneToOne(() => Post, (p) => p.postCount, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'postId' })
   post: Post;
 }

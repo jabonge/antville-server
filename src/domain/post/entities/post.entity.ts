@@ -3,6 +3,7 @@ import { PostImg } from './post-img.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -41,7 +42,11 @@ export class Post extends CoreEntity {
   @OneToMany(() => PostImg, (img) => img.post, { cascade: ['insert'] })
   postImgs: PostImg[];
 
+  @Column({ type: 'int', nullable: true, select: false })
+  postId: number | null;
+
   @ManyToOne(() => Post, (post) => post.comments)
+  @JoinColumn({ name: 'postId' })
   post: Post;
 
   @OneToMany(() => Post, (p) => p.post, { onDelete: 'CASCADE' })
