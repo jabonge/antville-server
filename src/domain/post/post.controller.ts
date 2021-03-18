@@ -8,6 +8,7 @@ import {
   Get,
   Param,
   Query,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -15,13 +16,16 @@ import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { User } from '../user/entities/user.entity';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('post')
+@ApiTags('post')
+@UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard)
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('create')
-  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FilesInterceptor('posts'))
   create(
     @CurrentUser() user: User,
@@ -31,13 +35,23 @@ export class PostController {
     return this.postService.createPost(createPostDto, user, files);
   }
 
-  @Get(':id')
+  @Get(':id/symbol')
   findAllPostBySymbol(
     @Param('id') id: number,
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
+    @CurrentUser() user: User,
   ) {
-    return this.postService.findAllPostBySymbol(+id, +cursor, +limit);
+    return this.postService.findAllPostBySymbol(+id, user.id, +cursor, +limit);
+  }
+
+  @Get('watchList')
+  findAllPostByWatchList(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.postService.findAllPostByWatchList(user.id, +cursor, +limit);
   }
 
   @Get(':id/comment')
@@ -45,7 +59,8 @@ export class PostController {
     @Param('id') id: number,
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
+    @CurrentUser() user: User,
   ) {
-    return this.postService.getComments(+id, +cursor, +limit);
+    return this.postService.getComments(+id, user.id, +cursor, +limit);
   }
 }

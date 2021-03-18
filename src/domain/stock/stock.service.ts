@@ -36,8 +36,8 @@ export class StockService {
     return stocks;
   }
 
-  async getWatchList(userId: number) {
-    const stocks = await this.stockRepository.getWatchList(userId);
+  async getWatchListWithStockMeta(userId: number) {
+    const stocks = await this.getWatchList(userId);
     const symbols = stocks.map((v) => v.symbol);
     const stockMetas = (await this.client.getStockMetas(
       symbols,
@@ -47,5 +47,9 @@ export class StockService {
       stocks,
       stockMetas,
     };
+  }
+
+  async getWatchList(userId: number) {
+    return this.stockRepository.getWatchList(userId);
   }
 }

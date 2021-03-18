@@ -22,7 +22,7 @@ export class StockController {
   @UseGuards(JwtAuthGuard)
   @Get('watchList')
   getWatchList(@CurrentUser() user: User): Promise<GetStocksResponseDto> {
-    return this.stockService.getWatchList(user.id);
+    return this.stockService.getWatchListWithStockMeta(user.id);
   }
 
   @Get(':symbol')

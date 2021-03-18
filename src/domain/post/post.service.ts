@@ -85,12 +85,27 @@ export class PostService {
     return;
   }
 
-  async getComments(postId: number, cursor: number, limit: number) {
-    return this.postRepository.getComments(postId, cursor, limit);
+  async getComments(
+    postId: number,
+    userId: number,
+    cursor: number,
+    limit: number,
+  ) {
+    return this.postRepository.getComments(postId, userId, cursor, limit);
   }
 
-  async findAllPostBySymbol(stockId: number, cursor: number, limit: number) {
-    return this.postRepository.findAllPostBySymbol(stockId, cursor, limit);
+  async findAllPostBySymbol(
+    stockId: number,
+    userId: number,
+    cursor: number,
+    limit: number,
+  ) {
+    return this.postRepository.findAllPostBySymbol(
+      stockId,
+      userId,
+      cursor,
+      limit,
+    );
   }
 
   // async findAllPostByFollowings(
@@ -98,5 +113,18 @@ export class PostService {
   //   cursor: number,
   //   limit: number,
   // ) {}
-  // async findAllPostByWatchList(userId: number, cursor: number, limit: number) {}
+  async findAllPostByWatchList(userId: number, cursor: number, limit: number) {
+    const stocks = await this.stockService.getWatchList(userId);
+    if (stocks.length <= 0) {
+      return [];
+    }
+    const stockIds = stocks.map((s) => s.id);
+    return this.postRepository.findAllPostByWatchList(
+      stockIds,
+      userId,
+      cursor,
+      limit,
+    );
+  }
+  //deletePost
 }

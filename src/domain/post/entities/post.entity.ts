@@ -14,6 +14,7 @@ import { CoreEntity } from './../../../common/entities/core.entity';
 import { User } from '../../user/entities/user.entity';
 import { Stock } from '../../stock/entities/stock.entity';
 import { PostCount } from './post-count.entity';
+import { Exclude, Expose } from 'class-transformer';
 
 export enum Sentiment {
   UP = 'UP',
@@ -67,6 +68,7 @@ export class Post extends CoreEntity {
       referencedColumnName: 'id',
     },
   })
+  @Exclude()
   likers: User[];
 
   @ManyToOne(() => User, (user) => user.posts)
@@ -91,4 +93,9 @@ export class Post extends CoreEntity {
 
   @OneToOne(() => PostCount, (c) => c.post, { cascade: ['insert'] })
   postCount: PostCount;
+
+  @Expose({ name: 'isLikedSelf' })
+  isLikedSelf() {
+    return this.likers.length === 1;
+  }
 }
