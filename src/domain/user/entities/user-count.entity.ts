@@ -34,7 +34,12 @@ export class UserCount extends CoreEntity {
   })
   postLikeCount: number;
 
+  @Column({ type: 'int', nullable: true, select: false })
+  userId: number | null;
+
   @OneToOne(() => User, (u) => u.userCount, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({
+    name: 'userId',
+  })
   user: User;
 }

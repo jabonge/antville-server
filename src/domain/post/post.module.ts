@@ -1,3 +1,4 @@
+import { UserModule } from './../user/user.module';
 import { PostLink } from './entities/link.entity';
 import { PostImg } from './entities/post-img.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -19,6 +20,7 @@ import { PostRepository } from './repositories/post.repository';
       inject: [ConfigService],
     }),
     StockModule,
+    UserModule,
   ],
   controllers: [PostController],
   providers: [PostService],

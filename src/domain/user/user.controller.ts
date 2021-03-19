@@ -33,21 +33,35 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('addWatchList/:id')
-  async addWatchList(@CurrentUser() user: User, @Param() params) {
-    const stock = await this.stockService.findById(params.id);
-    user.stocks = [stock];
-    await this.userService.save(user);
+  async addWatchList(@CurrentUser() user: User, @Param('id') id: string) {
+    const stock = await this.stockService.findById(+id);
+    if (!stock) {
+      throw new BadRequestException('Stock Not Found');
+    }
+    await this.userService.addWatchList(stock.id, user.id);
     return;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('removeWatchList/:id')
-  async removeWatchList(@CurrentUser() user: User, @Param() params) {
-    const stock = await this.stockService.findById(params.id);
+  async removeWatchList(@CurrentUser() user: User, @Param('id') id: string) {
+    const stock = await this.stockService.findById(+id);
     if (!stock) {
       throw new BadRequestException('Stock Not Found');
     }
     await this.userService.removeWatchList(stock.id, user.id);
     return;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('follow/:id')
+  async followUser(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.userService.followUser(user.id, +id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('unFollow/:id')
+  async unFollowUser(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.userService.unFollowUser(user.id, +id);
   }
 }

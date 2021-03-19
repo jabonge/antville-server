@@ -10,6 +10,7 @@ import { StockService } from '../stock/stock.service';
 import { PostRepository } from './repositories/post.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class PostService {
@@ -18,6 +19,7 @@ export class PostService {
     private postCountRepository: Repository<PostCount>,
     private readonly postRepository: PostRepository,
     private readonly stockService: StockService,
+    private readonly userService: UserService,
   ) {}
   async createPost(
     createPostDto: CreatePostDto,
@@ -82,6 +84,7 @@ export class PostService {
       post.stocks = stocks;
     }
     await this.postRepository.save(post);
+    await this.userService.incrementUserCount(user.id, 'postCount');
     return;
   }
 
@@ -108,11 +111,20 @@ export class PostService {
     );
   }
 
-  // async findAllPostByFollowings(
-  //   userId: number,
-  //   cursor: number,
-  //   limit: number,
-  // ) {}
+  async findAllPostByFollowing(userId: number, cursor: number, limit: number) {
+    const users = await this.userService.findFollwingIds(userId);
+    const userIds = users.map((u) => u.id);
+    if (userIds.length <= 0) {
+      return [];
+    }
+    return this.postRepository.findAllPostByFollowing(
+      userIds,
+      userId,
+      cursor,
+      limit,
+    );
+  }
+
   async findAllPostByWatchList(userId: number, cursor: number, limit: number) {
     const stocks = await this.stockService.getWatchList(userId);
     if (stocks.length <= 0) {
@@ -126,5 +138,29 @@ export class PostService {
       limit,
     );
   }
-  //deletePost
+
+  async findAllMyPost(userId: number, cursor: number, limit: number) {
+    return this.postRepository.findAllMyPost(userId, cursor, limit);
+  }
+
+  async findAllLikedPost(userId: number, cursor: number, limit: number) {
+    return this.postRepository.findAllLikedPost(userId, cursor, limit);
+  }
+
+  async deletePost(userId: number, postId: number) {
+    return this.postRepository.delete({
+      authorId: userId,
+      postId: postId,
+    });
+  }
+
+  //likePost User:postLikeCount, Post:likeCount
+  //unlikePost User:postLikeCount, Post:likeCount
+  async likePost(userId: number, postId: number) {
+    return;
+  }
+
+  async unLikePost(userId: number, postId: number) {
+    return;
+  }
 }

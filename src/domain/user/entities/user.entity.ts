@@ -56,24 +56,27 @@ export class User extends CoreEntity {
   stocks: Stock[];
 
   @ManyToMany(() => User, (user) => user.following)
+  followers: User[];
+
+  @ManyToMany(() => User, (user) => user.followers)
   @JoinTable({
-    name: 'follow',
+    name: 'users_follows',
     joinColumn: {
       name: 'followerId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'follwingId',
+      name: 'followingId',
       referencedColumnName: 'id',
     },
   })
-  followers: User[];
-
-  @ManyToMany(() => User, (user) => user.followers)
   following: User[];
 
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
+
+  @ManyToMany(() => Post, (post) => post.likers)
+  likePosts: Post[];
 
   @OneToOne(() => UserCount, (c) => c.user, { cascade: ['insert'] })
   userCount: UserCount;

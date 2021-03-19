@@ -71,7 +71,11 @@ export class Post extends CoreEntity {
   @Exclude()
   likers: User[];
 
+  @Column({ type: 'int', nullable: true, select: false })
+  authorId: number | null;
+
   @ManyToOne(() => User, (user) => user.posts)
+  @JoinColumn({ name: 'authorId' })
   author: User;
 
   @ManyToMany(() => Stock, (stock) => stock.posts, {

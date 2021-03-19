@@ -9,6 +9,7 @@ import {
   Param,
   Query,
   ClassSerializerInterceptor,
+  Delete,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -54,13 +55,27 @@ export class PostController {
     return this.postService.findAllPostByWatchList(user.id, +cursor, +limit);
   }
 
+  @Get('following')
+  findAllPostByFollowing(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.postService.findAllPostByFollowing(user.id, +cursor, +limit);
+  }
+
   @Get(':id/comment')
   findAllComment(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
     @CurrentUser() user: User,
   ) {
     return this.postService.getComments(+id, user.id, +cursor, +limit);
+  }
+
+  @Delete(':id')
+  deletePost(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.postService.deletePost(user.id, +id);
   }
 }

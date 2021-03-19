@@ -55,6 +55,32 @@ export class PostRepository extends Repository<Post> {
     return query.getMany();
   }
 
+  async findAllPostByFollowing(
+    followingIds: number[],
+    userId: number,
+    cursor: number,
+    limit: number,
+  ) {
+    const query = this.createQueryBuilder('p')
+      .innerJoin('p.author', 'author', 'author.id IN (:ids)', {
+        ids: followingIds.join(','),
+      })
+      .addSelect(['author.id', 'author.nickname', 'author.profileImg'])
+      .leftJoin('p.postImgs', 'postImg')
+      .addSelect('postImg.image')
+
+      .leftJoin('p.postCount', 'postCount')
+      .addSelect(['postCount.likeCount', 'postCount.commentCount'])
+      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+      .addSelect(['u.id'])
+      .leftJoinAndSelect('p.link', 'link')
+      .take(limit);
+    if (cursor) {
+      query.andWhere('p.id < :cursor', { cursor });
+    }
+    return query.getMany();
+  }
+
   async getComments(
     postId: number,
     userId: number,
@@ -76,6 +102,44 @@ export class PostRepository extends Repository<Post> {
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
     }
+    return query.getMany();
+  }
+
+  async findAllMyPost(userId: number, cursor: number, limit: number) {
+    const query = this.createQueryBuilder('p')
+      .where('p.authorId = :id', { id: userId })
+      .leftJoin('p.postImgs', 'postImg')
+      .addSelect('postImg.image')
+      .leftJoin('p.author', 'author')
+      .addSelect(['author.id', 'author.nickname', 'author.profileImg'])
+      .leftJoin('p.postCount', 'postCount')
+      .addSelect(['postCount.likeCount'])
+      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+      .addSelect(['u.id'])
+      .leftJoinAndSelect('p.link', 'link')
+      .take(limit);
+    if (cursor) {
+      query.andWhere('p.id < :cursor', { cursor });
+    }
+    return query.getMany();
+  }
+  async findAllLikedPost(userId: number, cursor: number, limit: number) {
+    const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
+    const query = this.createQueryBuilder('p')
+      .innerJoin(
+        `(SELECT userId FROM posts_likers pl WHERE userId = ${userId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        'pl',
+        'p.id = pl.postId',
+      )
+      .leftJoin('p.postImgs', 'postImg')
+      .addSelect('postImg.image')
+      .leftJoin('p.author', 'author')
+      .addSelect(['author.id', 'author.nickname', 'author.profileImg'])
+      .leftJoin('p.postCount', 'postCount')
+      .addSelect(['postCount.likeCount', 'postCount.commentCount'])
+      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+      .addSelect(['u.id'])
+      .leftJoinAndSelect('p.link', 'link');
     return query.getMany();
   }
 }
