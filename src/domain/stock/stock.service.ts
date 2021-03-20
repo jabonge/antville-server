@@ -17,8 +17,8 @@ export class StockService {
     });
   }
 
-  async search(query: string) {
-    const stocks = await this.stockRepository.searchStock(query);
+  async search(query: string, cursor: number, limit: number) {
+    const stocks = await this.stockRepository.searchStock(query, cursor, limit);
     return stocks;
   }
 

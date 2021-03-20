@@ -22,7 +22,9 @@ export enum StockType {
 @Entity()
 @Index(['enName', 'krName'], { fulltext: true, parser: 'NGRAM' })
 export class Stock extends CoreEntity {
-  @Index({ fulltext: true })
+  @Index({
+    unique: true,
+  })
   @Column({
     length: 12,
   })

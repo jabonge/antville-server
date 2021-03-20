@@ -8,15 +8,13 @@ import { User } from '../user/entities/user.entity';
 import { PostCount } from './entities/post-count.entity';
 import { StockService } from '../stock/stock.service';
 import { PostRepository } from './repositories/post.repository';
-import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { Connection, IsNull } from 'typeorm';
 import { UserService } from '../user/user.service';
 
 @Injectable()
 export class PostService {
   constructor(
-    @InjectRepository(PostCount)
-    private postCountRepository: Repository<PostCount>,
+    private connection: Connection,
     private readonly postRepository: PostRepository,
     private readonly stockService: StockService,
     private readonly userService: UserService,
@@ -57,34 +55,35 @@ export class PostService {
     post.postCount = new PostCount();
     post.postImgs = postImgs;
     post.link = postLink;
-    if (createPostDto.postId) {
-      const parent = await this.postRepository.findOneOrFail(
-        createPostDto.postId,
-        {
+    await this.connection.transaction(async (manager) => {
+      if (createPostDto.postId) {
+        const parent = await manager.findOneOrFail(Post, createPostDto.postId, {
           select: ['id'],
           where: {
             postId: IsNull(),
           },
-        },
-      );
-      post.postId = parent.id;
-      await this.postCountRepository.increment(
-        {
-          postId: parent.id,
-        },
-        'commentCount',
-        1,
-      );
-    } else {
-      const cashTags = findCacheTags(createPostDto.body);
-      let stocks;
-      if (cashTags.length > 0) {
-        stocks = await this.stockService.getStocks(cashTags);
+        });
+        post.postId = parent.id;
+        await manager.increment(
+          PostCount,
+          {
+            postId: parent.id,
+          },
+          'commentCount',
+          1,
+        );
+      } else {
+        const cashTags = findCacheTags(createPostDto.body);
+        let stocks;
+        if (cashTags.length > 0) {
+          stocks = await this.stockService.getStocks(cashTags);
+        }
+        post.stocks = stocks;
       }
-      post.stocks = stocks;
-    }
-    await this.postRepository.save(post);
-    await this.userService.incrementUserCount(user.id, 'postCount');
+      await manager.save(post);
+      await this.userService.incrementUserCount(manager, user.id, 'postCount');
+    });
+
     return;
   }
 
@@ -154,13 +153,51 @@ export class PostService {
     });
   }
 
-  //likePost User:postLikeCount, Post:likeCount
-  //unlikePost User:postLikeCount, Post:likeCount
   async likePost(userId: number, postId: number) {
+    await this.connection.transaction(async (manager) => {
+      await manager
+        .createQueryBuilder(Post, 'p')
+        .relation('likers')
+        .of(postId)
+        .add(userId);
+      await manager.increment(
+        PostCount,
+        {
+          postId,
+        },
+        'likeCount',
+        1,
+      );
+      await this.userService.incrementUserCount(
+        manager,
+        userId,
+        'postLikeCount',
+      );
+    });
     return;
   }
 
   async unLikePost(userId: number, postId: number) {
+    await this.connection.transaction(async (manager) => {
+      await manager
+        .createQueryBuilder(Post, 'p')
+        .relation('likers')
+        .of(postId)
+        .remove(userId);
+      await manager.decrement(
+        PostCount,
+        {
+          postId,
+        },
+        'likeCount',
+        1,
+      );
+      await this.userService.decrementUserCount(
+        manager,
+        userId,
+        'postLikeCount',
+      );
+    });
     return;
   }
 }

@@ -1,10 +1,11 @@
 import { plainToClass } from 'class-transformer';
 import { CreateUserInput } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, Repository } from 'typeorm';
+import { Connection, EntityManager, Repository } from 'typeorm';
 import { UserCount } from './entities/user-count.entity';
+import { EditProfileDto } from './dto/edit-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -12,8 +13,6 @@ export class UserService {
     private connection: Connection,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(UserCount)
-    private userCountRepository: Repository<UserCount>,
   ) {}
 
   async findByEmail(email: string) {
@@ -39,23 +38,31 @@ export class UserService {
     return userAndStocks;
   }
 
-  async removeWatchList(stockId: number, userId: number) {
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'stocks')
-      .of(stockId)
-      .remove(userId);
-    await this.decrementUserCount(userId, 'watchStockCount');
+  async removeWatchList(userId: number, stockId: number) {
+    await this.connection.transaction(async (manager) => {
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'stocks')
+        .of(userId)
+        .remove(stockId);
+      await this.decrementUserCount(manager, userId, 'watchStockCount');
+    });
     return;
   }
 
-  async addWatchList(stockId: number, userId: number) {
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'stocks')
-      .of(stockId)
-      .add(userId);
-    await this.incrementUserCount(userId, 'watchStockCount');
+  async addWatchList(userId: number, stockId: number) {
+    await this.connection.transaction(async (manager) => {
+      const userCount = await manager.findOne(UserCount, { userId });
+      if (userCount.watchStockCount >= 20) {
+        throw new BadRequestException('WatchList Limit Exceed');
+      }
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'stocks')
+        .of(userId)
+        .add(stockId);
+      await this.incrementUserCount(manager, userId, 'watchStockCount');
+    });
     return;
   }
 
@@ -73,13 +80,13 @@ export class UserService {
       email: input.email,
     });
     if (duplicatedEmailUser) {
-      throw new HttpException('Email is duplicated', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Email is duplicated');
     }
     const duplicatedNicknameUser = await this.userRepository.findOne({
       nickname: input.nickname,
     });
     if (duplicatedNicknameUser) {
-      throw new HttpException('Nickname is duplicated', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Nickname is duplicated');
     }
 
     const user = plainToClass(CreateUserInput, input).toUser();
@@ -104,22 +111,8 @@ export class UserService {
         .relation(User, 'following')
         .of(myId)
         .add(userId);
-      await manager.increment(
-        UserCount,
-        {
-          userId: myId,
-        },
-        'following',
-        1,
-      );
-      await manager.increment(
-        UserCount,
-        {
-          userId: userId,
-        },
-        'followers',
-        1,
-      );
+      await this.incrementUserCount(manager, myId, 'following');
+      await this.incrementUserCount(manager, userId, 'followers');
     });
     return;
   }
@@ -134,28 +127,89 @@ export class UserService {
         .relation(User, 'following')
         .of(myId)
         .remove(userId);
-      await manager.decrement(
-        UserCount,
-        {
-          userId: myId,
-        },
-        'following',
-        1,
-      );
-      await manager.decrement(
-        UserCount,
-        {
-          userId: userId,
-        },
-        'followers',
-        1,
-      );
+      await this.decrementUserCount(manager, myId, 'following');
+      await this.decrementUserCount(manager, userId, 'followers');
     });
     return;
   }
 
-  incrementUserCount(userId: number, property: string) {
-    return this.userCountRepository.increment(
+  searchUser(query: string, cursor: number, limit: number) {
+    const dbQuery = this.userRepository
+      .createQueryBuilder()
+      .select(['id', 'nickname', 'name', 'profileImg'])
+      .orWhere(`name LIKE ${query}%`)
+      .orWhere(`MATCH(nickname) AGAINST ('*${query}*' IN BOOLEAN MODE)`)
+      .take(limit);
+    if (cursor) {
+      dbQuery.andWhere('id < :cursor', { cursor });
+    }
+    return dbQuery.getMany();
+  }
+
+  async editProfile(userId: number, editProfileDto: EditProfileDto) {
+    if (editProfileDto.nickname) {
+      const nicknameUser = await this.userRepository.findOne({
+        nickname: editProfileDto.nickname,
+      });
+      if (nicknameUser) {
+        throw new BadRequestException('Nickname is duplicated');
+      } else if (!editProfileDto.bio) {
+        return this.userRepository.update(
+          {
+            id: userId,
+          },
+          {
+            nickname: editProfileDto.nickname,
+          },
+        );
+      } else {
+        return this.userRepository.update(
+          {
+            id: userId,
+          },
+          {
+            nickname: editProfileDto.nickname,
+            bio: editProfileDto.bio,
+          },
+        );
+      }
+    } else {
+      return this.userRepository.update(
+        {
+          id: userId,
+        },
+        {
+          bio: editProfileDto.bio,
+        },
+      );
+    }
+  }
+
+  updateProfileImg(userId: number, profileImg: Express.MulterS3.File) {
+    return this.userRepository.update(
+      {
+        id: userId,
+      },
+      {
+        profileImg: profileImg.location,
+      },
+    );
+  }
+
+  removeProfileImg(userId: number) {
+    return this.userRepository.update(
+      {
+        id: userId,
+      },
+      {
+        profileImg: null,
+      },
+    );
+  }
+
+  incrementUserCount(manager: EntityManager, userId: number, property: string) {
+    return manager.increment(
+      UserCount,
       {
         userId,
       },
@@ -164,8 +218,9 @@ export class UserService {
     );
   }
 
-  decrementUserCount(userId: number, property: string) {
-    return this.userCountRepository.decrement(
+  decrementUserCount(manager: EntityManager, userId: number, property: string) {
+    return manager.decrement(
+      UserCount,
       {
         userId,
       },

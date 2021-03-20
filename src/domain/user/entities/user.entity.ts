@@ -19,6 +19,7 @@ import { UserCount } from './user-count.entity';
 
 @Entity()
 export class User extends CoreEntity {
+  @Index()
   @Column({
     length: 20,
   })

@@ -78,4 +78,14 @@ export class PostController {
   deletePost(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.deletePost(user.id, +id);
   }
+
+  @Get(':id/likePost')
+  likePost(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.postService.likePost(user.id, +id);
+  }
+
+  @Get(':id/unLikePost')
+  unLikePost(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.postService.unLikePost(user.id, +id);
+  }
 }

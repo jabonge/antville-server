@@ -14,14 +14,22 @@ export class StockRepository extends Repository<Stock> {
       .getMany();
   }
 
-  async searchStock(query: string): Promise<Stock[]> {
-    return this.createQueryBuilder()
+  async searchStock(
+    query: string,
+    cursor: number,
+    limit: number,
+  ): Promise<Stock[]> {
+    const dbQuery = this.createQueryBuilder()
       .select()
-      .where(`MATCH(symbol) AGAINST ('+${query}' IN BOOLEAN MODE)`)
+      .orWhere(`symbol LIKE ${query}%`)
       .orWhere(
         `MATCH(enName,krName) AGAINST ('*${query}* *${query}*' IN BOOLEAN MODE)`,
       )
-      .getMany();
+      .take(limit);
+    if (cursor) {
+      dbQuery.andWhere('id < :cursor', { cursor });
+    }
+    return dbQuery.getMany();
   }
 
   async getWatchList(userId: number): Promise<Stock[]> {

@@ -68,7 +68,6 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['author.id', 'author.nickname', 'author.profileImg'])
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })

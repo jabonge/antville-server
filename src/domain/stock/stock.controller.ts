@@ -6,7 +6,7 @@ import {
   GetStocksResponseDto,
 } from './dtos/get-stock.dto';
 import { StockService } from './stock.service';
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -15,8 +15,12 @@ import { ApiTags } from '@nestjs/swagger';
 export class StockController {
   constructor(private readonly stockService: StockService) {}
   @Get(':query/search')
-  search(@Param('query') query: string): Promise<Stock[]> {
-    return this.stockService.search(query);
+  search(
+    @Param('query') query: string,
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+  ): Promise<Stock[]> {
+    return this.stockService.search(query, +cursor, +limit);
   }
 
   @UseGuards(JwtAuthGuard)

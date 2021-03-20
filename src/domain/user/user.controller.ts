@@ -1,3 +1,4 @@
+import { EditProfileDto } from './dto/edit-profile.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.dto';
@@ -13,9 +14,13 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('user')
 @Controller('user')
@@ -38,7 +43,7 @@ export class UserController {
     if (!stock) {
       throw new BadRequestException('Stock Not Found');
     }
-    await this.userService.addWatchList(stock.id, user.id);
+    await this.userService.addWatchList(user.id, stock.id);
     return;
   }
 
@@ -49,7 +54,7 @@ export class UserController {
     if (!stock) {
       throw new BadRequestException('Stock Not Found');
     }
-    await this.userService.removeWatchList(stock.id, user.id);
+    await this.userService.removeWatchList(user.id, stock.id);
     return;
   }
 
@@ -63,5 +68,32 @@ export class UserController {
   @Get('unFollow/:id')
   async unFollowUser(@CurrentUser() user: User, @Param('id') id: string) {
     return this.userService.unFollowUser(user.id, +id);
+  }
+
+  @Get('search')
+  async searchUser(query: string, cursor: string, limit: number) {
+    return this.userService.searchUser(query, +cursor, +limit);
+  }
+
+  @Put('updateProfileImg')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('profiles'))
+  async updatePropfileImg(
+    @CurrentUser() user: User,
+    @UploadedFile() profileImg: Express.MulterS3.File,
+  ) {
+    return this.userService.updateProfileImg(user.id, profileImg);
+  }
+
+  @Put('removeProfileImg')
+  @UseGuards(JwtAuthGuard)
+  async removePropfileImg(@CurrentUser() user: User) {
+    return this.userService.removeProfileImg(user.id);
+  }
+
+  @Put('editProfile')
+  @UseGuards(JwtAuthGuard)
+  async editProfile(@CurrentUser() user: User, editProfileDto: EditProfileDto) {
+    return this.userService.editProfile(user.id, editProfileDto);
   }
 }
