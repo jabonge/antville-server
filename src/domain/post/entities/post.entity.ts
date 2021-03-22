@@ -100,6 +100,6 @@ export class Post extends CoreEntity {
 
   @Expose({ name: 'isLikedSelf' })
   isLikedSelf() {
-    return this.likers.length === 1;
+    return this.likers?.length === 1;
   }
 }

@@ -1,6 +1,6 @@
 import { PostLink } from './entities/link.entity';
 import { PostImg } from './entities/post-img.entity';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from './entities/post.entity';
 import { findCacheTags, findLinks, getOgTags } from '../../util';
@@ -10,11 +10,16 @@ import { StockService } from '../stock/stock.service';
 import { PostRepository } from './repositories/post.repository';
 import { Connection, IsNull } from 'typeorm';
 import { UserService } from '../user/user.service';
+import { NEW_POST, PUB_SUB } from '../../common/constants/pubsub.constants';
+import { PubSub } from '../../common/interfaces/pub_sub.interface';
+import { classToPlain } from 'class-transformer';
 
 @Injectable()
 export class PostService {
   constructor(
     private connection: Connection,
+    @Inject(PUB_SUB)
+    private readonly pubsub: PubSub,
     private readonly postRepository: PostRepository,
     private readonly stockService: StockService,
     private readonly userService: UserService,
@@ -82,8 +87,13 @@ export class PostService {
       }
       await manager.save(post);
       await this.userService.incrementUserCount(manager, user.id, 'postCount');
+      if (post.stocks.length > 0) {
+        this.pubsub.publisher.publish(
+          NEW_POST,
+          JSON.stringify(classToPlain(post)),
+        );
+      }
     });
-
     return;
   }
 

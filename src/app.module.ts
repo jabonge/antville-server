@@ -7,6 +7,7 @@ import { FinancialApiModule } from './lib/financial-api/financial-api.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommonModule } from './common/common.module';
 import { UserModule } from './domain/user/user.module';
+import { AppGateway } from './app.gateway';
 
 @Module({
   imports: [
@@ -34,6 +35,6 @@ import { UserModule } from './domain/user/user.module';
     PostModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [AppGateway],
 })
 export class AppModule {}

@@ -1,4 +1,3 @@
-import { StockGateway } from './stock.gateway';
 import { StockRepository } from './repositories/stock.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FinancialApiModule } from '../../lib/financial-api/financial-api.module';
@@ -8,7 +7,7 @@ import { StockController } from './stock.controller';
 
 @Module({
   imports: [FinancialApiModule, TypeOrmModule.forFeature([StockRepository])],
-  providers: [StockService, StockGateway],
+  providers: [StockService],
   exports: [StockService],
   controllers: [StockController],
 })

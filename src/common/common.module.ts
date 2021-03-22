@@ -5,6 +5,7 @@ import { Global, Module } from '@nestjs/common';
 import redis from 'redis';
 import { RedisClientWrapper } from './providers/redis-client.service';
 import { JwtModule } from '@nestjs/jwt';
+import { PubSub } from './interfaces/pub_sub.interface';
 
 @Global()
 @Module({
@@ -24,11 +25,14 @@ import { JwtModule } from '@nestjs/jwt';
   ],
   providers: [
     {
-      provide: 'PUB_SUB',
-      useFactory: (configService: ConfigService) => {
+      provide: PUB_SUB,
+      useFactory: (configService: ConfigService): PubSub => {
         const host = configService.get<string>('REDIS_HOST');
         const port = configService.get<number>('REDIS_PORT');
-        return redis.createClient(port, host);
+        return {
+          publisher: redis.createClient(port, host),
+          subscriber: redis.createClient(port, host),
+        };
       },
       inject: [ConfigService],
     },
