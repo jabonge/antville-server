@@ -21,7 +21,7 @@ export class StockRepository extends Repository<Stock> {
   ): Promise<Stock[]> {
     const dbQuery = this.createQueryBuilder()
       .select()
-      .orWhere(`symbol LIKE ${query}%`)
+      .orWhere(`symbol LIKE '${query}%'`)
       .orWhere(
         `MATCH(enName,krName) AGAINST ('*${query}* *${query}*' IN BOOLEAN MODE)`,
       )
