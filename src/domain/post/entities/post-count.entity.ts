@@ -1,9 +1,21 @@
-import { CoreEntity } from './../../../common/entities/core.entity';
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Post } from './post.entity';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 @Entity()
-export class PostCount extends CoreEntity {
+export class PostCount {
+  @ApiHideProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column({
     type: 'int',
     default: 0,
@@ -16,9 +28,19 @@ export class PostCount extends CoreEntity {
   })
   commentCount: number;
 
+  @ApiHideProperty()
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @ApiHideProperty()
+  @UpdateDateColumn({ select: false })
+  updatedAt: Date;
+
+  @ApiHideProperty()
   @Column({ type: 'int', nullable: true, select: false })
   postId: number | null;
 
+  @ApiHideProperty()
   @OneToOne(() => Post, (p) => p.postCount, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })
   post: Post;

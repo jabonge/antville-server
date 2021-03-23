@@ -1,8 +1,20 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { CoreEntity } from './../../../common/entities/core.entity';
+import { ApiHideProperty } from '@nestjs/swagger';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Post } from './post.entity';
 @Entity()
-export class PostLink extends CoreEntity {
+export class PostLink {
+  @ApiHideProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column()
   ogSiteName: string;
 
@@ -18,6 +30,15 @@ export class PostLink extends CoreEntity {
   @Column()
   ogUrl: string;
 
+  @ApiHideProperty()
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @ApiHideProperty()
+  @UpdateDateColumn({ select: false })
+  updatedAt: Date;
+
+  @ApiHideProperty()
   @OneToOne(() => Post, (post) => post.link, { onDelete: 'CASCADE' })
   @JoinColumn()
   post: Post;

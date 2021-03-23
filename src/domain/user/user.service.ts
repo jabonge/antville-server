@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, EntityManager, Repository } from 'typeorm';
 import { UserCount } from './entities/user-count.entity';
 import { EditProfileDto } from './dto/edit-profile.dto';
+import { StockCount } from '../stock/entities/stock-count.entity';
 
 @Injectable()
 export class UserService {
@@ -46,6 +47,14 @@ export class UserService {
         .of(userId)
         .remove(stockId);
       await this.decrementUserCount(manager, userId, 'watchStockCount');
+      await manager.decrement(
+        StockCount,
+        {
+          stockId,
+        },
+        'watchUserCount',
+        1,
+      );
     });
     return;
   }
@@ -62,6 +71,14 @@ export class UserService {
         .of(userId)
         .add(stockId);
       await this.incrementUserCount(manager, userId, 'watchStockCount');
+      await manager.increment(
+        StockCount,
+        {
+          stockId,
+        },
+        'watchUserCount',
+        1,
+      );
     });
     return;
   }

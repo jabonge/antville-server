@@ -29,7 +29,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get()
+  @Get('me')
   getMe(@CurrentUser() user: User): GetMeResponseDto {
     return user;
   }

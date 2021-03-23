@@ -1,9 +1,22 @@
-import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
-import { CoreEntity } from '../../../common/entities/core.entity';
+import { ApiHideProperty } from '@nestjs/swagger';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  RelationId,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Stock } from './stock.entity';
 
 @Entity()
-export class StockMeta extends CoreEntity {
+export class StockMeta {
+  @ApiHideProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
+
   symbol: string;
 
   @Column({
@@ -46,9 +59,19 @@ export class StockMeta extends CoreEntity {
   })
   timestamp: Date;
 
+  @ApiHideProperty()
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @ApiHideProperty()
+  @UpdateDateColumn({ select: false })
+  updatedAt: Date;
+
+  @ApiHideProperty()
   @RelationId((stockMeta: StockMeta) => stockMeta.stock)
   stockId: number;
 
+  @ApiHideProperty()
   @OneToOne(() => Stock, (stock) => stock.stockMeta, {
     onDelete: 'CASCADE',
   })

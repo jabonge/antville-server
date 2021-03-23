@@ -1,6 +1,5 @@
 import { JwtPayload } from '../../auth/auth.interface';
 import { Stock } from '../../stock/entities/stock.entity';
-import { CoreEntity } from '../../../common/entities/core.entity';
 import bcrypt from 'bcrypt';
 import {
   Column,
@@ -12,13 +11,20 @@ import {
   BeforeUpdate,
   OneToMany,
   OneToOne,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Post } from '../../post/entities/post.entity';
 import { UserCount } from './user-count.entity';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 @Entity()
-export class User extends CoreEntity {
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Index()
   @Column({
     length: 20,
@@ -34,31 +40,43 @@ export class User extends CoreEntity {
   @Column()
   email: string;
 
+  @ApiHideProperty()
   @Column({ select: false })
   password: string;
 
+  @ApiHideProperty()
   @Column({ select: false, nullable: true })
   refreshToken: string;
 
   @Column({
     nullable: true,
   })
-  bio: string;
+  bio?: string;
 
   @Column({
     nullable: true,
   })
-  profileImg: string;
+  profileImg?: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @ApiHideProperty()
+  @UpdateDateColumn({ select: false })
+  updatedAt: Date;
+
+  @ApiHideProperty()
   @ManyToMany(() => Stock)
   @JoinTable({
     name: 'watchlist',
   })
   stocks: Stock[];
 
+  @ApiHideProperty()
   @ManyToMany(() => User, (user) => user.following)
   followers: User[];
 
+  @ApiHideProperty()
   @ManyToMany(() => User, (user) => user.followers)
   @JoinTable({
     name: 'users_follows',
@@ -73,14 +91,16 @@ export class User extends CoreEntity {
   })
   following: User[];
 
+  @ApiHideProperty()
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
 
+  @ApiHideProperty()
   @ManyToMany(() => Post, (post) => post.likers)
   likePosts: Post[];
 
   @OneToOne(() => UserCount, (c) => c.user, { cascade: ['insert'] })
-  userCount: UserCount;
+  userCount?: UserCount;
 
   @BeforeInsert()
   @BeforeUpdate()

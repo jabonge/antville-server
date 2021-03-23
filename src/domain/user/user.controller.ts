@@ -37,7 +37,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('addWatchList/:id')
+  @Get(':id/addWatchList')
   async addWatchList(@CurrentUser() user: User, @Param('id') id: string) {
     const stock = await this.stockService.findById(+id);
     if (!stock) {
@@ -48,7 +48,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('removeWatchList/:id')
+  @Get(':id/removeWatchList')
   async removeWatchList(@CurrentUser() user: User, @Param('id') id: string) {
     const stock = await this.stockService.findById(+id);
     if (!stock) {
@@ -59,13 +59,13 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('follow/:id')
+  @Get(':id/follow')
   async followUser(@CurrentUser() user: User, @Param('id') id: string) {
     return this.userService.followUser(user.id, +id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('unFollow/:id')
+  @Get(':id/unFollow')
   async unFollowUser(@CurrentUser() user: User, @Param('id') id: string) {
     return this.userService.unFollowUser(user.id, +id);
   }

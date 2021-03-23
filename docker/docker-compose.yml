@@ -6,6 +6,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: valueTalk!
+      TZ: Asia/Seoul
     volumes:
       - ./db:/var/lib/mysql
     ports:
