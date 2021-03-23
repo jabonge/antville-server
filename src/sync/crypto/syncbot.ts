@@ -1,6 +1,7 @@
 import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
 import { getCryptoList } from './api/getAllCrypto';
+import { StockCount } from '../../domain/stock/entities/stock-count.entity';
 
 class CryptoSyncBot {
   async syncAll() {
@@ -20,6 +21,7 @@ class CryptoSyncBot {
         stock.krName = crypto.korean_name;
         stock.enName = crypto.english_name;
         stock.symbol = symbol;
+        stock.stockCount = new StockCount();
         await getRepository(Stock).save(stock);
       }
     }

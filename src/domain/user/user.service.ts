@@ -202,8 +202,8 @@ export class UserService {
     }
   }
 
-  updateProfileImg(userId: number, profileImg: Express.MulterS3.File) {
-    return this.userRepository.update(
+  async updateProfileImg(userId: number, profileImg: Express.MulterS3.File) {
+    await this.userRepository.update(
       {
         id: userId,
       },
@@ -211,6 +211,7 @@ export class UserService {
         profileImg: profileImg.location,
       },
     );
+    return { profileImg: profileImg.location };
   }
 
   removeProfileImg(userId: number) {

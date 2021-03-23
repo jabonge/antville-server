@@ -17,6 +17,7 @@ import {
   Put,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
@@ -37,7 +38,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id/addWatchList')
+  @Put(':id/addWatchList')
   async addWatchList(@CurrentUser() user: User, @Param('id') id: string) {
     const stock = await this.stockService.findById(+id);
     if (!stock) {
@@ -48,7 +49,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id/removeWatchList')
+  @Put(':id/removeWatchList')
   async removeWatchList(@CurrentUser() user: User, @Param('id') id: string) {
     const stock = await this.stockService.findById(+id);
     if (!stock) {
@@ -59,19 +60,23 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id/follow')
+  @Put(':id/follow')
   async followUser(@CurrentUser() user: User, @Param('id') id: string) {
     return this.userService.followUser(user.id, +id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id/unFollow')
+  @Put(':id/unFollow')
   async unFollowUser(@CurrentUser() user: User, @Param('id') id: string) {
     return this.userService.unFollowUser(user.id, +id);
   }
 
   @Get('search')
-  async searchUser(query: string, cursor: string, limit: number) {
+  async searchUser(
+    @Query('query') query: string,
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: number,
+  ) {
     return this.userService.searchUser(query, +cursor, +limit);
   }
 

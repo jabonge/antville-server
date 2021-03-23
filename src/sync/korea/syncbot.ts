@@ -9,6 +9,7 @@ import { getXml } from './getXml';
 import parse from 'csv-parse';
 import fs from 'fs';
 import cliProgress from 'cli-progress';
+import { StockCount } from '../../domain/stock/entities/stock-count.entity';
 
 class KoreaSyncBot {
   async parseKoreaStocks(): Promise<KoreaStockInfoFromCsv[]> {
@@ -66,6 +67,7 @@ class KoreaSyncBot {
         }
         stock.exchange = exchange;
         stock.country = country;
+        stock.stockCount = new StockCount();
         await getRepository(Stock).save(stock);
       }
       bar.increment(1);

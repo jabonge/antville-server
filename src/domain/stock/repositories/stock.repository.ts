@@ -5,10 +5,11 @@ import { EntityRepository, Repository } from 'typeorm';
 @EntityRepository(Stock)
 export class StockRepository extends Repository<Stock> {
   async findBySymbol(symbol: string): Promise<Stock> {
-    return this.createQueryBuilder()
-      .where('symbol = :symbol', { symbol })
-      .leftJoin('stockCount', 'stockCount')
-      .addSelect(['stockCount.watchUserCount', 'stockCount.postCount'])
+    return this.createQueryBuilder('s')
+      .select(['s.id', 's.enName', 's.krName', 's.symbol'])
+      .where('s.symbol = :symbol', { symbol })
+      .leftJoin('s.stockCount', 'stockCount')
+      .addSelect(['stockCount.watchUserCount'])
       .getOne();
   }
 

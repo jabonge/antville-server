@@ -31,7 +31,11 @@ export class StockCount {
   updatedAt: Date;
 
   @ApiHideProperty()
+  @Column({ type: 'int', nullable: true, select: false })
+  stockId: number | null;
+
+  @ApiHideProperty()
   @OneToOne(() => Stock, (s) => s.stockCount, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'stockId' })
   stock: Stock;
 }

@@ -3,6 +3,7 @@ import { Exchange } from '../../domain/stock/entities/exchange.entity';
 import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
 import { getQuotes } from './api/getQuotes';
+import { StockCount } from '../../domain/stock/entities/stock-count.entity';
 
 class AbroadSyncBot {
   async syncAll() {
@@ -45,6 +46,7 @@ class AbroadSyncBot {
         stock.krName = quote.name;
         stock.country = country;
         stock.exchange = exchange;
+        stock.stockCount = new StockCount();
         await getRepository(Stock).save(stock);
       }
     }
