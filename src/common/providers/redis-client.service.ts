@@ -33,9 +33,11 @@ export class RedisClientWrapper {
       return [];
     }
     const stockMetaStrings = await this.hmgetAsync('stock', symbols);
-    const stockMetas = stockMetaStrings.map((s) => {
-      return plainToClass(StockMetaResponseDto, JSON.parse(s));
-    });
+    const stockMetas: StockMetaResponseDto[] = stockMetaStrings
+      .filter((e) => e != null)
+      .map((s) => {
+        return plainToClass(StockMetaResponseDto, JSON.parse(s));
+      });
     console.log(stockMetas);
     return stockMetas;
   }
