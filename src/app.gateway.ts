@@ -14,7 +14,6 @@ import {
 import { CHANGE_STOCK_META } from './common/constants/pubsub.constants';
 import WebSocket, { Server } from 'ws';
 import { IncomingMessage } from 'node:http';
-import qs from 'qs';
 import { Post } from './domain/post/entities/post.entity';
 import { PubSub } from './common/interfaces/pub_sub.interface';
 
@@ -23,8 +22,9 @@ export class AppGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
+  //HashMap 사용고려
   private connectedClients: Map<
-    number,
+    string,
     { ws: WebSocket; symbols?: string[]; stockId?: number }
   > = new Map();
 
@@ -32,6 +32,16 @@ export class AppGateway implements OnGatewayConnection {
     @Inject(PUB_SUB) private readonly pubsub: PubSub,
     private readonly jwtService: JwtService,
   ) {
+    setInterval(() => {
+      console.log(this.connectedClients.size);
+      this.connectedClients.forEach(({ ws }, id) => {
+        ws.ping((err) => {
+          if (err) {
+            this.connectedClients.delete(id);
+          }
+        });
+      });
+    }, 5000);
     pubsub.subscriber.subscribe([CHANGE_STOCK_META, NEW_POST]);
     pubsub.subscriber.on('message', (channel, message) => {
       if (channel === CHANGE_STOCK_META) {
@@ -60,14 +70,16 @@ export class AppGateway implements OnGatewayConnection {
     });
   }
 
+  //userId 말고 다른 값으로 클라이언트 구분하기!
   handleConnection(client: WebSocket, req: IncomingMessage) {
     if (req.url) {
       try {
-        const token = qs.parse(req.url.substring(1)).token as string;
-        const userId = this.jwtService.verify<JwtPayload>(token)?.id;
-        this.connectedClients.set(userId, { ws: client });
+        const id = req.headers.id as string;
+        const token = req.headers.token as string;
+        this.jwtService.verify<JwtPayload>(token);
+        this.connectedClients.set(id, { ws: client });
         client.on('close', () => {
-          this.connectedClients.delete(userId);
+          this.connectedClients.delete(id);
         });
       } catch (e) {
         console.log(e);
@@ -76,10 +88,11 @@ export class AppGateway implements OnGatewayConnection {
     }
   }
 
+  //Symbols Alphabet순 -> 최적화?
   @SubscribeMessage(CHANGE_STOCK_META)
   handleChangeStockMeta(
     @ConnectedSocket() client: WebSocket,
-    @MessageBody() data: { id: number; symbols?: string[] },
+    @MessageBody() data: { id: string; symbols?: string[] },
   ) {
     console.log(data);
     const clientInMap = this.connectedClients.get(data.id);
@@ -93,7 +106,7 @@ export class AppGateway implements OnGatewayConnection {
   @SubscribeMessage(NEW_POST)
   handleNewPost(
     @ConnectedSocket() client: WebSocket,
-    @MessageBody() data: { id: number; stockId?: number },
+    @MessageBody() data: { id: string; stockId?: number },
   ) {
     console.log(data);
     const clientInMap = this.connectedClients.get(data.id);
