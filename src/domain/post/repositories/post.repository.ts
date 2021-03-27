@@ -51,7 +51,8 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
-      .leftJoinAndSelect('p.link', 'link');
+      .leftJoinAndSelect('p.link', 'link')
+      .leftJoinAndSelect('p.gifImage', 'gif');
     return query.getMany();
   }
 
@@ -73,6 +74,7 @@ export class PostRepository extends Repository<Post> {
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
+      .leftJoinAndSelect('p.gifImage', 'gif')
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
@@ -97,6 +99,7 @@ export class PostRepository extends Repository<Post> {
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
+      .leftJoinAndSelect('p.gifImage', 'gif')
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
@@ -116,6 +119,7 @@ export class PostRepository extends Repository<Post> {
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
+      .leftJoinAndSelect('p.gifImage', 'gif')
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
@@ -138,7 +142,8 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
-      .leftJoinAndSelect('p.link', 'link');
+      .leftJoinAndSelect('p.link', 'link')
+      .leftJoinAndSelect('p.gifImage', 'gif');
     return query.getMany();
   }
 }

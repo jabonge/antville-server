@@ -1,5 +1,5 @@
 import { NEW_POST, PUB_SUB } from './common/constants/pubsub.constants';
-import { StockMetaResponseDto } from './domain/stock/dtos/stock-meta-response.dto';
+import { StockPriceInfoDto } from './domain/stock/dtos/stock_price_info.dto';
 import { JwtPayload } from './domain/auth/auth.interface';
 import { JwtService } from '@nestjs/jwt';
 import { Inject } from '@nestjs/common';
@@ -11,7 +11,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { CHANGE_STOCK_META } from './common/constants/pubsub.constants';
+import { CHANGE_STOCK_PRICE_INFO } from './common/constants/pubsub.constants';
 import WebSocket, { Server } from 'ws';
 import { IncomingMessage } from 'node:http';
 import { Post } from './domain/post/entities/post.entity';
@@ -33,7 +33,6 @@ export class AppGateway implements OnGatewayConnection {
     private readonly jwtService: JwtService,
   ) {
     setInterval(() => {
-      console.log(this.connectedClients.size);
       this.connectedClients.forEach(({ ws }, id) => {
         ws.ping((err) => {
           if (err) {
@@ -41,15 +40,15 @@ export class AppGateway implements OnGatewayConnection {
           }
         });
       });
-    }, 5000);
-    pubsub.subscriber.subscribe([CHANGE_STOCK_META, NEW_POST]);
+    }, 20000);
+    pubsub.subscriber.subscribe([CHANGE_STOCK_PRICE_INFO, NEW_POST]);
     pubsub.subscriber.on('message', (channel, message) => {
-      if (channel === CHANGE_STOCK_META) {
-        const stockMeta = JSON.parse(message) as StockMetaResponseDto;
+      if (channel === CHANGE_STOCK_PRICE_INFO) {
+        const stockPriceInfo = JSON.parse(message) as StockPriceInfoDto;
         this.connectedClients.forEach(({ ws, symbols }) => {
           if (
             ws.readyState === WebSocket.OPEN &&
-            symbols?.includes(stockMeta.symbol)
+            symbols?.includes(stockPriceInfo.symbol)
           ) {
             ws.send(message);
           }
@@ -89,7 +88,7 @@ export class AppGateway implements OnGatewayConnection {
   }
 
   //Symbols Alphabet순 -> 최적화?
-  @SubscribeMessage(CHANGE_STOCK_META)
+  @SubscribeMessage(CHANGE_STOCK_PRICE_INFO)
   handleChangeStockMeta(
     @ConnectedSocket() client: WebSocket,
     @MessageBody() data: { id: string; symbols?: string[] },

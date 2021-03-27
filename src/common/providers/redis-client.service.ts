@@ -1,4 +1,4 @@
-import { StockMetaResponseDto } from '../../domain/stock/dtos/stock-meta-response.dto';
+import { StockPriceInfoDto } from '../../domain/stock/dtos/stock_price_info.dto';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import redis, { RedisClient } from 'redis';
@@ -19,26 +19,26 @@ export class RedisClientWrapper {
     this.hmgetAsync = promisify(this.client.hmget).bind(this.client);
   }
 
-  async getStockMeta(symbol: string): Promise<StockMetaResponseDto> {
-    const stockMetaString = await this.hgetAsync('stock', symbol);
-    const stockMeta = plainToClass(
-      StockMetaResponseDto,
-      JSON.parse(stockMetaString),
+  async getStockPriceInfo(symbol: string): Promise<StockPriceInfoDto> {
+    const stockPriceInfoString = await this.hgetAsync('stock', symbol);
+    const stockPriceInfo = plainToClass(
+      StockPriceInfoDto,
+      JSON.parse(stockPriceInfoString),
     );
-    return stockMeta;
+    return stockPriceInfo;
   }
 
-  async getStockMetas(symbols: string[]): Promise<StockMetaResponseDto[]> {
+  async getStockPriceInfos(symbols: string[]): Promise<StockPriceInfoDto[]> {
     if (symbols.length <= 0) {
       return [];
     }
-    const stockMetaStrings = await this.hmgetAsync('stock', symbols);
-    const stockMetas: StockMetaResponseDto[] = stockMetaStrings
+    const stockPriceInfoStrings = await this.hmgetAsync('stock', symbols);
+    const stockPriceInfos: StockPriceInfoDto[] = stockPriceInfoStrings
       .filter((e) => e != null)
       .map((s) => {
-        return plainToClass(StockMetaResponseDto, JSON.parse(s));
+        return plainToClass(StockPriceInfoDto, JSON.parse(s));
       });
-    console.log(stockMetas);
-    return stockMetas;
+    console.log(stockPriceInfos);
+    return stockPriceInfos;
   }
 }

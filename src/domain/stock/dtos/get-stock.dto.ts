@@ -1,12 +1,12 @@
 import { Stock } from '../entities/stock.entity';
-import { StockMetaResponseDto } from './stock-meta-response.dto';
+import { StockPriceInfoDto } from './stock_price_info.dto';
 
 export class GetStockResponseDto {
   stock: Stock;
-  stockMeta: StockMetaResponseDto;
+  stockPriceInfo: StockPriceInfoDto;
 }
 
 export class GetStocksResponseDto {
   stocks: Stock[];
-  stockMetas: StockMetaResponseDto[];
+  stockPriceInfos: StockPriceInfoDto[];
 }

@@ -4,6 +4,7 @@ import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
 import { getQuotes } from './api/getQuotes';
 import { StockCount } from '../../domain/stock/entities/stock-count.entity';
+import { StockMeta } from '../../domain/stock/entities/stock-meta.entity';
 
 class AbroadSyncBot {
   async syncAll() {
@@ -46,6 +47,8 @@ class AbroadSyncBot {
         stock.krName = quote.name;
         stock.country = country;
         stock.exchange = exchange;
+        stock.stockMeta = new StockMeta();
+        stock.stockMeta.marketCap = quote.marketCap;
         stock.stockCount = new StockCount();
         await getRepository(Stock).save(stock);
       }

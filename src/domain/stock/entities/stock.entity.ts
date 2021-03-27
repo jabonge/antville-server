@@ -62,7 +62,9 @@ export class Stock {
   updatedAt: Date;
 
   @ApiHideProperty()
-  @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock)
+  @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock, {
+    cascade: ['insert'],
+  })
   stockMeta: StockMeta;
 
   @ApiHideProperty()

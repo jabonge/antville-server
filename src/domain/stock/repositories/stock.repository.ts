@@ -24,8 +24,8 @@ export class StockRepository extends Repository<Stock> {
     cursor: number,
     limit: number,
   ): Promise<Stock[]> {
-    const dbQuery = this.createQueryBuilder()
-      .select()
+    const dbQuery = this.createQueryBuilder('s')
+      .select(['s.id', 's.enName', 's.krName', 's.symbol'])
       .orWhere(`symbol LIKE '${query}%'`)
       .orWhere(
         `MATCH(enName,krName) AGAINST ('*${query}* *${query}*' IN BOOLEAN MODE)`,
@@ -42,5 +42,12 @@ export class StockRepository extends Repository<Stock> {
       .relation(User, 'stocks')
       .of(userId)
       .loadMany();
+  }
+
+  async getPopularStocks(): Promise<Stock[]> {
+    return this.createQueryBuilder('s')
+      .select()
+      .innerJoin('s.stockMeta', 'meta', 'meta.isPopular = true')
+      .getMany();
   }
 }

@@ -68,6 +68,7 @@ class KoreaSyncBot {
         stock.exchange = exchange;
         stock.country = country;
         stock.stockCount = new StockCount();
+        stock.stockMeta = new StockMeta();
         await getRepository(Stock).save(stock);
       }
       bar.increment(1);
@@ -80,14 +81,14 @@ class KoreaSyncBot {
     const result: KoreaStockXML = await parseStringPromise(xml);
     const stockInfo = result.stockprice.TBL_StockInfo[0].$;
     if (stockInfo.JongName !== '') {
-      const stockMeta = new StockMeta();
-      stockMeta.stock = stock;
-      stockMeta.latest = +stockInfo.CurJuka.replace(/,/g, '');
-      stockMeta.dayHigh = +stockInfo.HighJuka.replace(/,/g, '');
-      stockMeta.dayLow = +stockInfo.LowJuka.replace(/,/g, '');
-      stockMeta.open = +stockInfo.StartJuka.replace(/,/g, '');
-      stockMeta.previousClose = +stockInfo.PrevJuka.replace(/,/g, '');
-      await getRepository(StockMeta).save(stockMeta);
+      // const stockMeta = new StockMeta();
+      // stockMeta.stock = stock;
+      // stockMeta.latest = +stockInfo.CurJuka.replace(/,/g, '');
+      // stockMeta.dayHigh = +stockInfo.HighJuka.replace(/,/g, '');
+      // stockMeta.dayLow = +stockInfo.LowJuka.replace(/,/g, '');
+      // stockMeta.open = +stockInfo.StartJuka.replace(/,/g, '');
+      // stockMeta.previousClose = +stockInfo.PrevJuka.replace(/,/g, '');
+      // await getRepository(StockMeta).save(stockMeta);
     } else {
       throw 'Invalid Value';
     }

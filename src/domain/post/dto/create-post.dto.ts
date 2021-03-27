@@ -3,6 +3,11 @@ import { Sentiment } from '../entities/post.entity';
 export class CreatePostDto {
   postId?: number;
   body: string;
-  gifUrl?: string;
+  gifInfo?: {
+    gifId: string;
+    tinyGifUrl: string;
+    gifUrl: string;
+    ratio: number;
+  };
   sentiment?: Sentiment;
 }

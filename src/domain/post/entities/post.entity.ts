@@ -18,6 +18,7 @@ import { Stock } from '../../stock/entities/stock.entity';
 import { PostCount } from './post-count.entity';
 import { Exclude, Expose } from 'class-transformer';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { GifImage } from './gif.entity';
 
 export enum Sentiment {
   UP = 'UP',
@@ -33,11 +34,6 @@ export class Post {
     length: 1000,
   })
   body: string;
-
-  @Column({
-    nullable: true,
-  })
-  gifUrl?: string;
 
   @Column({
     nullable: true,
@@ -71,6 +67,9 @@ export class Post {
 
   @OneToOne(() => PostLink, (link) => link.post, { cascade: ['insert'] })
   link: PostLink;
+
+  @OneToOne(() => GifImage, (gif) => gif.post, { cascade: ['insert'] })
+  gifImage?: GifImage;
 
   @ApiHideProperty()
   @ManyToMany(() => User, { onDelete: 'CASCADE' })

@@ -13,6 +13,7 @@ import { UserService } from '../user/user.service';
 import { NEW_POST, PUB_SUB } from '../../common/constants/pubsub.constants';
 import { PubSub } from '../../common/interfaces/pub_sub.interface';
 import { classToPlain } from 'class-transformer';
+import { GifImage } from './entities/gif.entity';
 
 @Injectable()
 export class PostService {
@@ -31,6 +32,7 @@ export class PostService {
   ) {
     let postImgs: PostImg[];
     let postLink: PostLink;
+    let gifImage: GifImage;
     if (files.length > 0) {
       postImgs = [];
       files.forEach((f) => {
@@ -38,7 +40,7 @@ export class PostService {
         img.image = f.location;
         postImgs.push(img);
       });
-    } else if (!createPostDto.gifUrl) {
+    } else if (!createPostDto.gifInfo) {
       const link = findLinks(createPostDto.body);
       if (link) {
         const ogResult = await getOgTags(link);
@@ -51,15 +53,22 @@ export class PostService {
           postLink.ogImage = ogResult.ogImage;
         }
       }
+    } else if (createPostDto.gifInfo) {
+      const { gifId, tinyGifUrl, gifUrl, ratio } = createPostDto.gifInfo;
+      gifImage = new GifImage();
+      gifImage.gifId = gifId;
+      gifImage.gifUrl = gifUrl;
+      gifImage.ratio = ratio;
+      gifImage.tinyGifUrl = tinyGifUrl;
     }
     const post = new Post();
     post.sentiment = createPostDto.sentiment;
-    post.gifUrl = createPostDto.gifUrl;
     post.body = createPostDto.body;
     post.author = user;
     post.postCount = new PostCount();
     post.postImgs = postImgs;
     post.link = postLink;
+    post.gifImage = gifImage;
     await this.connection.transaction(async (manager) => {
       if (createPostDto.postId) {
         const parent = await manager.findOneOrFail(Post, createPostDto.postId, {

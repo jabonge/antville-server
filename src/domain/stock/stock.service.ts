@@ -1,4 +1,4 @@
-import { StockMetaResponseDto } from './dtos/stock-meta-response.dto';
+import { StockPriceInfoDto } from './dtos/stock_price_info.dto';
 import { REDIS_CLIENT } from '../../common/constants/index';
 import { RedisClientWrapper } from '../../common/providers/redis-client.service';
 import { StockRepository } from './repositories/stock.repository';
@@ -24,10 +24,10 @@ export class StockService {
 
   async getStock(symbol: string) {
     const stock = await this.stockRepository.findBySymbol(symbol);
-    const stockMeta = await this.client.getStockMeta(symbol);
+    const stockPriceInfo = await this.client.getStockPriceInfo(symbol);
     return {
       stock,
-      stockMeta,
+      stockPriceInfo,
     };
   }
 
@@ -36,20 +36,32 @@ export class StockService {
     return stocks;
   }
 
-  async getWatchListWithStockMeta(userId: number) {
+  async getWatchListWithStockPriceInfo(userId: number) {
     const stocks = await this.getWatchList(userId);
     const symbols = stocks.map((v) => v.symbol);
-    const stockMetas = (await this.client.getStockMetas(
+    const stockPriceInfos = (await this.client.getStockPriceInfos(
       symbols,
-    )) as StockMetaResponseDto[];
+    )) as StockPriceInfoDto[];
 
     return {
       stocks,
-      stockMetas,
+      stockPriceInfos,
     };
   }
 
   async getWatchList(userId: number) {
     return this.stockRepository.getWatchList(userId);
+  }
+
+  async getPopularListWithStockPriceInfo() {
+    const stocks = await this.stockRepository.getPopularStocks();
+    const symbols = stocks.map((v) => v.symbol);
+    const stockPriceInfos = (await this.client.getStockPriceInfos(
+      symbols,
+    )) as StockPriceInfoDto[];
+    return {
+      stocks,
+      stockPriceInfos,
+    };
   }
 }

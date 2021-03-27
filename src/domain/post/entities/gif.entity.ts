@@ -6,28 +6,26 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
-import { Stock } from './stock.entity';
-
+import { Post } from './post.entity';
 @Entity()
-export class StockMeta {
+export class GifImage {
   @ApiHideProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    type: 'double',
-    nullable: true,
-  })
-  marketCap: number;
+  @Column({ unique: true })
+  gifId: string;
 
-  @Column({
-    type: 'bool',
-    default: false,
-  })
-  isPopular: boolean;
+  @Column({ type: 'double' })
+  ratio: number;
+
+  @Column()
+  gifUrl: string;
+
+  @Column()
+  tinyGifUrl: string;
 
   @ApiHideProperty()
   @CreateDateColumn({ select: false })
@@ -38,13 +36,7 @@ export class StockMeta {
   updatedAt: Date;
 
   @ApiHideProperty()
-  @RelationId((stockMeta: StockMeta) => stockMeta.stock)
-  stockId: number;
-
-  @ApiHideProperty()
-  @OneToOne(() => Stock, (stock) => stock.stockMeta, {
-    onDelete: 'CASCADE',
-  })
+  @OneToOne(() => Post, (post) => post.gifImage, { onDelete: 'CASCADE' })
   @JoinColumn()
-  stock: Stock;
+  post: Post;
 }
