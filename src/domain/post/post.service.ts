@@ -54,9 +54,9 @@ export class PostService {
         }
       }
     } else if (createPostDto.gifInfo) {
-      const { gifId, tinyGifUrl, gifUrl, ratio } = createPostDto.gifInfo;
+      const { id, tinyGifUrl, gifUrl, ratio } = createPostDto.gifInfo;
       gifImage = new GifImage();
-      gifImage.gifId = gifId;
+      gifImage.id = id;
       gifImage.gifUrl = gifUrl;
       gifImage.ratio = ratio;
       gifImage.tinyGifUrl = tinyGifUrl;

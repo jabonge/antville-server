@@ -4,7 +4,7 @@ export class CreatePostDto {
   postId?: number;
   body: string;
   gifInfo?: {
-    gifId: string;
+    id: string;
     tinyGifUrl: string;
     gifUrl: string;
     ratio: number;

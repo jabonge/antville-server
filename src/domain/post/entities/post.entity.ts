@@ -68,7 +68,12 @@ export class Post {
   @OneToOne(() => PostLink, (link) => link.post, { cascade: ['insert'] })
   link: PostLink;
 
-  @OneToOne(() => GifImage, (gif) => gif.post, { cascade: ['insert'] })
+  @ApiHideProperty()
+  @Column({ nullable: true, select: false })
+  gifId: string;
+
+  @ManyToOne(() => GifImage, { cascade: ['insert'] })
+  @JoinColumn({ name: 'gifId' })
   gifImage?: GifImage;
 
   @ApiHideProperty()

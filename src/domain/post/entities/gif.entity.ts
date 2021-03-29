@@ -3,20 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Post } from './post.entity';
+
 @Entity()
 export class GifImage {
-  @ApiHideProperty()
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ unique: true })
-  gifId: string;
+  @PrimaryColumn()
+  id: string;
 
   @Column({ type: 'double' })
   ratio: number;
@@ -34,9 +28,4 @@ export class GifImage {
   @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
-
-  @ApiHideProperty()
-  @OneToOne(() => Post, (post) => post.gifImage, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  post: Post;
 }
