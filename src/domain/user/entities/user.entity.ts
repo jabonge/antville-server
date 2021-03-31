@@ -1,3 +1,4 @@
+import { PostToStock } from './../../post/entities/post-stock.entity';
 import { JwtPayload } from '../../auth/auth.interface';
 import { Stock } from '../../stock/entities/stock.entity';
 import bcrypt from 'bcrypt';
@@ -19,6 +20,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Post } from '../../post/entities/post.entity';
 import { UserCount } from './user-count.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
+import { Report } from '../../post/entities/report.entity';
 
 @Entity()
 export class User {
@@ -49,9 +51,19 @@ export class User {
   refreshToken: string;
 
   @Column({
+    default: false,
+  })
+  isEmailVerified: boolean;
+
+  @Column({
     nullable: true,
   })
   bio?: string;
+
+  @Column({
+    nullable: true,
+  })
+  website?: string;
 
   @Column({
     nullable: true,
@@ -92,6 +104,25 @@ export class User {
   following: User[];
 
   @ApiHideProperty()
+  @ManyToMany(() => User, (user) => user.blocking)
+  blockers: User[];
+
+  @ApiHideProperty()
+  @ManyToMany(() => User, (user) => user.blockers)
+  @JoinTable({
+    name: 'users_blocks',
+    joinColumn: {
+      name: 'blockerId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'blockingId',
+      referencedColumnName: 'id',
+    },
+  })
+  blocking: User[];
+
+  @ApiHideProperty()
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
 
@@ -100,7 +131,15 @@ export class User {
   likePosts: Post[];
 
   @OneToOne(() => UserCount, (c) => c.user, { cascade: ['insert'] })
-  userCount?: UserCount;
+  userCount: UserCount;
+
+  @ApiHideProperty()
+  @OneToMany(() => Report, (report) => report.post)
+  reports: Report[];
+
+  @ApiHideProperty()
+  @OneToMany(() => PostToStock, (ps) => ps.user, { cascade: ['insert'] })
+  postToStocks: PostToStock[];
 
   @BeforeInsert()
   @BeforeUpdate()

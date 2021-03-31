@@ -14,6 +14,9 @@ import { NEW_POST, PUB_SUB } from '../../common/constants/pubsub.constants';
 import { PubSub } from '../../common/interfaces/pub_sub.interface';
 import { classToPlain } from 'class-transformer';
 import { GifImage } from './entities/gif.entity';
+import { Stock } from '../stock/entities/stock.entity';
+import { PostToStock } from './entities/post-stock.entity';
+import { Report } from './entities/report.entity';
 
 @Injectable()
 export class PostService {
@@ -40,7 +43,7 @@ export class PostService {
         img.image = f.location;
         postImgs.push(img);
       });
-    } else if (!createPostDto.gifInfo) {
+    } else if (!createPostDto.gifId) {
       const link = findLinks(createPostDto.body);
       if (link) {
         const ogResult = await getOgTags(link);
@@ -53,10 +56,10 @@ export class PostService {
           postLink.ogImage = ogResult.ogImage;
         }
       }
-    } else if (createPostDto.gifInfo) {
-      const { id, tinyGifUrl, gifUrl, ratio } = createPostDto.gifInfo;
+    } else if (createPostDto.gifId) {
+      const { gifId, tinyGifUrl, gifUrl, ratio } = createPostDto;
       gifImage = new GifImage();
-      gifImage.id = id;
+      gifImage.id = gifId;
       gifImage.gifUrl = gifUrl;
       gifImage.ratio = ratio;
       gifImage.tinyGifUrl = tinyGifUrl;
@@ -88,15 +91,21 @@ export class PostService {
         );
       } else {
         const cashTags = findCacheTags(createPostDto.body);
-        let stocks;
+        let stocks: Stock[];
         if (cashTags.length > 0) {
           stocks = await this.stockService.getStocks(cashTags);
         }
-        post.stocks = stocks;
+        const postToStocks = stocks.map((s) => {
+          const ps = new PostToStock();
+          ps.stockId = s.id;
+          ps.authorId = user.id;
+          return ps;
+        });
+        post.postToStocks = postToStocks;
       }
       await manager.save(post);
       await this.userService.incrementUserCount(manager, user.id, 'postCount');
-      if (post.stocks.length > 0) {
+      if (post.postToStocks.length > 0) {
         this.pubsub.publisher.publish(
           NEW_POST,
           JSON.stringify(classToPlain(post)),
@@ -121,7 +130,11 @@ export class PostService {
     cursor: number,
     limit: number,
   ) {
+    const blockingUserIds = await this.userService.findBlockingAndBlockerIds(
+      userId,
+    );
     return this.postRepository.findAllPostBySymbol(
+      blockingUserIds,
       stockId,
       userId,
       cursor,
@@ -130,11 +143,7 @@ export class PostService {
   }
 
   async findAllPostByFollowing(userId: number, cursor: number, limit: number) {
-    const users = await this.userService.findFollwingIds(userId);
-    const userIds = users.map((u) => u.id);
-    if (userIds.length <= 0) {
-      return [];
-    }
+    const userIds = await this.userService.findFollwingIds(userId);
     return this.postRepository.findAllPostByFollowing(
       userIds,
       userId,
@@ -149,7 +158,11 @@ export class PostService {
       return [];
     }
     const stockIds = stocks.map((s) => s.id);
+    const blockingUserIds = await this.userService.findBlockingAndBlockerIds(
+      userId,
+    );
     return this.postRepository.findAllPostByWatchList(
+      blockingUserIds,
       stockIds,
       userId,
       cursor,
@@ -218,5 +231,17 @@ export class PostService {
       );
     });
     return;
+  }
+
+  async createReport(userId: number, postId: number) {
+    await this.connection.transaction(async (manager) => {
+      await manager.findOneOrFail(Post, {
+        id: postId,
+      });
+      const report = new Report();
+      report.userId = userId;
+      report.postId = postId;
+      await manager.save(Report, report);
+    });
   }
 }

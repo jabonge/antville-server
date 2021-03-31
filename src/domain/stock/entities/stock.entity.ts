@@ -6,16 +6,16 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from 'typeorm';
-import { Post } from '../../post/entities/post.entity';
 import { StockCount } from './stock-count.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
+import { PostToStock } from '../../post/entities/post-stock.entity';
 
 export enum StockType {
   ETF = 'ETF',
@@ -84,8 +84,12 @@ export class Stock {
   country: Country;
 
   @ApiHideProperty()
-  @ManyToMany(() => Post, (post) => post.stocks)
-  posts: Post[];
+  @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })
+  postToStocks: PostToStock[];
+
+  // @ApiHideProperty()
+  // @ManyToMany(() => Post, (post) => post.stocks)
+  // posts: Post[];
 
   @OneToOne(() => StockCount, (c) => c.stock, { cascade: ['insert'] })
   stockCount?: StockCount;

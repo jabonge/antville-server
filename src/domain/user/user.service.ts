@@ -112,13 +112,79 @@ export class UserService {
     return;
   }
 
-  findFollwingIds(userId: number) {
-    return this.userRepository.manager.query(
+  async findFollwingIds(userId: number): Promise<number[]> {
+    const users = await this.userRepository.manager.query(
       `SELECT followingId as id FROM users_follows WHERE followerId = ${userId}`,
     );
+    const userIds = users.map((u) => u.id);
+    if (userIds.length <= 0) {
+      return [];
+    }
+    return userIds;
+  }
+
+  async findBlockingAndBlockerIds(userId: number): Promise<number[]> {
+    const users = await this.userRepository.manager.query(
+      `SELECT blockingId,blockerId FROM users_blocks WHERE blockerId = ${userId} OR blockingId = ${userId}`,
+    );
+    const userIds = users.map((u) => {
+      if (u.blockerId == userId) {
+        return u.blockingId;
+      } else {
+        return u.blockerId;
+      }
+    });
+    if (userIds.length <= 0) {
+      return [];
+    }
+    return userIds;
+  }
+
+  async blockUser(myId: number, userId: number) {
+    await this.connection.transaction(async (manager) => {
+      await manager.findOneOrFail(User, userId, {
+        select: ['id'],
+      });
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'blocking')
+        .of(myId)
+        .add(userId);
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'following')
+        .of(myId)
+        .remove(userId);
+      await this.decrementUserCount(manager, myId, 'following');
+      await this.decrementUserCount(manager, userId, 'followers');
+    });
+
+    return;
+  }
+
+  async unBlockUser(myId: number, userId: number) {
+    await this.connection.transaction(async (manager) => {
+      await manager.findOneOrFail(User, userId, {
+        select: ['id'],
+      });
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'blocking')
+        .of(myId)
+        .remove(userId);
+    });
+    return;
   }
 
   async followUser(myId: number, userId: number) {
+    const users = await this.userRepository.manager.query(
+      `SELECT blockingId,blockerId FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId}))`,
+    );
+    if (users) {
+      throw new BadRequestException(
+        'Blocked Or Blocking User DO Not Allow Following',
+      );
+    }
     await this.connection.transaction(async (manager) => {
       await manager.findOneOrFail(User, userId, {
         select: ['id'],

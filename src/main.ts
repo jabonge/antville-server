@@ -3,11 +3,13 @@ import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { VtExceptionFilter } from './infra/exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.useWebSocketAdapter(new WsAdapter(app));
+  app.useGlobalFilters(new VtExceptionFilter());
   const config = new DocumentBuilder()
     .setTitle('Value Talk')
     .setDescription('Value Talk Api Docs')

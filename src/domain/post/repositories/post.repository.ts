@@ -4,15 +4,20 @@ import { Post } from '../entities/post.entity';
 @EntityRepository(Post)
 export class PostRepository extends Repository<Post> {
   async findAllPostBySymbol(
+    blockingUserIds: number[],
     stockId: number,
     userId: number,
     cursor: number,
     limit: number,
   ) {
     const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
+    const authorWhere =
+      blockingUserIds.length <= 0
+        ? ''
+        : `AND authorId NOT IN (${blockingUserIds.join(',')})`;
     const query = this.createQueryBuilder('p')
       .innerJoin(
-        `(SELECT postId FROM posts_stocks ps WHERE stockId = ${stockId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        `(SELECT postId FROM post_to_stock ps WHERE stockId = ${stockId} ${authorWhere} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
         'ps',
         'p.id = ps.postId',
       )
@@ -34,17 +39,22 @@ export class PostRepository extends Repository<Post> {
   }
 
   async findAllPostByWatchList(
+    blockingUserIds: number[],
     stockIds: number[],
     userId: number,
     cursor: number,
     limit: number,
   ) {
     const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
+    const authorWhere =
+      blockingUserIds.length <= 0
+        ? ''
+        : `AND authorId NOT IN (${blockingUserIds.join(',')})`;
     const query = this.createQueryBuilder('p')
       .innerJoin(
-        `(SELECT DISTINCT postId FROM posts_stocks ps WHERE stockId IN (${stockIds.join(
+        `(SELECT DISTINCT postId FROM post_to_stock ps WHERE stockId IN (${stockIds.join(
           ',',
-        )}) ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        )}) ${authorWhere} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
         'ps',
         'p.id = ps.postId',
       )

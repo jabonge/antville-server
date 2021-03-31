@@ -10,6 +10,7 @@ import {
   Query,
   ClassSerializerInterceptor,
   Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -33,6 +34,9 @@ export class PostController {
     @UploadedFiles() files: Express.MulterS3.File[],
     @Body() createPostDto: CreatePostDto,
   ) {
+    if (!user.isEmailVerified) {
+      throw new BadRequestException('Email Not Verified');
+    }
     return this.postService.createPost(createPostDto, user, files);
   }
 
@@ -87,5 +91,10 @@ export class PostController {
   @Get(':id/unLikePost')
   unLikePost(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.unLikePost(user.id, +id);
+  }
+
+  @Get(':id/createReport')
+  createReport(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.postService.createReport(user.id, +id);
   }
 }

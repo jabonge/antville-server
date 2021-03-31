@@ -71,6 +71,18 @@ export class UserController {
     return this.userService.unFollowUser(user.id, +id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/block')
+  async blockUser(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.userService.blockUser(user.id, +id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/unBlock')
+  async unBlockUser(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.userService.unBlockUser(user.id, +id);
+  }
+
   @Get('search')
   async searchUser(
     @Query('query') query: string,
@@ -101,4 +113,8 @@ export class UserController {
   async editProfile(@CurrentUser() user: User, editProfileDto: EditProfileDto) {
     return this.userService.editProfile(user.id, editProfileDto);
   }
+
+  //pagination
+  //get following,follower user,
+  //get blocking user,
 }
