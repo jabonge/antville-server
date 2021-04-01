@@ -12,7 +12,7 @@ export class VtExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     // const request = ctx.getRequest();
-
+    console.log(exception);
     let status;
     let message;
     if (exception instanceof HttpException) {

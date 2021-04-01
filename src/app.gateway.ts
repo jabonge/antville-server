@@ -55,7 +55,6 @@ export class AppGateway implements OnGatewayConnection {
         });
       } else if (channel === NEW_POST) {
         const post = JSON.parse(message) as Post;
-        console.log(post);
         this.connectedClients.forEach(({ ws, stockId }) => {
           if (
             stockId &&

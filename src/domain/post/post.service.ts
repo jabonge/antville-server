@@ -117,28 +117,43 @@ export class PostService {
 
   async getComments(
     postId: number,
-    userId: number,
     cursor: number,
     limit: number,
+    userId?: number,
   ) {
-    return this.postRepository.getComments(postId, userId, cursor, limit);
+    return this.postRepository.getComments(postId, cursor, limit, userId);
+  }
+
+  async findAllPost(userId: number, cursor: number, limit: number) {
+    const blockingUserIds = await this.userService.findBlockingAndBlockerIds(
+      userId,
+    );
+    return this.postRepository.findAllPost(
+      blockingUserIds,
+      userId,
+      cursor,
+      limit,
+    );
   }
 
   async findAllPostBySymbol(
     stockId: number,
-    userId: number,
     cursor: number,
     limit: number,
+    userId?: number,
   ) {
-    const blockingUserIds = await this.userService.findBlockingAndBlockerIds(
-      userId,
-    );
+    let blockingUserIds;
+    if (userId) {
+      blockingUserIds = await this.userService.findBlockingAndBlockerIds(
+        userId,
+      );
+    }
     return this.postRepository.findAllPostBySymbol(
-      blockingUserIds,
       stockId,
-      userId,
       cursor,
       limit,
+      userId,
+      blockingUserIds,
     );
   }
 

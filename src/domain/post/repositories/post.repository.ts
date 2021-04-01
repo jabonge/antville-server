@@ -3,18 +3,44 @@ import { Post } from '../entities/post.entity';
 
 @EntityRepository(Post)
 export class PostRepository extends Repository<Post> {
-  async findAllPostBySymbol(
+  async findAllPost(
     blockingUserIds: number[],
-    stockId: number,
     userId: number,
     cursor: number,
     limit: number,
   ) {
+    const query = this.createQueryBuilder('p')
+      .leftJoin('p.postImgs', 'postImg')
+      .addSelect('postImg.image')
+      .leftJoin('p.author', 'author')
+      .addSelect(['author.id', 'author.nickname', 'author.profileImg'])
+      .leftJoin('p.postCount', 'postCount')
+      .addSelect(['postCount.likeCount', 'postCount.commentCount'])
+      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+      .addSelect(['u.id'])
+      .leftJoinAndSelect('p.link', 'link')
+      .leftJoinAndSelect('p.gifImage', 'gif')
+      .take(limit);
+    if (blockingUserIds.length > 0) {
+      query.where('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
+    }
+    if (cursor) {
+      query.andWhere('p.id < :cursor', { cursor });
+    }
+    return query.getMany();
+  }
+  async findAllPostBySymbol(
+    stockId: number,
+    cursor: number,
+    limit: number,
+    userId?: number,
+    blockingUserIds?: number[],
+  ) {
     const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
     const authorWhere =
-      blockingUserIds.length <= 0
-        ? ''
-        : `AND authorId NOT IN (${blockingUserIds.join(',')})`;
+      blockingUserIds && blockingUserIds.length > 0
+        ? `AND authorId NOT IN (${blockingUserIds.join(',')})`
+        : '';
     const query = this.createQueryBuilder('p')
       .innerJoin(
         `(SELECT postId FROM post_to_stock ps WHERE stockId = ${stockId} ${authorWhere} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
@@ -27,14 +53,18 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['author.id', 'author.nickname', 'author.profileImg'])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
-      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
-      .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
       .take(limit);
+    if (userId) {
+      query
+        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+        .addSelect(['u.id']);
+    }
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
     }
+
     return query.getMany();
   }
 
@@ -103,9 +133,9 @@ export class PostRepository extends Repository<Post> {
 
   async getComments(
     postId: number,
-    userId: number,
     cursor: number,
     limit: number,
+    userId?: number,
   ) {
     const query = this.createQueryBuilder('p')
       .where('p.postId = :id', { id: postId })
@@ -115,11 +145,14 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['author.id', 'author.nickname', 'author.profileImg'])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount'])
-      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
-      .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
       .take(limit);
+    if (userId) {
+      query
+        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+        .addSelect(['u.id']);
+    }
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
     }

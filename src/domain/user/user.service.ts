@@ -137,7 +137,7 @@ export class UserService {
     if (userIds.length <= 0) {
       return [];
     }
-    return userIds;
+    return Array.from(new Set(userIds));
   }
 
   async blockUser(myId: number, userId: number) {

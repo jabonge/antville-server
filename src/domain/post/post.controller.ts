@@ -23,12 +23,12 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('post')
 @ApiTags('post')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard)
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('create')
   @UseInterceptors(FilesInterceptor('posts'))
+  @UseGuards(JwtAuthGuard)
   create(
     @CurrentUser() user: User,
     @UploadedFiles() files: Express.MulterS3.File[],
@@ -45,12 +45,33 @@ export class PostController {
     @Param('id') id: number,
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
+    @CurrentUser() user?: User,
+  ) {
+    return this.postService.findAllPostBySymbol(+id, +cursor, +limit, user?.id);
+  }
+
+  @Get(':id/comment')
+  findAllComment(
+    @Param('id') id: string,
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @CurrentUser() user?: User,
+  ) {
+    return this.postService.getComments(+id, +cursor, +limit, user?.id);
+  }
+
+  @Get('all')
+  @UseGuards(JwtAuthGuard)
+  findAllPost(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
     @CurrentUser() user: User,
   ) {
-    return this.postService.findAllPostBySymbol(+id, user.id, +cursor, +limit);
+    return this.postService.findAllPost(user.id, +cursor, +limit);
   }
 
   @Get('watchList')
+  @UseGuards(JwtAuthGuard)
   findAllPostByWatchList(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
@@ -60,6 +81,7 @@ export class PostController {
   }
 
   @Get('following')
+  @UseGuards(JwtAuthGuard)
   findAllPostByFollowing(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
@@ -68,32 +90,26 @@ export class PostController {
     return this.postService.findAllPostByFollowing(user.id, +cursor, +limit);
   }
 
-  @Get(':id/comment')
-  findAllComment(
-    @Param('id') id: string,
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
-    @CurrentUser() user: User,
-  ) {
-    return this.postService.getComments(+id, user.id, +cursor, +limit);
-  }
-
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   deletePost(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.deletePost(user.id, +id);
   }
 
-  @Get(':id/likePost')
+  @Post(':id/likePost')
+  @UseGuards(JwtAuthGuard)
   likePost(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.likePost(user.id, +id);
   }
 
-  @Get(':id/unLikePost')
+  @Post(':id/unLikePost')
+  @UseGuards(JwtAuthGuard)
   unLikePost(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.unLikePost(user.id, +id);
   }
 
-  @Get(':id/createReport')
+  @Post(':id/createReport')
+  @UseGuards(JwtAuthGuard)
   createReport(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.createReport(user.id, +id);
   }
