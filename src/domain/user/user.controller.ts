@@ -37,6 +37,16 @@ export class UserController {
     return this.userService.signUp(input);
   }
 
+  @Get('checkEmail')
+  async emailDuplicateCheck(@Query('email') email: string) {
+    return this.userService.emailDuplicateCheck(email);
+  }
+
+  @Get('checkNickname')
+  async nicknameDuplicateCheck(@Query('nickname') nickname: string) {
+    return this.userService.nicknameDuplicateCheck(nickname);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Put(':id/addWatchList')
   async addWatchList(@CurrentUser() user: User, @Param('id') id: string) {

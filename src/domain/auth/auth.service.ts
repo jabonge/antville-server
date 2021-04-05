@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { User } from '../user/entities/user.entity';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import CustomError from '../../util/constant/exception';
 
 @Injectable()
 export class AuthService {
@@ -38,10 +39,10 @@ export class AuthService {
       return this.issueAccessToken({
         id: decodedUser.id,
         email: decodedUser.email,
-        name: decodedUser.name,
+        nickname: decodedUser.nickname,
       });
     } else {
-      throw new BadRequestException('Invalid Token');
+      throw new BadRequestException('Invalid Refresh Token');
     }
   }
 
@@ -55,7 +56,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
     if (!user) {
-      throw new BadRequestException('Email Not Exist');
+      throw new BadRequestException(CustomError.EMAIL_NOT_FOUND);
     }
     await user.checkPassword(password);
     delete user.password;

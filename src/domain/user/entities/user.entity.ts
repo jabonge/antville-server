@@ -16,22 +16,17 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { Post } from '../../post/entities/post.entity';
 import { UserCount } from './user-count.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Report } from '../../post/entities/report.entity';
+import CustomError from '../../../util/constant/exception';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Index()
-  @Column({
-    length: 20,
-  })
-  name: string;
 
   @Index({ fulltext: true, parser: 'NGRAM' })
   @Column({
@@ -39,7 +34,7 @@ export class User {
   })
   nickname: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @ApiHideProperty()
@@ -54,6 +49,11 @@ export class User {
     default: false,
   })
   isEmailVerified: boolean;
+
+  @Column({
+    default: false,
+  })
+  subscribeNewsLetter: boolean;
 
   @Column({
     nullable: true,
@@ -152,7 +152,7 @@ export class User {
   async checkPassword(passwordInput: string): Promise<boolean> {
     const ok = await bcrypt.compare(passwordInput, this.password);
     if (!ok) {
-      throw new HttpException('Invalid Password', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException(CustomError.INVALID_PASSWORD);
     }
     return ok;
   }
@@ -161,7 +161,7 @@ export class User {
     return {
       id: this.id,
       email: this.email,
-      name: this.name,
+      nickname: this.nickname,
     };
   }
 }

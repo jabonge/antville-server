@@ -7,6 +7,7 @@ import { Connection, EntityManager, Repository } from 'typeorm';
 import { UserCount } from './entities/user-count.entity';
 import { EditProfileDto } from './dto/edit-profile.dto';
 import { StockCount } from '../stock/entities/stock-count.entity';
+import CustomError from '../../util/constant/exception';
 
 @Injectable()
 export class UserService {
@@ -19,7 +20,7 @@ export class UserService {
   async findByEmail(email: string) {
     const user = this.userRepository.findOne(
       { email },
-      { select: ['id', 'password', 'email', 'name'] },
+      { select: ['id', 'password', 'email', 'nickname'] },
     );
     return user;
   }
@@ -27,6 +28,22 @@ export class UserService {
   async findById(id: number) {
     const user = this.userRepository.findOne({ id });
     return user;
+  }
+
+  async emailDuplicateCheck(email: string) {
+    const user = this.userRepository.findOne({ email }, { select: ['id'] });
+    if (user) {
+      throw new BadRequestException(CustomError.DUPLICATED_EMAIL);
+    }
+    return;
+  }
+
+  async nicknameDuplicateCheck(nickname: string) {
+    const user = this.userRepository.findOne({ nickname }, { select: ['id'] });
+    if (user) {
+      throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
+    }
+    return;
   }
 
   async getWatchList(id: number) {
@@ -62,7 +79,7 @@ export class UserService {
   async addWatchList(userId: number, stockId: number) {
     await this.connection.transaction(async (manager) => {
       const userCount = await manager.findOne(UserCount, { userId });
-      if (userCount.watchStockCount >= 20) {
+      if (userCount.watchStockCount > 20) {
         throw new BadRequestException('WatchList Limit Exceed');
       }
       await manager
@@ -97,7 +114,7 @@ export class UserService {
       email: input.email,
     });
     if (duplicatedEmailUser) {
-      throw new BadRequestException('Email is duplicated');
+      throw new BadRequestException(CustomError.DUPLICATED_EMAIL);
     }
     const duplicatedNicknameUser = await this.userRepository.findOne({
       nickname: input.nickname,
@@ -219,8 +236,7 @@ export class UserService {
   searchUser(query: string, cursor: number, limit: number) {
     const dbQuery = this.userRepository
       .createQueryBuilder()
-      .select(['id', 'nickname', 'name', 'profileImg'])
-      .orWhere(`name LIKE ${query}%`)
+      .select(['id', 'nickname', 'profileImg'])
       .orWhere(`MATCH(nickname) AGAINST ('*${query}*' IN BOOLEAN MODE)`)
       .take(limit);
     if (cursor) {

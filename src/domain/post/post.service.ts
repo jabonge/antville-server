@@ -3,20 +3,20 @@ import { PostImg } from './entities/post-img.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from './entities/post.entity';
-import { findCacheTags, findLinks, getOgTags } from '../../util';
+import { findCacheTags, findLinks, getOgTags } from '../../util/post';
 import { User } from '../user/entities/user.entity';
 import { PostCount } from './entities/post-count.entity';
 import { StockService } from '../stock/stock.service';
 import { PostRepository } from './repositories/post.repository';
 import { Connection, IsNull } from 'typeorm';
 import { UserService } from '../user/user.service';
-import { NEW_POST, PUB_SUB } from '../../common/constants/pubsub.constants';
 import { PubSub } from '../../common/interfaces/pub_sub.interface';
 import { classToPlain } from 'class-transformer';
 import { GifImage } from './entities/gif.entity';
 import { Stock } from '../stock/entities/stock.entity';
 import { PostToStock } from './entities/post-stock.entity';
 import { Report } from './entities/report.entity';
+import { NEW_POST, PUB_SUB } from '../../util/constant/pubsub';
 
 @Injectable()
 export class PostService {
