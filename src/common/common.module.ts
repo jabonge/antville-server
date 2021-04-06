@@ -1,11 +1,11 @@
-import { REDIS_CLIENT } from './constants/index';
 import { ConfigService } from '@nestjs/config';
-import { PUB_SUB } from './constants/pubsub.constants';
 import { Global, Module } from '@nestjs/common';
 import redis from 'redis';
 import { RedisClientWrapper } from './providers/redis-client.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PubSub } from './interfaces/pub_sub.interface';
+import { PUB_SUB } from '../util/constant/pubsub';
+import { REDIS_CLIENT } from '../util/constant';
 
 @Global()
 @Module({

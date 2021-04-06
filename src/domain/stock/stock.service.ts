@@ -1,8 +1,8 @@
 import { StockPriceInfoDto } from './dtos/stock_price_info.dto';
-import { REDIS_CLIENT } from '../../common/constants/index';
 import { RedisClientWrapper } from '../../common/providers/redis-client.service';
 import { StockRepository } from './repositories/stock.repository';
 import { Injectable, Inject } from '@nestjs/common';
+import { REDIS_CLIENT } from '../../util/constant';
 
 @Injectable()
 export class StockService {

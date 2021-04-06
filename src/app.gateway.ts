@@ -1,4 +1,3 @@
-import { NEW_POST, PUB_SUB } from './common/constants/pubsub.constants';
 import { StockPriceInfoDto } from './domain/stock/dtos/stock_price_info.dto';
 import { JwtPayload } from './domain/auth/auth.interface';
 import { JwtService } from '@nestjs/jwt';
@@ -11,11 +10,16 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { CHANGE_STOCK_PRICE_INFO } from './common/constants/pubsub.constants';
+
 import WebSocket, { Server } from 'ws';
 import { IncomingMessage } from 'node:http';
 import { Post } from './domain/post/entities/post.entity';
 import { PubSub } from './common/interfaces/pub_sub.interface';
+import {
+  CHANGE_STOCK_PRICE_INFO,
+  NEW_POST,
+  PUB_SUB,
+} from './util/constant/pubsub';
 
 @WebSocketGateway(4000)
 export class AppGateway implements OnGatewayConnection {

@@ -31,7 +31,10 @@ export class UserService {
   }
 
   async emailDuplicateCheck(email: string) {
-    const user = this.userRepository.findOne({ email }, { select: ['id'] });
+    const user = await this.userRepository.findOne(
+      { email },
+      { select: ['id'] },
+    );
     if (user) {
       throw new BadRequestException(CustomError.DUPLICATED_EMAIL);
     }
@@ -39,7 +42,10 @@ export class UserService {
   }
 
   async nicknameDuplicateCheck(nickname: string) {
-    const user = this.userRepository.findOne({ nickname }, { select: ['id'] });
+    const user = await this.userRepository.findOne(
+      { nickname },
+      { select: ['id'] },
+    );
     if (user) {
       throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
     }

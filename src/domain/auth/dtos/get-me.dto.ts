@@ -5,7 +5,7 @@ export class GetMeResponseDto extends PickType(User, [
   'id',
   'email',
   'nickname',
-  'name',
   'profileImg',
   'bio',
+  'website',
 ]) {}
