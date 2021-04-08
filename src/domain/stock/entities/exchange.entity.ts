@@ -7,12 +7,11 @@ export class Exchange {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    type: 'varchar',
-    length: 20,
-    unique: true,
-  })
+  @Column()
   name: string;
+
+  @Column()
+  countryCode: string;
 
   @ApiHideProperty()
   @OneToMany(() => Stock, (stock) => stock.exchange)

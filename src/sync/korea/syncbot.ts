@@ -1,4 +1,3 @@
-import { Country } from '../../domain/stock/entities/country.entity';
 import { Exchange } from '../../domain/stock/entities/exchange.entity';
 import { StockMeta } from '../../domain/stock/entities/stock-meta.entity';
 import { Stock } from '../../domain/stock/entities/stock.entity';
@@ -41,9 +40,6 @@ class KoreaSyncBot {
       cliProgress.Presets.shades_classic,
     );
     bar.start(infos.length, 0);
-    const country = await getRepository(Country).findOne({
-      where: { code: 'KR' },
-    });
 
     //TODO: i< infos.length;
     for (let i = 0; i < 20; i++) {
@@ -63,10 +59,10 @@ class KoreaSyncBot {
         if (!exchange) {
           exchange = new Exchange();
           exchange.name = info.exchange;
+          exchange.countryCode = 'KR';
           await getRepository(Exchange).save(exchange);
         }
         stock.exchange = exchange;
-        stock.country = country;
         stock.stockCount = new StockCount();
         stock.stockMeta = new StockMeta();
         await getRepository(Stock).save(stock);

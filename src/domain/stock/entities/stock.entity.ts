@@ -1,4 +1,3 @@
-import { Country } from './country.entity';
 import { StockMeta } from './stock-meta.entity';
 import { Exchange } from './exchange.entity';
 import {
@@ -74,14 +73,6 @@ export class Stock {
   @ApiHideProperty()
   @ManyToOne(() => Exchange, (exchange) => exchange.stocks)
   exchange: Exchange;
-
-  @ApiHideProperty()
-  @RelationId((stock: Stock) => stock.country)
-  countryId: number;
-
-  @ApiHideProperty()
-  @ManyToOne(() => Country)
-  country: Country;
 
   @ApiHideProperty()
   @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })

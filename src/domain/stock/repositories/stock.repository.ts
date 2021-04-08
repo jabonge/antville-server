@@ -1,21 +1,24 @@
-import { User } from '../../user/entities/user.entity';
 import { Stock } from '../entities/stock.entity';
-import { EntityRepository, Repository } from 'typeorm';
+import { Brackets, EntityRepository, Repository } from 'typeorm';
 
 @EntityRepository(Stock)
 export class StockRepository extends Repository<Stock> {
   async findBySymbol(symbol: string): Promise<Stock> {
     return this.createQueryBuilder('s')
-      .select(['s.id', 's.enName', 's.krName', 's.symbol'])
+      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
       .where('s.symbol = :symbol', { symbol })
       .leftJoin('s.stockCount', 'stockCount')
       .addSelect(['stockCount.watchUserCount'])
+      .innerJoin('s.exchange', 'exchange')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
       .getOne();
   }
 
   async findBySymbols(symbols: string[]): Promise<Stock[]> {
     return this.createQueryBuilder('stock')
       .where('stock.symbol IN (:...symbols)', { symbols })
+      .innerJoin('s.exchange', 'exchange')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
       .getMany();
   }
 
@@ -25,29 +28,44 @@ export class StockRepository extends Repository<Stock> {
     limit: number,
   ): Promise<Stock[]> {
     const dbQuery = this.createQueryBuilder('s')
-      .select(['s.id', 's.enName', 's.krName', 's.symbol'])
-      .orWhere(`symbol LIKE '${query}%'`)
-      .orWhere(
-        `MATCH(enName,krName) AGAINST ('*${query}* *${query}*' IN BOOLEAN MODE)`,
+      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where(`symbol LIKE '${query}%'`).orWhere(
+            `MATCH(enName,krName) AGAINST ('*${query}* *${query}*' IN BOOLEAN MODE)`,
+          );
+        }),
       )
-      .take(limit);
+      .innerJoin('s.exchange', 'exchange')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
+      .orderBy('s.id', 'ASC')
+      .limit(limit);
+
     if (cursor) {
-      dbQuery.andWhere('id < :cursor', { cursor });
+      dbQuery.andWhere('s.id > :cursor', { cursor });
     }
     return dbQuery.getMany();
   }
 
   async getWatchList(userId: number): Promise<Stock[]> {
-    return this.createQueryBuilder()
-      .relation(User, 'stocks')
-      .of(userId)
-      .loadMany();
+    return this.createQueryBuilder('s')
+      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
+      .innerJoin(
+        `(SELECT stockId FROM watchlist WHERE userId = ${userId})`,
+        'w',
+        's.id = w.stockId',
+      )
+      .innerJoin('s.exchange', 'exchange')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
+      .getMany();
   }
 
   async getPopularStocks(): Promise<Stock[]> {
     return this.createQueryBuilder('s')
-      .select()
+      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
       .innerJoin('s.stockMeta', 'meta', 'meta.isPopular = true')
+      .innerJoin('s.exchange', 'exchange')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
       .getMany();
   }
 }

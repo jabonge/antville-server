@@ -1,4 +1,3 @@
-import { Country } from '../../domain/stock/entities/country.entity';
 import { Exchange } from '../../domain/stock/entities/exchange.entity';
 import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
@@ -15,9 +14,6 @@ class AbroadSyncBot {
     }
   }
   async syncStock(exchangeName: string, isEtf = false) {
-    const country = await getRepository(Country).findOne({
-      where: { code: 'US' },
-    });
     let exchange;
     if (!isEtf) {
       exchange = await getRepository(Exchange).findOne({
@@ -26,6 +22,7 @@ class AbroadSyncBot {
       if (!exchange) {
         exchange = new Exchange();
         exchange.name = exchangeName;
+        exchange.countryCode = 'US';
         await getRepository(Exchange).save(exchange);
       }
     }
@@ -45,7 +42,6 @@ class AbroadSyncBot {
         stock.symbol = symbol;
         stock.enName = quote.name;
         stock.krName = quote.name;
-        stock.country = country;
         stock.exchange = exchange;
         stock.stockMeta = new StockMeta();
         stock.stockMeta.marketCap = quote.marketCap;
