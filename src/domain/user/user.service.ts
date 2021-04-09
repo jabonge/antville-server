@@ -241,12 +241,12 @@ export class UserService {
 
   searchUser(query: string, cursor: number, limit: number) {
     const dbQuery = this.userRepository
-      .createQueryBuilder()
-      .select(['id', 'nickname', 'profileImg'])
-      .orWhere(`MATCH(nickname) AGAINST ('*${query}*' IN BOOLEAN MODE)`)
+      .createQueryBuilder('u')
+      .select()
+      .orWhere(`u.nickname like '${query}%'`)
       .take(limit);
     if (cursor) {
-      dbQuery.andWhere('id < :cursor', { cursor });
+      dbQuery.andWhere('u.id < :cursor', { cursor });
     }
     return dbQuery.getMany();
   }
@@ -257,7 +257,7 @@ export class UserService {
         nickname: editProfileDto.nickname,
       });
       if (nicknameUser) {
-        throw new BadRequestException('Nickname is duplicated');
+        throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
       } else if (!editProfileDto.bio) {
         return this.userRepository.update(
           {
