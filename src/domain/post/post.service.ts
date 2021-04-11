@@ -94,14 +94,14 @@ export class PostService {
         let stocks: Stock[];
         if (cashTags.length > 0) {
           stocks = await this.stockService.getStocks(cashTags);
+          const postToStocks = stocks.map((s) => {
+            const ps = new PostToStock();
+            ps.stockId = s.id;
+            ps.authorId = user.id;
+            return ps;
+          });
+          post.postToStocks = postToStocks;
         }
-        const postToStocks = stocks.map((s) => {
-          const ps = new PostToStock();
-          ps.stockId = s.id;
-          ps.authorId = user.id;
-          return ps;
-        });
-        post.postToStocks = postToStocks;
       }
       await manager.save(post);
       await this.userService.incrementUserCount(manager, user.id, 'postCount');

@@ -15,7 +15,7 @@ export class PostLink {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   ogSiteName: string;
 
   @Column()
@@ -24,7 +24,7 @@ export class PostLink {
   @Column()
   ogTitle: string;
 
-  @Column()
+  @Column({ nullable: true })
   ogDescription: string;
 
   @Column()

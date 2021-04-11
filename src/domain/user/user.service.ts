@@ -201,9 +201,9 @@ export class UserService {
 
   async followUser(myId: number, userId: number) {
     const users = await this.userRepository.manager.query(
-      `SELECT blockingId,blockerId FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId}))`,
+      `SELECT blockingId,blockerId FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId});`,
     );
-    if (users) {
+    if (users.length > 0) {
       throw new BadRequestException(
         'Blocked Or Blocking User DO Not Allow Following',
       );

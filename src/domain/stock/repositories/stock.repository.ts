@@ -15,8 +15,8 @@ export class StockRepository extends Repository<Stock> {
   }
 
   async findBySymbols(symbols: string[]): Promise<Stock[]> {
-    return this.createQueryBuilder('stock')
-      .where('stock.symbol IN (:...symbols)', { symbols })
+    return this.createQueryBuilder('s')
+      .where('s.symbol IN (:...symbols)', { symbols })
       .innerJoin('s.exchange', 'exchange')
       .addSelect(['exchange.name', 'exchange.countryCode'])
       .getMany();
