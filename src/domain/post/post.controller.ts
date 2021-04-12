@@ -90,6 +90,26 @@ export class PostController {
     return this.postService.findAllPostByFollowing(user.id, +cursor, +limit);
   }
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  findAllMyPost(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.postService.findAllMyPost(user.id, +cursor, +limit);
+  }
+
+  @Get('like')
+  @UseGuards(JwtAuthGuard)
+  findAllLikedPost(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.postService.findAllLikedPost(user.id, +cursor, +limit);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   deletePost(@Param('id') id: string, @CurrentUser() user: User) {

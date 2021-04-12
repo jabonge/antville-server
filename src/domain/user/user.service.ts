@@ -131,6 +131,7 @@ export class UserService {
 
     const user = plainToClass(CreateUserInput, input).toUser();
     user.userCount = new UserCount();
+    user.bio = `안녕하세요 앤트빌 주민 ${user.nickname} 입니다.`;
     await this.userRepository.save(user);
     return;
   }
