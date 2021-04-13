@@ -105,7 +105,7 @@ export class PostService {
       }
       await manager.save(post);
       await this.userService.incrementUserCount(manager, user.id, 'postCount');
-      if (post.postToStocks.length > 0) {
+      if (post.postToStocks?.length > 0) {
         this.pubsub.publisher.publish(
           NEW_POST,
           JSON.stringify(classToPlain(post)),
@@ -134,6 +134,10 @@ export class PostService {
       cursor,
       limit,
     );
+  }
+
+  async findOnePost(postId: number, userId?: number) {
+    return this.postRepository.findOnePost(postId, userId);
   }
 
   async findAllPostBySymbol(
@@ -185,8 +189,8 @@ export class PostService {
     );
   }
 
-  async findAllMyPost(userId: number, cursor: number, limit: number) {
-    return this.postRepository.findAllMyPost(userId, cursor, limit);
+  async findAllUserPost(userId: number, cursor: number, limit: number) {
+    return this.postRepository.findAllUserPost(userId, cursor, limit);
   }
 
   async findAllLikedPost(userId: number, cursor: number, limit: number) {

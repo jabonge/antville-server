@@ -60,6 +60,11 @@ export class PostController {
     return this.postService.getComments(+id, +cursor, +limit, user?.id);
   }
 
+  @Get()
+  findOne(@Query('id') id: string, @CurrentUser() user?: User) {
+    return this.postService.findOnePost(+id, user?.id);
+  }
+
   @Get('all')
   @UseGuards(JwtAuthGuard)
   findAllPost(
@@ -90,14 +95,14 @@ export class PostController {
     return this.postService.findAllPostByFollowing(user.id, +cursor, +limit);
   }
 
-  @Get('me')
+  @Get('user')
   @UseGuards(JwtAuthGuard)
-  findAllMyPost(
+  findAllUserPost(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
-    @CurrentUser() user: User,
+    @Query('id') userId: string,
   ) {
-    return this.postService.findAllMyPost(user.id, +cursor, +limit);
+    return this.postService.findAllUserPost(+userId, +cursor, +limit);
   }
 
   @Get('like')
@@ -105,9 +110,9 @@ export class PostController {
   findAllLikedPost(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
-    @CurrentUser() user: User,
+    @Query('id') userId: string,
   ) {
-    return this.postService.findAllLikedPost(user.id, +cursor, +limit);
+    return this.postService.findAllLikedPost(+userId, +cursor, +limit);
   }
 
   @Delete(':id')

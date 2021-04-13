@@ -72,4 +72,8 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  async getMe(user: User): Promise<User> {
+    return this.userService.getUserProfile(user.id);
+  }
 }

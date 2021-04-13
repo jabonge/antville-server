@@ -47,6 +47,11 @@ export class UserController {
     return this.userService.nicknameDuplicateCheck(nickname);
   }
 
+  @Get(':id/profile')
+  async getUserProfile(@Param('id') id: string) {
+    return this.userService.getUserProfile(+id);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Put(':id/addWatchList')
   async addWatchList(@CurrentUser() user: User, @Param('id') id: string) {

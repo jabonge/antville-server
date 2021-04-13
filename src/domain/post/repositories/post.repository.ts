@@ -10,6 +10,7 @@ export class PostRepository extends Repository<Post> {
     limit: number,
   ) {
     const query = this.createQueryBuilder('p')
+      .where('p.postId = null')
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoinAndSelect('p.author', 'author')
@@ -21,7 +22,7 @@ export class PostRepository extends Repository<Post> {
       .leftJoinAndSelect('p.gifImage', 'gif')
       .take(limit);
     if (blockingUserIds.length > 0) {
-      query.where('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
+      query.andWhere('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
     }
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
@@ -41,6 +42,7 @@ export class PostRepository extends Repository<Post> {
         ? `AND authorId NOT IN (${blockingUserIds.join(',')})`
         : '';
     const query = this.createQueryBuilder('p')
+      .where('p.postId = null')
       .innerJoin(
         `(SELECT postId FROM post_to_stock ps WHERE stockId = ${stockId} ${authorWhere} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
         'ps',
@@ -79,6 +81,7 @@ export class PostRepository extends Repository<Post> {
         ? ''
         : `AND authorId NOT IN (${blockingUserIds.join(',')})`;
     const query = this.createQueryBuilder('p')
+      .where('p.postId = null')
       .innerJoin(
         `(SELECT DISTINCT postId FROM post_to_stock ps WHERE stockId IN (${stockIds.join(
           ',',
@@ -109,6 +112,7 @@ export class PostRepository extends Repository<Post> {
     limit: number,
   ) {
     const query = this.createQueryBuilder('p')
+      .where('p.postId = null')
       .innerJoinAndSelect('p.author', 'author', 'author.id IN (:ids)', {
         ids: followingIds.join(','),
       })
@@ -154,14 +158,32 @@ export class PostRepository extends Repository<Post> {
     return query.getMany();
   }
 
-  async findAllMyPost(userId: number, cursor: number, limit: number) {
+  async findOnePost(postId: number, userId?: number) {
+    const query = this.createQueryBuilder('p')
+      .where('p.id = :id', { id: postId })
+      .leftJoin('p.postImgs', 'postImg')
+      .addSelect('postImg.image')
+      .leftJoinAndSelect('p.author', 'author')
+      .leftJoin('p.postCount', 'postCount')
+      .addSelect(['postCount.likeCount', 'postCount.commentCount'])
+      .leftJoinAndSelect('p.link', 'link')
+      .leftJoinAndSelect('p.gifImage', 'gif');
+    if (userId) {
+      query
+        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+        .addSelect(['u.id']);
+    }
+    return query.getOne();
+  }
+
+  async findAllUserPost(userId: number, cursor: number, limit: number) {
     const query = this.createQueryBuilder('p')
       .where('p.authorId = :id', { id: userId })
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoinAndSelect('p.author', 'author')
       .leftJoin('p.postCount', 'postCount')
-      .addSelect(['postCount.likeCount'])
+      .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
@@ -176,7 +198,7 @@ export class PostRepository extends Repository<Post> {
     const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
     const query = this.createQueryBuilder('p')
       .innerJoin(
-        `(SELECT userId FROM posts_likers pl WHERE userId = ${userId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        `(SELECT postId FROM posts_likers pl WHERE userId = ${userId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
         'pl',
         'p.id = pl.postId',
       )

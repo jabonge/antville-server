@@ -30,6 +30,16 @@ export class UserService {
     return user;
   }
 
+  async getUserProfile(userId: number) {
+    const user = this.userRepository.findOne({
+      relations: ['userCount'],
+      where: {
+        id: userId,
+      },
+    });
+    return user;
+  }
+
   async emailDuplicateCheck(email: string) {
     const user = await this.userRepository.findOne(
       { email },
@@ -50,16 +60,6 @@ export class UserService {
       throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
     }
     return;
-  }
-
-  async getWatchList(id: number) {
-    const userAndStocks = this.userRepository.findOne({
-      where: {
-        id,
-      },
-      relations: ['stock'],
-    });
-    return userAndStocks;
   }
 
   async removeWatchList(userId: number, stockId: number) {

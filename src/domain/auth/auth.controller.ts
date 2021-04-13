@@ -1,7 +1,6 @@
 import { LoginResponseDto, LoginInputDto } from './dtos/login.dto';
 import { LocalAuthGuard, JwtAuthGuard } from './guards/auth.guard';
 import { User } from '../user/entities/user.entity';
-import { GetMeResponseDto } from './dtos/get-me.dto';
 import { AuthService } from './auth.service';
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/user.decorator';
@@ -30,7 +29,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getMe(@CurrentUser() user: User): GetMeResponseDto {
-    return user;
+  getMe(@CurrentUser() user: User): Promise<User> {
+    return this.authService.getMe(user);
   }
 }
