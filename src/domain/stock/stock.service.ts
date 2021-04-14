@@ -3,6 +3,8 @@ import { RedisClientWrapper } from '../../common/providers/redis-client.service'
 import { StockRepository } from './repositories/stock.repository';
 import { Injectable, Inject } from '@nestjs/common';
 import { REDIS_CLIENT } from '../../util/constant';
+import { isKoreanLang } from '../../util/stock';
+import { Stock } from './entities/stock.entity';
 
 @Injectable()
 export class StockService {
@@ -22,17 +24,22 @@ export class StockService {
     return stocks;
   }
 
-  async getStock(symbol: string) {
-    const stock = await this.stockRepository.findBySymbol(symbol);
-    const stockPriceInfo = await this.client.getStockPriceInfo(symbol);
+  async getStockByTitle(title: string) {
+    let stock: Stock;
+    if (isKoreanLang(title)) {
+      stock = await this.stockRepository.findByTitle(title);
+    } else {
+      stock = await this.stockRepository.findBySymbol(title);
+    }
+    const stockPriceInfo = await this.client.getStockPriceInfo(stock.symbol);
     return {
       stock,
       stockPriceInfo,
     };
   }
 
-  async getStocks(symbols: string[]) {
-    const stocks = await this.stockRepository.findBySymbols(symbols);
+  async getStocks(titles: string[]) {
+    const stocks = await this.stockRepository.findByTitles(titles);
     return stocks;
   }
 

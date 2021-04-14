@@ -34,8 +34,8 @@ export class StockController {
     return this.stockService.getPopularListWithStockPriceInfo();
   }
 
-  @Get(':symbol')
-  getStock(@Param('symbol') symbol: string): Promise<GetStockResponseDto> {
-    return this.stockService.getStock(symbol);
+  @Get(':title')
+  getStockByTitle(@Param('title') title: string): Promise<GetStockResponseDto> {
+    return this.stockService.getStockByTitle(title);
   }
 }

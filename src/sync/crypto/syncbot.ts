@@ -27,7 +27,7 @@ class CryptoSyncBot {
     for (let i = 0; i < krwList.length; i++) {
       const crypto = krwList[i];
       const splitMarketName = crypto.market.split('-');
-      const symbol = `${splitMarketName[1]}/${splitMarketName[0]}`;
+      const symbol = splitMarketName[1];
       let stock = await getRepository(Stock).findOne({
         where: { symbol },
       });

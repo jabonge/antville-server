@@ -10,7 +10,7 @@ export class PostRepository extends Repository<Post> {
     limit: number,
   ) {
     const query = this.createQueryBuilder('p')
-      .where('p.postId = null')
+      .where('p.postId IS NULL')
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoinAndSelect('p.author', 'author')
@@ -42,7 +42,7 @@ export class PostRepository extends Repository<Post> {
         ? `AND authorId NOT IN (${blockingUserIds.join(',')})`
         : '';
     const query = this.createQueryBuilder('p')
-      .where('p.postId = null')
+      .where('p.postId IS NULL')
       .innerJoin(
         `(SELECT postId FROM post_to_stock ps WHERE stockId = ${stockId} ${authorWhere} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
         'ps',
@@ -81,7 +81,7 @@ export class PostRepository extends Repository<Post> {
         ? ''
         : `AND authorId NOT IN (${blockingUserIds.join(',')})`;
     const query = this.createQueryBuilder('p')
-      .where('p.postId = null')
+      .where('p.postId IS NULL')
       .innerJoin(
         `(SELECT DISTINCT postId FROM post_to_stock ps WHERE stockId IN (${stockIds.join(
           ',',
@@ -112,7 +112,7 @@ export class PostRepository extends Repository<Post> {
     limit: number,
   ) {
     const query = this.createQueryBuilder('p')
-      .where('p.postId = null')
+      .where('p.postId IS NULL')
       .innerJoinAndSelect('p.author', 'author', 'author.id IN (:ids)', {
         ids: followingIds.join(','),
       })

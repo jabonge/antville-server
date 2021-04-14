@@ -33,11 +33,10 @@ export class PostService {
     user: User,
     files: Express.MulterS3.File[],
   ) {
-    let postImgs: PostImg[];
+    const postImgs: PostImg[] = [];
     let postLink: PostLink;
     let gifImage: GifImage;
     if (files.length > 0) {
-      postImgs = [];
       files.forEach((f) => {
         const img = new PostImg();
         img.image = f.location;
@@ -61,7 +60,7 @@ export class PostService {
       gifImage = new GifImage();
       gifImage.id = gifId;
       gifImage.gifUrl = gifUrl;
-      gifImage.ratio = ratio;
+      gifImage.ratio = +ratio;
       gifImage.tinyGifUrl = tinyGifUrl;
     }
     const post = new Post();

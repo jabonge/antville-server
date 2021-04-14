@@ -14,9 +14,26 @@ export class StockRepository extends Repository<Stock> {
       .getOne();
   }
 
-  async findBySymbols(symbols: string[]): Promise<Stock[]> {
+  async findByTitle(title: string): Promise<Stock> {
     return this.createQueryBuilder('s')
-      .where('s.symbol IN (:...symbols)', { symbols })
+      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
+      .where('s.krName = :title', { title })
+      .leftJoin('s.stockCount', 'stockCount')
+      .addSelect(['stockCount.watchUserCount'])
+      .innerJoin('s.exchange', 'exchange')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
+      .getOne();
+  }
+
+  async findByTitles(titles: string[]): Promise<Stock[]> {
+    return this.createQueryBuilder('s')
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('s.symbol IN (:...titles)', {
+            titles,
+          }).orWhere('s.krName IN (:...titles)', { titles });
+        }),
+      )
       .innerJoin('s.exchange', 'exchange')
       .addSelect(['exchange.name', 'exchange.countryCode'])
       .getMany();

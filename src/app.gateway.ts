@@ -65,6 +65,7 @@ export class AppGateway implements OnGatewayConnection {
             ws.readyState === WebSocket.OPEN &&
             post.postToStocks?.map((s) => s.stockId)?.includes(stockId)
           ) {
+            delete post.postToStocks;
             ws.send(message);
           }
         });
