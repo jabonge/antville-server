@@ -77,7 +77,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Put(':id/follow')
   async followUser(@CurrentUser() user: User, @Param('id') id: string) {
-    return this.userService.followUser(user.id, +id);
+    return this.userService.followUser(user, +id);
   }
 
   @UseGuards(JwtAuthGuard)

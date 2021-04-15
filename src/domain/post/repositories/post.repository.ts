@@ -20,6 +20,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
+      .orderBy('p.id', 'DESC')
       .take(limit);
     if (blockingUserIds.length > 0) {
       query.andWhere('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
@@ -29,7 +30,7 @@ export class PostRepository extends Repository<Post> {
     }
     return query.getMany();
   }
-  async findAllPostBySymbol(
+  async findAllPostById(
     stockId: number,
     cursor: number,
     limit: number,
@@ -55,6 +56,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
+      .orderBy('p.id', 'DESC')
       .take(limit);
     if (userId) {
       query
@@ -98,6 +100,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
+      .orderBy('p.id', 'DESC')
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
@@ -124,6 +127,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
+      .orderBy('p.id', 'DESC')
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
@@ -146,6 +150,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['postCount.likeCount'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
+      .orderBy('p.id', 'DESC')
       .take(limit);
     if (userId) {
       query
@@ -188,6 +193,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
+      .orderBy('p.id', 'DESC')
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
@@ -211,6 +217,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
+      .orderBy('p.id', 'DESC')
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });

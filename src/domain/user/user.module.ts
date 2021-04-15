@@ -8,6 +8,7 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { UserCount } from './entities/user-count.entity';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserCount } from './entities/user-count.entity';
       useClass: UploadService,
       inject: [ConfigService],
     }),
+    NotificationModule,
   ],
   providers: [UserService],
   exports: [UserService],

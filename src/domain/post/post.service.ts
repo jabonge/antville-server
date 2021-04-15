@@ -3,7 +3,12 @@ import { PostImg } from './entities/post-img.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from './entities/post.entity';
-import { findCacheTags, findLinks, getOgTags } from '../../util/post';
+import {
+  findAtSignNickname,
+  findCacheTags,
+  findLinks,
+  getOgTags,
+} from '../../util/post';
 import { User } from '../user/entities/user.entity';
 import { PostCount } from './entities/post-count.entity';
 import { StockService } from '../stock/stock.service';
@@ -17,6 +22,9 @@ import { Stock } from '../stock/entities/stock.entity';
 import { PostToStock } from './entities/post-stock.entity';
 import { Report } from './entities/report.entity';
 import { NEW_POST, PUB_SUB } from '../../util/constant/pubsub';
+import { NotificationService } from '../notification/notification.service';
+import { CreateNotificationDto } from '../notification/dto/create-notification.dto';
+import { NotificationType } from '../notification/entities/notification.entity';
 
 @Injectable()
 export class PostService {
@@ -27,6 +35,7 @@ export class PostService {
     private readonly postRepository: PostRepository,
     private readonly stockService: StockService,
     private readonly userService: UserService,
+    private readonly notificationService: NotificationService,
   ) {}
   async createPost(
     createPostDto: CreatePostDto,
@@ -71,10 +80,16 @@ export class PostService {
     post.postImgs = postImgs;
     post.link = postLink;
     post.gifImage = gifImage;
+    const userNicknames = findAtSignNickname(createPostDto.body);
+    console.log(userNicknames);
+    let users: User[];
+    if (userNicknames.length > 0) {
+      users = await this.userService.findByNicknames(userNicknames);
+    }
     await this.connection.transaction(async (manager) => {
       if (createPostDto.postId) {
         const parent = await manager.findOneOrFail(Post, createPostDto.postId, {
-          select: ['id'],
+          select: ['id', 'authorId'],
           where: {
             postId: IsNull(),
           },
@@ -88,6 +103,14 @@ export class PostService {
           'commentCount',
           1,
         );
+        if (!users) {
+          await this.notificationService.createCommentNotification(
+            manager,
+            user,
+            parent.authorId,
+            post.postId,
+          );
+        }
       } else {
         const cashTags = findCacheTags(createPostDto.body);
         let stocks: Stock[];
@@ -104,6 +127,15 @@ export class PostService {
       }
       await manager.save(post);
       await this.userService.incrementUserCount(manager, user.id, 'postCount');
+      if (users) {
+        await this.notificationService.createUserTagNotification(
+          manager,
+          users,
+          user,
+          post.id,
+          post.postId,
+        );
+      }
       if (post.postToStocks?.length > 0) {
         this.pubsub.publisher.publish(
           NEW_POST,
@@ -139,7 +171,7 @@ export class PostService {
     return this.postRepository.findOnePost(postId, userId);
   }
 
-  async findAllPostBySymbol(
+  async findAllPostById(
     stockId: number,
     cursor: number,
     limit: number,
@@ -151,7 +183,7 @@ export class PostService {
         userId,
       );
     }
-    return this.postRepository.findAllPostBySymbol(
+    return this.postRepository.findAllPostById(
       stockId,
       cursor,
       limit,
@@ -203,50 +235,55 @@ export class PostService {
     });
   }
 
-  async likePost(userId: number, postId: number) {
+  async likePost(user: User, postId: number) {
+    const post = await this.postRepository.findOne(postId, {
+      select: ['authorId'],
+    });
+    const createNotificationDto = new CreateNotificationDto();
+    createNotificationDto.paramId = postId;
+    createNotificationDto.type = NotificationType.LIKE;
+    createNotificationDto.user = user;
+    createNotificationDto.viewerId = post.authorId;
     await this.connection.transaction(async (manager) => {
-      await manager
-        .createQueryBuilder(Post, 'p')
-        .relation('likers')
-        .of(postId)
-        .add(userId);
-      await manager.increment(
-        PostCount,
-        {
-          postId,
-        },
-        'likeCount',
-        1,
-      );
-      await this.userService.incrementUserCount(
-        manager,
-        userId,
-        'postLikeCount',
-      );
+      await Promise.all([
+        manager
+          .createQueryBuilder(Post, 'p')
+          .relation('likers')
+          .of(postId)
+          .add(user.id),
+        manager.increment(
+          PostCount,
+          {
+            postId,
+          },
+          'likeCount',
+          1,
+        ),
+        this.userService.incrementUserCount(manager, user.id, 'postLikeCount'),
+        this.notificationService.create(manager, createNotificationDto),
+      ]);
     });
     return;
   }
 
   async unLikePost(userId: number, postId: number) {
     await this.connection.transaction(async (manager) => {
-      await manager
-        .createQueryBuilder(Post, 'p')
-        .relation('likers')
-        .of(postId)
-        .remove(userId);
-      await manager.decrement(
-        PostCount,
-        {
-          postId,
-        },
-        'likeCount',
-        1,
-      );
-      await this.userService.decrementUserCount(
-        manager,
-        userId,
-        'postLikeCount',
-      );
+      await Promise.all([
+        manager
+          .createQueryBuilder(Post, 'p')
+          .relation('likers')
+          .of(postId)
+          .remove(userId),
+        manager.decrement(
+          PostCount,
+          {
+            postId,
+          },
+          'likeCount',
+          1,
+        ),
+        this.userService.decrementUserCount(manager, userId, 'postLikeCount'),
+      ]);
     });
     return;
   }

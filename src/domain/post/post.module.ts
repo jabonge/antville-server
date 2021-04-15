@@ -11,6 +11,7 @@ import { PostCount } from './entities/post-count.entity';
 import { StockModule } from '../stock/stock.module';
 import { ConfigService } from '@nestjs/config';
 import { PostRepository } from './repositories/post.repository';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { PostRepository } from './repositories/post.repository';
     }),
     StockModule,
     UserModule,
+    NotificationModule,
   ],
   controllers: [PostController],
   providers: [PostService],

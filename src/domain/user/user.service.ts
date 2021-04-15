@@ -1,3 +1,4 @@
+import { CreateNotificationDto } from './../notification/dto/create-notification.dto';
 import { plainToClass } from 'class-transformer';
 import { CreateUserInput } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -8,11 +9,14 @@ import { UserCount } from './entities/user-count.entity';
 import { EditProfileDto } from './dto/edit-profile.dto';
 import { StockCount } from '../stock/entities/stock-count.entity';
 import CustomError from '../../util/constant/exception';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from '../notification/entities/notification.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     private connection: Connection,
+    private readonly notificationService: NotificationService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
@@ -23,6 +27,16 @@ export class UserService {
       { select: ['id', 'password', 'email', 'nickname'] },
     );
     return user;
+  }
+
+  async findByNicknames(nicknames: string[]) {
+    const users = this.userRepository.find({
+      where: {
+        nickname: nicknames,
+      },
+      select: ['id', 'nickname', 'profileImg'],
+    });
+    return users;
   }
 
   async findById(id: number) {
@@ -200,26 +214,34 @@ export class UserService {
     return;
   }
 
-  async followUser(myId: number, userId: number) {
+  async followUser(me: User, userId: number) {
     const users = await this.userRepository.manager.query(
-      `SELECT blockingId,blockerId FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId});`,
+      `SELECT blockingId,blockerId FROM users_blocks WHERE (blockerId = ${me.id} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${me.id});`,
     );
     if (users.length > 0) {
       throw new BadRequestException(
         'Blocked Or Blocking User DO Not Allow Following',
       );
     }
+    const createNotificationDto = new CreateNotificationDto();
+    createNotificationDto.viewerId = userId;
+    createNotificationDto.user = me;
+    createNotificationDto.type = NotificationType.FOLLOW;
+    createNotificationDto.paramId = me.id;
     await this.connection.transaction(async (manager) => {
-      await manager.findOneOrFail(User, userId, {
-        select: ['id'],
-      });
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'following')
-        .of(myId)
-        .add(userId);
-      await this.incrementUserCount(manager, myId, 'following');
-      await this.incrementUserCount(manager, userId, 'followers');
+      await Promise.all([
+        manager.findOneOrFail(User, userId, {
+          select: ['id'],
+        }),
+        manager
+          .createQueryBuilder(User, 'u')
+          .relation(User, 'following')
+          .of(me.id)
+          .add(userId),
+        this.incrementUserCount(manager, me.id, 'following'),
+        this.incrementUserCount(manager, userId, 'followers'),
+        this.notificationService.create(manager, createNotificationDto),
+      ]);
     });
     return;
   }

@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CommonModule } from './common/common.module';
 import { UserModule } from './domain/user/user.module';
 import { AppGateway } from './app.gateway';
+import { NotificationModule } from './domain/notification/notification.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AppGateway } from './app.gateway';
     UserModule,
     AuthModule,
     PostModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [AppGateway],

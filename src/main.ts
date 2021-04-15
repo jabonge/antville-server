@@ -7,6 +7,7 @@ import { VtExceptionFilter } from './infra/exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   app.useWebSocketAdapter(new WsAdapter(app));
   app.useGlobalFilters(new VtExceptionFilter());

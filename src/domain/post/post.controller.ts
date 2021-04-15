@@ -41,13 +41,13 @@ export class PostController {
   }
 
   @Get(':id/symbol')
-  findAllPostBySymbol(
+  findAllPostById(
     @Param('id') id: number,
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
     @CurrentUser() user?: User,
   ) {
-    return this.postService.findAllPostBySymbol(+id, +cursor, +limit, user?.id);
+    return this.postService.findAllPostById(+id, +cursor, +limit, user?.id);
   }
 
   @Get(':id/comment')
@@ -124,7 +124,7 @@ export class PostController {
   @Post(':id/likePost')
   @UseGuards(JwtAuthGuard)
   likePost(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.postService.likePost(user.id, +id);
+    return this.postService.likePost(user, +id);
   }
 
   @Post(':id/unLikePost')

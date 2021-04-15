@@ -22,6 +22,7 @@ import { UserCount } from './user-count.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Report } from '../../post/entities/report.entity';
 import CustomError from '../../../util/constant/exception';
+import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity()
 export class User {
@@ -125,6 +126,10 @@ export class User {
   @ApiHideProperty()
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
+
+  @ApiHideProperty()
+  @OneToMany(() => Notification, (notification) => notification.viewer)
+  notifications: Notification[];
 
   @ApiHideProperty()
   @ManyToMany(() => Post, (post) => post.likers)

@@ -14,6 +14,16 @@ export function findCacheTags(str: string): string[] {
   return matches;
 }
 
+export function findAtSignNickname(str: string): string[] {
+  const atSignRegex = /@([a-zA-Z가-힣_.]{2,})/g;
+  const matches = [];
+  let match;
+  while ((match = atSignRegex.exec(str))) {
+    matches.push((match[0] as string).substr(1));
+  }
+  return matches;
+}
+
 export async function getOgTags(link: string) {
   const options: Options = {
     url: link,
