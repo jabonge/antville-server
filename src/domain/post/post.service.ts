@@ -81,7 +81,6 @@ export class PostService {
     post.link = postLink;
     post.gifImage = gifImage;
     const userNicknames = findAtSignNickname(createPostDto.body);
-    console.log(userNicknames);
     let users: User[];
     if (userNicknames.length > 0) {
       users = await this.userService.findByNicknames(userNicknames);
