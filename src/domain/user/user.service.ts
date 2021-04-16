@@ -37,7 +37,9 @@ export class UserService {
       },
       select: ['id', 'nickname', 'profileImg'],
     });
-    users = users.filter((u) => !blockUserIds.includes(u.id));
+    users = users.filter(
+      (u) => !blockUserIds.includes(u.id) && u.id !== user.id,
+    );
     return users;
   }
 

@@ -184,7 +184,6 @@ export class PostService {
     if (userId) {
       blockUserIds = await this.userService.findBlockingAndBlockerIds(userId);
     }
-    console.log(blockUserIds);
     return this.postRepository.findAllPostById(
       stockId,
       cursor,

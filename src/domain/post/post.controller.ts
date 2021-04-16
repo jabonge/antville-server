@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { JwtAuthGuard } from '../auth/guards/auth.guard';
+import { ConditionAuthGuard, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { User } from '../user/entities/user.entity';
@@ -40,6 +40,7 @@ export class PostController {
     return this.postService.createPost(createPostDto, user, files);
   }
 
+  @UseGuards(ConditionAuthGuard)
   @Get(':id/symbol')
   findAllPostById(
     @Param('id') id: number,
@@ -47,7 +48,6 @@ export class PostController {
     @Query('limit') limit: string,
     @CurrentUser() user?: User,
   ) {
-    console.log(user.id);
     return this.postService.findAllPostById(+id, +cursor, +limit, user?.id);
   }
 
