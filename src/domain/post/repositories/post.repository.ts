@@ -136,6 +136,7 @@ export class PostRepository extends Repository<Post> {
   }
 
   async getComments(
+    blockingUserIds: number[],
     postId: number,
     cursor: number,
     limit: number,
@@ -156,6 +157,9 @@ export class PostRepository extends Repository<Post> {
       query
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
         .addSelect(['u.id']);
+    }
+    if (blockingUserIds.length > 0) {
+      query.andWhere('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
     }
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });

@@ -83,7 +83,7 @@ export class PostService {
     const userNicknames = findAtSignNickname(createPostDto.body);
     let users: User[];
     if (userNicknames.length > 0) {
-      users = await this.userService.findByNicknames(userNicknames);
+      users = await this.userService.findByNicknames(userNicknames, user);
     }
     await this.connection.transaction(async (manager) => {
       if (createPostDto.postId) {
@@ -102,7 +102,7 @@ export class PostService {
           'commentCount',
           1,
         );
-        if (!users) {
+        if (!users && parent.authorId != user.id) {
           await this.notificationService.createCommentNotification(
             manager,
             user,
@@ -151,13 +151,18 @@ export class PostService {
     limit: number,
     userId?: number,
   ) {
-    return this.postRepository.getComments(postId, cursor, limit, userId);
+    const blockingUserIds = await this.userService.findBlockingUserIds(userId);
+    return this.postRepository.getComments(
+      blockingUserIds,
+      postId,
+      cursor,
+      limit,
+      userId,
+    );
   }
 
   async findAllPost(userId: number, cursor: number, limit: number) {
-    const blockingUserIds = await this.userService.findBlockingAndBlockerIds(
-      userId,
-    );
+    const blockingUserIds = await this.userService.findBlockingUserIds(userId);
     return this.postRepository.findAllPost(
       blockingUserIds,
       userId,
@@ -178,9 +183,7 @@ export class PostService {
   ) {
     let blockingUserIds;
     if (userId) {
-      blockingUserIds = await this.userService.findBlockingAndBlockerIds(
-        userId,
-      );
+      blockingUserIds = await this.userService.findBlockingUserIds(userId);
     }
     return this.postRepository.findAllPostById(
       stockId,
@@ -207,9 +210,7 @@ export class PostService {
       return [];
     }
     const stockIds = stocks.map((s) => s.id);
-    const blockingUserIds = await this.userService.findBlockingAndBlockerIds(
-      userId,
-    );
+    const blockingUserIds = await this.userService.findBlockingUserIds(userId);
     return this.postRepository.findAllPostByWatchList(
       blockingUserIds,
       stockIds,
@@ -238,11 +239,7 @@ export class PostService {
     const post = await this.postRepository.findOne(postId, {
       select: ['authorId'],
     });
-    const createNotificationDto = new CreateNotificationDto();
-    createNotificationDto.paramId = postId;
-    createNotificationDto.type = NotificationType.LIKE;
-    createNotificationDto.user = user;
-    createNotificationDto.viewerId = post.authorId;
+
     await this.connection.transaction(async (manager) => {
       await Promise.all([
         manager
@@ -259,8 +256,15 @@ export class PostService {
           1,
         ),
         this.userService.incrementUserCount(manager, user.id, 'postLikeCount'),
-        this.notificationService.create(manager, createNotificationDto),
       ]);
+      if (post.authorId != user.id) {
+        const createNotificationDto = new CreateNotificationDto();
+        createNotificationDto.paramId = postId;
+        createNotificationDto.type = NotificationType.LIKE;
+        createNotificationDto.user = user;
+        createNotificationDto.viewerId = post.authorId;
+        await this.notificationService.create(manager, createNotificationDto);
+      }
     });
     return;
   }

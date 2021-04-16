@@ -29,13 +29,15 @@ export class UserService {
     return user;
   }
 
-  async findByNicknames(nicknames: string[]) {
-    const users = this.userRepository.find({
+  async findByNicknames(nicknames: string[], user: User) {
+    const blockerUserIds = await this.findBlockerUserIds(user.id);
+    let users = await this.userRepository.find({
       where: {
         nickname: In(nicknames),
       },
       select: ['id', 'nickname', 'profileImg'],
     });
+    users = users.filter((u) => !blockerUserIds.includes(u.id));
     return users;
   }
 
@@ -178,6 +180,20 @@ export class UserService {
     return Array.from(new Set(userIds));
   }
 
+  async findBlockingUserIds(userId: number): Promise<number[]> {
+    const users = await this.userRepository.manager.query(
+      `SELECT blockingId FROM users_blocks WHERE blockerId = ${userId}`,
+    );
+    return users;
+  }
+
+  async findBlockerUserIds(userId: number): Promise<number[]> {
+    const users = await this.userRepository.manager.query(
+      `SELECT blockerId FROM users_blocks WHERE blockingId = ${userId}`,
+    );
+    return users;
+  }
+
   async blockUser(myId: number, userId: number) {
     await this.connection.transaction(async (manager) => {
       await manager.findOneOrFail(User, userId, {
@@ -220,7 +236,7 @@ export class UserService {
     );
     if (users.length > 0) {
       throw new BadRequestException(
-        'Blocked Or Blocking User DO Not Allow Following',
+        'Blocked Or Blocking User Do Not Allow Following',
       );
     }
     const createNotificationDto = new CreateNotificationDto();
