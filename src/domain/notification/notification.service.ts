@@ -75,9 +75,11 @@ export class NotificationService {
   }
 
   findAllByUser(userId: number, cursor: number, limit: number) {
-    const where = { viewerId: userId, id: undefined };
+    let where;
     if (cursor) {
-      where.id = LessThan(cursor);
+      where = { viewerId: userId, id: LessThan(cursor) };
+    } else {
+      where = { viewerId: userId };
     }
     return this.notificationRepository.find({
       where,

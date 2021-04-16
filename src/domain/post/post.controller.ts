@@ -47,6 +47,7 @@ export class PostController {
     @Query('limit') limit: string,
     @CurrentUser() user?: User,
   ) {
+    console.log(user.id);
     return this.postService.findAllPostById(+id, +cursor, +limit, user?.id);
   }
 
@@ -101,8 +102,9 @@ export class PostController {
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
     @Query('id') userId: string,
+    @CurrentUser() me?: User,
   ) {
-    return this.postService.findAllUserPost(+userId, +cursor, +limit);
+    return this.postService.findAllUserPost(+cursor, +limit, +userId, me?.id);
   }
 
   @Get('like')
@@ -111,8 +113,9 @@ export class PostController {
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
     @Query('id') userId: string,
+    @CurrentUser() me?: User,
   ) {
-    return this.postService.findAllLikedPost(+userId, +cursor, +limit);
+    return this.postService.findAllLikedPost(+cursor, +limit, +userId, me?.id);
   }
 
   @Delete(':id')

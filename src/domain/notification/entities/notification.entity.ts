@@ -24,7 +24,6 @@ export class Notification {
   id: number;
 
   @Column({
-    nullable: true,
     type: 'enum',
     enum: NotificationType,
   })
@@ -54,7 +53,7 @@ export class Notification {
   @ApiHideProperty()
   @ManyToOne(() => User, (user) => user.notifications, { onDelete: 'CASCADE' })
   @JoinColumn({
-    name: 'userId',
+    name: 'viewerId',
   })
   viewer: User;
 

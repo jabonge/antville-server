@@ -30,14 +30,14 @@ export class UserService {
   }
 
   async findByNicknames(nicknames: string[], user: User) {
-    const blockerUserIds = await this.findBlockerUserIds(user.id);
+    const blockUserIds = await this.findBlockingAndBlockerIds(user.id);
     let users = await this.userRepository.find({
       where: {
         nickname: In(nicknames),
       },
       select: ['id', 'nickname', 'profileImg'],
     });
-    users = users.filter((u) => !blockerUserIds.includes(u.id));
+    users = users.filter((u) => !blockUserIds.includes(u.id));
     return users;
   }
 
@@ -180,19 +180,26 @@ export class UserService {
     return Array.from(new Set(userIds));
   }
 
-  async findBlockingUserIds(userId: number): Promise<number[]> {
+  async isBlockingOrBlockedUser(myId: number, userId: number) {
     const users = await this.userRepository.manager.query(
-      `SELECT blockingId FROM users_blocks WHERE blockerId = ${userId}`,
+      `SELECT blockingId,blockerId FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId});`,
     );
-    return users;
+    return users.length > 0;
   }
 
-  async findBlockerUserIds(userId: number): Promise<number[]> {
-    const users = await this.userRepository.manager.query(
-      `SELECT blockerId FROM users_blocks WHERE blockingId = ${userId}`,
-    );
-    return users;
-  }
+  // async findBlockingUserIds(userId: number): Promise<number[]> {
+  //   const users = await this.userRepository.manager.query(
+  //     `SELECT blockingId FROM users_blocks WHERE blockerId = ${userId}`,
+  //   );
+  //   return users;
+  // }
+
+  // async findBlockerUserIds(userId: number): Promise<number[]> {
+  //   const users = await this.userRepository.manager.query(
+  //     `SELECT blockerId FROM users_blocks WHERE blockingId = ${userId}`,
+  //   );
+  //   return users;
+  // }
 
   async blockUser(myId: number, userId: number) {
     await this.connection.transaction(async (manager) => {
@@ -231,10 +238,11 @@ export class UserService {
   }
 
   async followUser(me: User, userId: number) {
-    const users = await this.userRepository.manager.query(
-      `SELECT blockingId,blockerId FROM users_blocks WHERE (blockerId = ${me.id} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${me.id});`,
+    const isBlockingOrBlocked = await this.isBlockingOrBlockedUser(
+      me.id,
+      userId,
     );
-    if (users.length > 0) {
+    if (isBlockingOrBlocked) {
       throw new BadRequestException(
         'Blocked Or Blocking User Do Not Allow Following',
       );

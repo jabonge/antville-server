@@ -151,9 +151,11 @@ export class PostService {
     limit: number,
     userId?: number,
   ) {
-    const blockingUserIds = await this.userService.findBlockingUserIds(userId);
+    const blockUserIds = await this.userService.findBlockingAndBlockerIds(
+      userId,
+    );
     return this.postRepository.getComments(
-      blockingUserIds,
+      blockUserIds,
       postId,
       cursor,
       limit,
@@ -162,13 +164,10 @@ export class PostService {
   }
 
   async findAllPost(userId: number, cursor: number, limit: number) {
-    const blockingUserIds = await this.userService.findBlockingUserIds(userId);
-    return this.postRepository.findAllPost(
-      blockingUserIds,
+    const blockUserIds = await this.userService.findBlockingAndBlockerIds(
       userId,
-      cursor,
-      limit,
     );
+    return this.postRepository.findAllPost(blockUserIds, userId, cursor, limit);
   }
 
   async findOnePost(postId: number, userId?: number) {
@@ -181,16 +180,17 @@ export class PostService {
     limit: number,
     userId?: number,
   ) {
-    let blockingUserIds;
+    let blockUserIds;
     if (userId) {
-      blockingUserIds = await this.userService.findBlockingUserIds(userId);
+      blockUserIds = await this.userService.findBlockingAndBlockerIds(userId);
     }
+    console.log(blockUserIds);
     return this.postRepository.findAllPostById(
       stockId,
       cursor,
       limit,
       userId,
-      blockingUserIds,
+      blockUserIds,
     );
   }
 
@@ -210,9 +210,11 @@ export class PostService {
       return [];
     }
     const stockIds = stocks.map((s) => s.id);
-    const blockingUserIds = await this.userService.findBlockingUserIds(userId);
+    const blockUserIds = await this.userService.findBlockingAndBlockerIds(
+      userId,
+    );
     return this.postRepository.findAllPostByWatchList(
-      blockingUserIds,
+      blockUserIds,
       stockIds,
       userId,
       cursor,
@@ -220,12 +222,32 @@ export class PostService {
     );
   }
 
-  async findAllUserPost(userId: number, cursor: number, limit: number) {
-    return this.postRepository.findAllUserPost(userId, cursor, limit);
+  async findAllUserPost(
+    cursor: number,
+    limit: number,
+    userId: number,
+    myId?: number,
+  ) {
+    if (myId && userId !== myId) {
+      if (await this.userService.isBlockingOrBlockedUser(myId, userId)) {
+        return [];
+      }
+    }
+    return this.postRepository.findAllUserPost(cursor, limit, userId, myId);
   }
 
-  async findAllLikedPost(userId: number, cursor: number, limit: number) {
-    return this.postRepository.findAllLikedPost(userId, cursor, limit);
+  async findAllLikedPost(
+    cursor: number,
+    limit: number,
+    userId: number,
+    myId?: number,
+  ) {
+    if (myId && userId !== myId) {
+      if (await this.userService.isBlockingOrBlockedUser(myId, userId)) {
+        return [];
+      }
+    }
+    return this.postRepository.findAllLikedPost(cursor, limit, userId, myId);
   }
 
   async deletePost(userId: number, postId: number) {

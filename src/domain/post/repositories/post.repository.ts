@@ -185,7 +185,12 @@ export class PostRepository extends Repository<Post> {
     return query.getOne();
   }
 
-  async findAllUserPost(userId: number, cursor: number, limit: number) {
+  async findAllUserPost(
+    cursor: number,
+    limit: number,
+    userId: number,
+    myId?: number,
+  ) {
     const query = this.createQueryBuilder('p')
       .where('p.authorId = :id', { id: userId })
       .leftJoin('p.postImgs', 'postImg')
@@ -193,7 +198,6 @@ export class PostRepository extends Repository<Post> {
       .leftJoinAndSelect('p.author', 'author')
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
-      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
@@ -202,9 +206,19 @@ export class PostRepository extends Repository<Post> {
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
     }
+    if (myId) {
+      query
+        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+        .addSelect(['u.id']);
+    }
     return query.getMany();
   }
-  async findAllLikedPost(userId: number, cursor: number, limit: number) {
+  async findAllLikedPost(
+    cursor: number,
+    limit: number,
+    userId: number,
+    myId?: number,
+  ) {
     const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
     const query = this.createQueryBuilder('p')
       .innerJoin(
@@ -217,7 +231,6 @@ export class PostRepository extends Repository<Post> {
       .leftJoinAndSelect('p.author', 'author')
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
-      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
@@ -225,6 +238,11 @@ export class PostRepository extends Repository<Post> {
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
+    }
+    if (myId) {
+      query
+        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+        .addSelect(['u.id']);
     }
     return query.getMany();
   }
