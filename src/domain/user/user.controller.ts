@@ -1,5 +1,5 @@
 import { EditProfileDto } from './dto/edit-profile.dto';
-import { JwtAuthGuard } from '../auth/guards/auth.guard';
+import { ConditionAuthGuard, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.dto';
 import { StockService } from '../stock/stock.service';
@@ -18,6 +18,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Query,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
@@ -48,8 +49,10 @@ export class UserController {
   }
 
   @Get(':id/profile')
-  async getUserProfile(@Param('id') id: string) {
-    return this.userService.getUserProfile(+id);
+  @UseGuards(ConditionAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getUserProfile(@Param('id') id: string, @CurrentUser() me: User) {
+    return this.userService.getUserProfile(+id, me?.id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -98,11 +101,39 @@ export class UserController {
     return this.userService.unBlockUser(user.id, +id);
   }
 
+  @Get(':id/followers')
+  async findFollowers(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @Param('id') userId: string,
+  ) {
+    return this.userService.findFollowers(+userId, +cursor, +limit);
+  }
+
+  @Get(':id/following')
+  async findFollowing(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @Param('id') userId: string,
+  ) {
+    return this.userService.findFollowing(+userId, +cursor, +limit);
+  }
+
+  @Get('blockingUser')
+  @UseGuards(JwtAuthGuard)
+  async findBlocking(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @CurrentUser() me: User,
+  ) {
+    return this.userService.findBlocking(me.id, +cursor, +limit);
+  }
+
   @Get('search')
   async searchUser(
     @Query('query') query: string,
     @Query('cursor') cursor: string,
-    @Query('limit') limit: number,
+    @Query('limit') limit: string,
   ) {
     return this.userService.searchUser(query, +cursor, +limit);
   }
@@ -125,11 +156,10 @@ export class UserController {
 
   @Put('editProfile')
   @UseGuards(JwtAuthGuard)
-  async editProfile(@CurrentUser() user: User, editProfileDto: EditProfileDto) {
+  async editProfile(
+    @CurrentUser() user: User,
+    @Body() editProfileDto: EditProfileDto,
+  ) {
     return this.userService.editProfile(user.id, editProfileDto);
   }
-
-  //pagination
-  //get following,follower user,
-  //get blocking user,
 }

@@ -17,13 +17,13 @@ export class PostCount {
   id: number;
 
   @Column({
-    type: 'int',
+    unsigned: true,
     default: 0,
   })
   likeCount: number;
 
   @Column({
-    type: 'int',
+    unsigned: true,
     default: 0,
   })
   commentCount: number;

@@ -17,7 +17,7 @@ export class StockCount {
   id: number;
 
   @Column({
-    type: 'int',
+    unsigned: true,
     default: 0,
   })
   watchUserCount: number;

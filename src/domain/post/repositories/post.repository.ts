@@ -56,15 +56,11 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'DESC')
-      .take(limit);
+      .orderBy('p.id', 'DESC');
     if (userId) {
       query
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
         .addSelect(['u.id']);
-    }
-    if (cursor) {
-      query.andWhere('p.id < :cursor', { cursor });
     }
 
     return query.getMany();
@@ -100,11 +96,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'DESC')
-      .take(limit);
-    if (cursor) {
-      query.andWhere('p.id < :cursor', { cursor });
-    }
+      .orderBy('p.id', 'DESC');
     return query.getMany();
   }
 

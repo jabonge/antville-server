@@ -48,13 +48,14 @@ export class UserService {
     return user;
   }
 
-  async getUserProfile(userId: number) {
-    const user = this.userRepository.findOne({
-      relations: ['userCount'],
-      where: {
-        id: userId,
-      },
-    });
+  async getUserProfile(userId: number, myId?: number) {
+    const user = this.userRepository
+      .createQueryBuilder('u')
+      .where('u.id = :userId', { userId })
+      .innerJoinAndSelect('u.userCount', 'userCount')
+      .leftJoin('u.following', 'u_f', 'u_f.id = :myId', { myId })
+      .addSelect(['u_f.id'])
+      .getOne();
     return user;
   }
 
@@ -81,6 +82,9 @@ export class UserService {
   }
 
   async removeWatchList(userId: number, stockId: number) {
+    if (!(await this.isWatching(userId, stockId))) {
+      return;
+    }
     await this.connection.transaction(async (manager) => {
       await manager
         .createQueryBuilder(User, 'u')
@@ -101,6 +105,9 @@ export class UserService {
   }
 
   async addWatchList(userId: number, stockId: number) {
+    if (await this.isWatching(userId, stockId)) {
+      return;
+    }
     await this.connection.transaction(async (manager) => {
       const userCount = await manager.findOne(UserCount, { userId });
       if (userCount.watchStockCount > 20) {
@@ -189,57 +196,48 @@ export class UserService {
     return users.length > 0;
   }
 
-  // async findBlockingUserIds(userId: number): Promise<number[]> {
-  //   const users = await this.userRepository.manager.query(
-  //     `SELECT blockingId FROM users_blocks WHERE blockerId = ${userId}`,
-  //   );
-  //   return users;
-  // }
-
-  // async findBlockerUserIds(userId: number): Promise<number[]> {
-  //   const users = await this.userRepository.manager.query(
-  //     `SELECT blockerId FROM users_blocks WHERE blockingId = ${userId}`,
-  //   );
-  //   return users;
-  // }
-
   async blockUser(myId: number, userId: number) {
+    if (await this.isBlocking(myId, userId)) {
+      return;
+    }
     await this.connection.transaction(async (manager) => {
-      await manager.findOneOrFail(User, userId, {
-        select: ['id'],
-      });
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'blocking')
-        .of(myId)
-        .add(userId);
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'following')
-        .of(myId)
-        .remove(userId);
-      await this.decrementUserCount(manager, myId, 'following');
-      await this.decrementUserCount(manager, userId, 'followers');
+      await Promise.all([
+        manager
+          .createQueryBuilder(User, 'u')
+          .relation(User, 'blocking')
+          .of(myId)
+          .add(userId),
+        manager
+          .createQueryBuilder(User, 'u')
+          .relation(User, 'following')
+          .of(myId)
+          .remove(userId),
+        this.decrementUserCount(manager, myId, 'following'),
+        this.decrementUserCount(manager, userId, 'followers'),
+      ]);
     });
-
     return;
   }
 
   async unBlockUser(myId: number, userId: number) {
+    if (!this.isBlocking(myId, userId)) {
+      return;
+    }
     await this.connection.transaction(async (manager) => {
-      await manager.findOneOrFail(User, userId, {
-        select: ['id'],
-      });
       await manager
         .createQueryBuilder(User, 'u')
         .relation(User, 'blocking')
         .of(myId)
         .remove(userId);
     });
+
     return;
   }
 
   async followUser(me: User, userId: number) {
+    if (await this.isFollowing(me.id, userId)) {
+      return;
+    }
     const isBlockingOrBlocked = await this.isBlockingOrBlockedUser(
       me.id,
       userId,
@@ -256,9 +254,6 @@ export class UserService {
     createNotificationDto.paramId = me.id;
     await this.connection.transaction(async (manager) => {
       await Promise.all([
-        manager.findOneOrFail(User, userId, {
-          select: ['id'],
-        }),
         manager
           .createQueryBuilder(User, 'u')
           .relation(User, 'following')
@@ -273,19 +268,42 @@ export class UserService {
   }
 
   async unFollowUser(myId: number, userId: number) {
+    if (!this.isFollowing(myId, userId)) {
+      return;
+    }
     await this.connection.transaction(async (manager) => {
-      await manager.findOneOrFail(User, userId, {
-        select: ['id'],
-      });
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'following')
-        .of(myId)
-        .remove(userId);
-      await this.decrementUserCount(manager, myId, 'following');
-      await this.decrementUserCount(manager, userId, 'followers');
+      await Promise.all([
+        manager
+          .createQueryBuilder(User, 'u')
+          .relation(User, 'following')
+          .of(myId)
+          .remove(userId),
+        this.decrementUserCount(manager, myId, 'following'),
+        this.decrementUserCount(manager, userId, 'followers'),
+      ]);
     });
     return;
+  }
+
+  async isWatching(myId: number, stockId: number) {
+    const row = await this.userRepository.manager.query(
+      `SELECT COUNT(*) as count FROM watchlist WHERE userId = ${myId} AND stockId = ${stockId}`,
+    );
+    return Boolean(row.count);
+  }
+
+  async isFollowing(myId: number, userId: number) {
+    const row = await this.userRepository.manager.query(
+      `SELECT COUNT(*) as count FROM users_follows WHERE followerId = ${myId} AND followingId = ${userId}`,
+    );
+    return Boolean(row.count);
+  }
+
+  async isBlocking(myId: number, userId: number) {
+    const row = await this.userRepository.manager.query(
+      `SELECT COUNT(*) as count FROM users_blocks WHERE blockerId = ${myId} AND blockingId = ${userId}`,
+    );
+    return Boolean(row.count);
   }
 
   searchUser(query: string, cursor: number, limit: number) {
@@ -300,43 +318,63 @@ export class UserService {
     return dbQuery.getMany();
   }
 
+  findFollowers(userId: number, cursor: number, limit: number) {
+    const cursorWhere = cursor ? `AND  < ${cursor}` : '';
+    const dbQuery = this.userRepository
+      .createQueryBuilder('u')
+      .innerJoin(
+        `(SELECT followerId FROM users_follows WHERE followingId = ${userId} ${cursorWhere} ORDER BY followerId DESC LIMIT ${limit})`,
+        'u_f',
+        'u.id = u_f.followerId',
+      );
+    return dbQuery.getMany();
+  }
+
+  findFollowing(userId: number, cursor: number, limit: number) {
+    const cursorWhere = cursor ? `AND  < ${cursor}` : '';
+    const dbQuery = this.userRepository
+      .createQueryBuilder('u')
+      .innerJoin(
+        `(SELECT followingId FROM users_follows WHERE followerId = ${userId} ${cursorWhere} ORDER BY followingId DESC LIMIT ${limit})`,
+        'u_f',
+        'u.id = u_f.followingId',
+      );
+    return dbQuery.getMany();
+  }
+
+  findBlocking(userId: number, cursor: number, limit: number) {
+    const cursorWhere = cursor ? `AND  < ${cursor}` : '';
+    const dbQuery = this.userRepository
+      .createQueryBuilder('u')
+      .innerJoin(
+        `(SELECT blockingId FROM users_blocks WHERE blockerId = ${userId} ${cursorWhere} ORDER BY blockingId DESC LIMIT ${limit})`,
+        'u_b',
+        'u.id = u_b.blockingId',
+      );
+    return dbQuery.getMany();
+  }
+
   async editProfile(userId: number, editProfileDto: EditProfileDto) {
+    Object.keys(editProfileDto).forEach((key) => {
+      if (editProfileDto[key] === undefined) {
+        delete editProfileDto[key];
+      }
+    });
     if (editProfileDto.nickname) {
       const nicknameUser = await this.userRepository.findOne({
         nickname: editProfileDto.nickname,
       });
       if (nicknameUser) {
         throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
-      } else if (!editProfileDto.bio) {
-        return this.userRepository.update(
-          {
-            id: userId,
-          },
-          {
-            nickname: editProfileDto.nickname,
-          },
-        );
-      } else {
-        return this.userRepository.update(
-          {
-            id: userId,
-          },
-          {
-            nickname: editProfileDto.nickname,
-            bio: editProfileDto.bio,
-          },
-        );
       }
-    } else {
-      return this.userRepository.update(
-        {
-          id: userId,
-        },
-        {
-          bio: editProfileDto.bio,
-        },
-      );
     }
+    console.log(editProfileDto);
+    return this.userRepository.update(
+      {
+        id: userId,
+      },
+      editProfileDto,
+    );
   }
 
   async updateProfileImg(userId: number, profileImg: Express.MulterS3.File) {

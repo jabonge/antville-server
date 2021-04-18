@@ -19,10 +19,11 @@ import {
 import { BadRequestException } from '@nestjs/common';
 import { Post } from '../../post/entities/post.entity';
 import { UserCount } from './user-count.entity';
-import { ApiHideProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Report } from '../../post/entities/report.entity';
 import CustomError from '../../../util/constant/exception';
 import { Notification } from '../../notification/entities/notification.entity';
+import { Expose } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -152,6 +153,12 @@ export class User {
     if (this.password) {
       this.password = await bcrypt.hash(this.password, 10);
     }
+  }
+
+  @ApiProperty({ type: 'boolean' })
+  @Expose({ name: 'isFollowing' })
+  isFollowing() {
+    return this.following?.length === 1;
   }
 
   async checkPassword(passwordInput: string): Promise<boolean> {

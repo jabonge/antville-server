@@ -17,31 +17,31 @@ export class UserCount {
   id: number;
 
   @Column({
-    type: 'int',
+    unsigned: true,
     default: 0,
   })
   followers: number;
 
   @Column({
-    type: 'int',
+    unsigned: true,
     default: 0,
   })
   following: number;
 
   @Column({
-    type: 'int',
+    unsigned: true,
     default: 0,
   })
   postCount: number;
 
   @Column({
-    type: 'int',
+    unsigned: true,
     default: 0,
   })
   watchStockCount: number;
 
   @Column({
-    type: 'int',
+    unsigned: true,
     default: 0,
   })
   postLikeCount: number;
