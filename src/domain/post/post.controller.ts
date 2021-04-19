@@ -52,6 +52,7 @@ export class PostController {
   }
 
   @Get(':id/comment')
+  @UseGuards(ConditionAuthGuard)
   findAllComment(
     @Param('id') id: string,
     @Query('cursor') cursor: string,
@@ -62,6 +63,7 @@ export class PostController {
   }
 
   @Get()
+  @UseGuards(ConditionAuthGuard)
   findOne(@Query('id') id: string, @CurrentUser() user?: User) {
     return this.postService.findOnePost(+id, user?.id);
   }
@@ -97,7 +99,7 @@ export class PostController {
   }
 
   @Get('user')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(ConditionAuthGuard)
   findAllUserPost(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
@@ -108,7 +110,7 @@ export class PostController {
   }
 
   @Get('like')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(ConditionAuthGuard)
   findAllLikedPost(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,

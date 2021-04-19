@@ -33,7 +33,7 @@ export class UploadService implements MulterOptionsFactory {
     return {
       storage: multerS3Storage,
       fileFilter: (_, file, cb) => {
-        if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+        if (file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
           cb(null, true);
         } else {
           cb(new Error('UnSupported File'), false);
