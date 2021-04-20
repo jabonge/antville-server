@@ -190,31 +190,46 @@ export class UserService {
   }
 
   async isBlockingOrBlockedUser(myId: number, userId: number) {
-    const users = await this.userRepository.manager.query(
-      `SELECT blockingId,blockerId FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId});`,
+    const row = await this.userRepository.manager.query(
+      `SELECT COUNT(*) as count FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId});`,
     );
-    return users.length > 0;
+    return Boolean(row.count);
   }
 
   async blockUser(myId: number, userId: number) {
     if (await this.isBlocking(myId, userId)) {
       return;
     }
+    const isFollowing = await this.isFollowing(myId, userId);
+    const isFollowed = await this.isFollowed(myId, userId);
+
     await this.connection.transaction(async (manager) => {
-      await Promise.all([
-        manager
-          .createQueryBuilder(User, 'u')
-          .relation(User, 'blocking')
-          .of(myId)
-          .add(userId),
-        manager
-          .createQueryBuilder(User, 'u')
-          .relation(User, 'following')
-          .of(myId)
-          .remove(userId),
-        this.decrementUserCount(manager, myId, 'following'),
-        this.decrementUserCount(manager, userId, 'followers'),
-      ]);
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'blocking')
+        .of(myId)
+        .add(userId);
+      if (isFollowing) {
+        await Promise.all([
+          manager
+            .createQueryBuilder(User, 'u')
+            .relation(User, 'following')
+            .of(myId)
+            .remove(userId),
+          this.decrementUserCount(manager, myId, 'following'),
+          this.decrementUserCount(manager, userId, 'followers'),
+        ]);
+      } else if (isFollowed) {
+        await Promise.all([
+          manager
+            .createQueryBuilder(User, 'u')
+            .relation(User, 'following')
+            .of(userId)
+            .remove(myId),
+          this.decrementUserCount(manager, userId, 'following'),
+          this.decrementUserCount(manager, myId, 'followers'),
+        ]);
+      }
     });
     return;
   }
@@ -299,6 +314,13 @@ export class UserService {
     return Boolean(row.count);
   }
 
+  async isFollowed(myId: number, userId: number) {
+    const row = await this.userRepository.manager.query(
+      `SELECT COUNT(*) as count FROM users_follows WHERE followingId = ${myId} AND followerId = ${userId}`,
+    );
+    return Boolean(row.count);
+  }
+
   async isBlocking(myId: number, userId: number) {
     const row = await this.userRepository.manager.query(
       `SELECT COUNT(*) as count FROM users_blocks WHERE blockerId = ${myId} AND blockingId = ${userId}`,
@@ -368,7 +390,6 @@ export class UserService {
         throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
       }
     }
-    console.log(editProfileDto);
     return this.userRepository.update(
       {
         id: userId,
