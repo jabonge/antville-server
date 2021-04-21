@@ -43,6 +43,17 @@ export class UserService {
     return users;
   }
 
+  async getUserProfileByNickname(nickname: string, myId?: number) {
+    const user = this.userRepository
+      .createQueryBuilder('u')
+      .where('u.nickname = :nickname', { nickname })
+      .innerJoinAndSelect('u.userCount', 'userCount')
+      .leftJoin('u.following', 'u_f', 'u_f.id = :myId', { myId })
+      .addSelect(['u_f.id'])
+      .getOne();
+    return user;
+  }
+
   async findById(id: number) {
     const user = this.userRepository.findOne({ id });
     return user;
@@ -193,7 +204,7 @@ export class UserService {
     const row = await this.userRepository.manager.query(
       `SELECT COUNT(*) as count FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId});`,
     );
-    return Boolean(row.count);
+    return row[0].count > 0;
   }
 
   async blockUser(myId: number, userId: number) {
@@ -304,28 +315,28 @@ export class UserService {
     const row = await this.userRepository.manager.query(
       `SELECT COUNT(*) as count FROM watchlist WHERE userId = ${myId} AND stockId = ${stockId}`,
     );
-    return Boolean(row.count);
+    return row[0].count > 0;
   }
 
   async isFollowing(myId: number, userId: number) {
     const row = await this.userRepository.manager.query(
       `SELECT COUNT(*) as count FROM users_follows WHERE followerId = ${myId} AND followingId = ${userId}`,
     );
-    return Boolean(row.count);
+    return row[0].count > 0;
   }
 
   async isFollowed(myId: number, userId: number) {
     const row = await this.userRepository.manager.query(
       `SELECT COUNT(*) as count FROM users_follows WHERE followingId = ${myId} AND followerId = ${userId}`,
     );
-    return Boolean(row.count);
+    return row[0].count > 0;
   }
 
   async isBlocking(myId: number, userId: number) {
     const row = await this.userRepository.manager.query(
       `SELECT COUNT(*) as count FROM users_blocks WHERE blockerId = ${myId} AND blockingId = ${userId}`,
     );
-    return Boolean(row.count);
+    return row[0].count > 0;
   }
 
   searchUser(query: string, cursor: number, limit: number) {

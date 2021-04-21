@@ -55,6 +55,16 @@ export class UserController {
     return this.userService.getUserProfile(+id, me?.id);
   }
 
+  @Get(':nickname/profileByNickname')
+  @UseGuards(ConditionAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getUserProfileByNickname(
+    @Param('nickname') nickname: string,
+    @CurrentUser() me: User,
+  ) {
+    return this.userService.getUserProfileByNickname(nickname, me?.id);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Put(':id/addWatchList')
   async addWatchList(@CurrentUser() user: User, @Param('id') id: string) {

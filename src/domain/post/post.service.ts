@@ -257,10 +257,12 @@ export class PostService {
   }
 
   async likePost(user: User, postId: number) {
+    if (await this.isLiked(user.id, postId)) {
+      return;
+    }
     const post = await this.postRepository.findOne(postId, {
       select: ['authorId'],
     });
-
     await this.connection.transaction(async (manager) => {
       await Promise.all([
         manager
@@ -291,6 +293,9 @@ export class PostService {
   }
 
   async unLikePost(userId: number, postId: number) {
+    if (!(await this.isLiked(userId, postId))) {
+      return;
+    }
     await this.connection.transaction(async (manager) => {
       await Promise.all([
         manager
@@ -310,6 +315,14 @@ export class PostService {
       ]);
     });
     return;
+  }
+
+  async isLiked(myId: number, postId: number) {
+    const row = await this.postRepository.manager.query(
+      `SELECT COUNT(*) as count FROM posts_likers WHERE userId = ${myId} AND postId = ${postId}`,
+    );
+
+    return row[0].count > 0;
   }
 
   async createReport(userId: number, postId: number) {
