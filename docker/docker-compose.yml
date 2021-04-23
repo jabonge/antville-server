@@ -3,10 +3,10 @@ version: '3.1'
 services:
   db:
     image: mysql
+    container_name: database
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: valueTalk!
-      TZ: Asia/Seoul
+      MYSQL_ROOT_PASSWORD: antville!
     volumes:
       - ./db:/var/lib/mysql
     ports:
@@ -14,5 +14,18 @@ services:
   redis:
     image: redis
     container_name: redis
+    restart: always
+    command: redis-server --requirepass antville!
     ports:
       - 6379:6379
+  server:
+    container_name: server
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ../
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+      - redis

@@ -1,6 +1,6 @@
-docker exec -it docker_db_1 bash
+docker exec -it database bash
 mysql -u root -p
-create database valuetalk;
-create user 'valuetalk'@'%' identified by 'valueTalk!';
-grant all privileges on valuetalk.* TO 'valuetalk'@'%';
+create database antville;
+create user 'antville'@'%' identified by 'antville!';
+grant all privileges on antville.\* TO 'antville'@'%';
 flush privileges;

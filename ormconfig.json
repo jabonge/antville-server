@@ -1,16 +1,15 @@
 {
-    "type": "mysql",
-    "host": "localhost",
-    "port": 3306,
-    "username": "valuetalk",
-    "password": "valueTalk!",
-    "database": "valuetalk",
-    "entities": ["src/**/*.entity{.ts,.js}"],
-    "migrations": ["src/migration/*.ts"],
-    "logging": true,
-    "synchronize": true,
-    "cli": {
-        "migrationsDir": "src/migration"
-    }
+  "type": "mariadb",
+  "host": "daly-test-db-instance.cyqnndllqejq.ap-northeast-2.rds.amazonaws.com",
+  "port": 13306,
+  "username": "daly",
+  "password": "jeong!0225!",
+  "database": "antville",
+  "entities": ["src/**/*.entity{.ts,.js}"],
+  "migrations": ["src/migration/*.ts"],
+  "logging": true,
+  "synchronize": true,
+  "cli": {
+    "migrationsDir": "src/migration"
+  }
 }
-

@@ -29,9 +29,10 @@ import { REDIS_CLIENT } from '../util/constant';
       useFactory: (configService: ConfigService): PubSub => {
         const host = configService.get<string>('REDIS_HOST');
         const port = configService.get<number>('REDIS_PORT');
+        const password = configService.get<string>('REDIS_PASSWORD');
         return {
-          publisher: redis.createClient(port, host),
-          subscriber: redis.createClient(port, host),
+          publisher: redis.createClient(port, host, { password }),
+          subscriber: redis.createClient(port, host, { password }),
         };
       },
       inject: [ConfigService],
