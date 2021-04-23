@@ -44,13 +44,20 @@ export class UserService {
   }
 
   async getUserProfileByNickname(nickname: string, myId?: number) {
-    const user = this.userRepository
+    const query = this.userRepository
       .createQueryBuilder('u')
       .where('u.nickname = :nickname', { nickname })
-      .innerJoinAndSelect('u.userCount', 'userCount')
-      .leftJoin('u.following', 'u_f', 'u_f.id = :myId', { myId })
-      .addSelect(['u_f.id'])
-      .getOne();
+      .innerJoinAndSelect('u.userCount', 'userCount');
+
+    if (myId) {
+      query
+        .leftJoin('u.following', 'u_f', 'u_f.id = :myId', { myId })
+        .addSelect(['u_f.id']);
+    }
+    const user = await query.getOne();
+    if (!user) {
+      throw new BadRequestException();
+    }
     return user;
   }
 
@@ -60,13 +67,20 @@ export class UserService {
   }
 
   async getUserProfile(userId: number, myId?: number) {
-    const user = this.userRepository
+    const query = this.userRepository
       .createQueryBuilder('u')
       .where('u.id = :userId', { userId })
-      .innerJoinAndSelect('u.userCount', 'userCount')
-      .leftJoin('u.following', 'u_f', 'u_f.id = :myId', { myId })
-      .addSelect(['u_f.id'])
-      .getOne();
+      .innerJoinAndSelect('u.userCount', 'userCount');
+
+    if (myId) {
+      query
+        .leftJoin('u.following', 'u_f', 'u_f.id = :myId', { myId })
+        .addSelect(['u_f.id']);
+    }
+    const user = await query.getOne();
+    if (!user) {
+      throw new BadRequestException();
+    }
     return user;
   }
 

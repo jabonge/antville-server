@@ -9,7 +9,6 @@ import {
   Controller,
   Post,
   UseGuards,
-  BadRequestException,
   Param,
   Get,
   HttpCode,
@@ -68,22 +67,14 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Put(':id/addWatchList')
   async addWatchList(@CurrentUser() user: User, @Param('id') id: string) {
-    const stock = await this.stockService.findById(+id);
-    if (!stock) {
-      throw new BadRequestException('Stock Not Found');
-    }
-    await this.userService.addWatchList(user.id, stock.id);
+    await this.userService.addWatchList(user.id, +id);
     return;
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id/removeWatchList')
   async removeWatchList(@CurrentUser() user: User, @Param('id') id: string) {
-    const stock = await this.stockService.findById(+id);
-    if (!stock) {
-      throw new BadRequestException('Stock Not Found');
-    }
-    await this.userService.removeWatchList(user.id, stock.id);
+    await this.userService.removeWatchList(user.id, +id);
     return;
   }
 

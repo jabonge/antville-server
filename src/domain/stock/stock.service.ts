@@ -1,7 +1,7 @@
 import { StockPriceInfoDto } from './dtos/stock_price_info.dto';
 import { RedisClientWrapper } from '../../common/providers/redis-client.service';
 import { StockRepository } from './repositories/stock.repository';
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { REDIS_CLIENT } from '../../util/constant';
 import { isKoreanLang } from '../../util/stock';
 import { Stock } from './entities/stock.entity';
@@ -30,6 +30,9 @@ export class StockService {
       stock = await this.stockRepository.findByTitle(title);
     } else {
       stock = await this.stockRepository.findBySymbol(title);
+    }
+    if (!stock) {
+      throw new BadRequestException('Stock is not Exist');
     }
     const stockPriceInfo = await this.client.getStockPriceInfo(stock.symbol);
     return {
