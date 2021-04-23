@@ -8,22 +8,21 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: antville!
     volumes:
-      - ./db:/var/lib/mysql
+      - ./docker/db:/var/lib/mysql
     ports:
       - 3306:3306
   redis:
     image: redis
     container_name: redis
-    restart: always
-    command:
-      [
-        'redis-server',
-        '--bind',
-        'redis',
-        '--port',
-        '6379',
-        --requirepass,
-        antville!,
-      ]
+    command: redis-server --requirepass antville! --port 6379
+    hostname: redis
     ports:
       - 6379:6379
+  app:
+    container_name: app
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    depends_on:
+      - db
+      - redis

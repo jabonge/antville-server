@@ -14,7 +14,8 @@ export class RedisClientWrapper {
   constructor(private readonly configService: ConfigService) {
     const host = this.configService.get<string>('REDIS_HOST');
     const port = this.configService.get<number>('REDIS_PORT');
-    this.client = redis.createClient(port, host);
+    const password = this.configService.get<string>('REDIS_PASSWORD');
+    this.client = redis.createClient(port, host, { password });
     this.hgetAsync = promisify(this.client.hget).bind(this.client);
     this.hmgetAsync = promisify(this.client.hmget).bind(this.client);
   }
