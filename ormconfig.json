@@ -1,9 +1,9 @@
 {
-  "type": "mariadb",
-  "host": "daly-test-db-instance.cyqnndllqejq.ap-northeast-2.rds.amazonaws.com",
+  "type": "mysql",
+  "host": "13.124.216.113",
   "port": 13306,
-  "username": "daly",
-  "password": "jeong!0225!",
+  "username": "antville",
+  "password": "antville!",
   "database": "antville",
   "entities": ["src/**/*.entity{.ts,.js}"],
   "migrations": ["src/migration/*.ts"],
