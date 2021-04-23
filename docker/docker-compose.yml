@@ -18,14 +18,3 @@ services:
     command: redis-server --requirepass antville!
     ports:
       - 6379:6379
-  server:
-    container_name: server
-    restart: always
-    build:
-      dockerfile: Dockerfile
-      context: ../
-    ports:
-      - '3000:3000'
-    depends_on:
-      - db
-      - redis
