@@ -10,7 +10,7 @@ services:
     volumes:
       - ./docker/db:/var/lib/mysql
     ports:
-      - 13306:13306
+      - 13306:3306
   redis:
     image: redis
     container_name: redis
