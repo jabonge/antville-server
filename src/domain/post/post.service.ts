@@ -93,11 +93,11 @@ export class PostService {
             postId: IsNull(),
           },
         });
-        post.postId = parent.id;
+        post.parentId = parent.id;
         await manager.increment(
           PostCount,
           {
-            postId: parent.id,
+            id: parent.id,
           },
           'commentCount',
           1,
@@ -107,7 +107,7 @@ export class PostService {
             manager,
             user,
             parent.authorId,
-            post.postId,
+            post.parentId,
           );
         }
       } else {
@@ -132,7 +132,7 @@ export class PostService {
           users,
           user,
           post.id,
-          post.postId,
+          post.parentId,
         );
       }
       if (post.postToStocks?.length > 0) {
@@ -142,7 +142,7 @@ export class PostService {
         );
       }
     });
-    return;
+    return post;
   }
 
   async getComments(
@@ -252,7 +252,7 @@ export class PostService {
   async deletePost(userId: number, postId: number) {
     return this.postRepository.delete({
       authorId: userId,
-      postId: postId,
+      id: postId,
     });
   }
 
@@ -261,7 +261,7 @@ export class PostService {
       return;
     }
     const post = await this.postRepository.findOne(postId, {
-      select: ['authorId'],
+      select: ['authorId', 'parentId'],
     });
     await this.connection.transaction(async (manager) => {
       await Promise.all([
@@ -273,16 +273,16 @@ export class PostService {
         manager.increment(
           PostCount,
           {
-            postId,
+            id: postId,
           },
           'likeCount',
           1,
         ),
         this.userService.incrementUserCount(manager, user.id, 'postLikeCount'),
       ]);
-      if (post.authorId != user.id) {
+      if (post.authorId != user.id && !post.parentId) {
         const createNotificationDto = new CreateNotificationDto();
-        createNotificationDto.paramId = postId;
+        createNotificationDto.param = `${postId}`;
         createNotificationDto.type = NotificationType.LIKE;
         createNotificationDto.user = user;
         createNotificationDto.viewerId = post.authorId;

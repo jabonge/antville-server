@@ -56,13 +56,12 @@ export class Post {
   @OneToMany(() => Report, (report) => report.post)
   reports: Report[];
 
-  @ApiHideProperty()
-  @Column({ type: 'int', nullable: true, select: false })
-  postId: number;
+  @Column({ type: 'int', nullable: true })
+  parentId: number;
 
   @ApiHideProperty()
   @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'postId' })
+  @JoinColumn({ name: 'parentId' })
   post: Post;
 
   @ApiHideProperty()
@@ -122,6 +121,7 @@ export class Post {
   // })
   // stocks: Stock[];
   @ApiHideProperty()
+  @Exclude()
   @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })
   postToStocks: PostToStock[];
 

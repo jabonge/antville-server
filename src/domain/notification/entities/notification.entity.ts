@@ -29,10 +29,8 @@ export class Notification {
   })
   type: NotificationType;
 
-  @Column({
-    type: 'int',
-  })
-  paramId: number;
+  @Column()
+  param: string;
 
   @Column()
   content: string;

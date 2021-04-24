@@ -25,7 +25,7 @@ export class NotificationService {
       const duplicatedNotification = await manager.findOne(Notification, {
         viewerId: notification.viewerId,
         type: notification.type,
-        paramId: notification.paramId,
+        param: notification.param,
       });
       if (
         duplicatedNotification &&
@@ -47,7 +47,7 @@ export class NotificationService {
     const notifications: Notification[] = [];
     for (let i = 0; i < users.length; i++) {
       const createNotificationDto = new CreateNotificationDto();
-      createNotificationDto.paramId = parentId ?? postId;
+      createNotificationDto.param = `${parentId}` ?? `${postId}`;
       createNotificationDto.type = NotificationType.TAG;
       createNotificationDto.viewerId = users[i].id;
       createNotificationDto.user = writer;
@@ -63,7 +63,7 @@ export class NotificationService {
     parentId: number,
   ) {
     const createNotificationDto = new CreateNotificationDto();
-    createNotificationDto.paramId = parentId;
+    createNotificationDto.param = `${parentId}`;
     createNotificationDto.type = NotificationType.COMMENT;
     createNotificationDto.viewerId = viewerId;
     createNotificationDto.user = author;

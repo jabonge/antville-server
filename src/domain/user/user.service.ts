@@ -291,7 +291,7 @@ export class UserService {
     createNotificationDto.viewerId = userId;
     createNotificationDto.user = me;
     createNotificationDto.type = NotificationType.FOLLOW;
-    createNotificationDto.paramId = me.id;
+    createNotificationDto.param = me.nickname;
     await this.connection.transaction(async (manager) => {
       await Promise.all([
         manager

@@ -7,7 +7,7 @@ import {
 
 export class CreateNotificationDto {
   type: NotificationType;
-  paramId: number;
+  param: string;
   content: string;
   viewerId?: number;
   user?: User;
@@ -15,7 +15,7 @@ export class CreateNotificationDto {
   toNotificationEntity() {
     const notification = new Notification();
     notification.content = this.createContent();
-    notification.paramId = this.paramId;
+    notification.param = this.param;
     notification.viewerId = this.viewerId;
     notification.type = this.type;
     notification.image = this.user?.profileImg;
