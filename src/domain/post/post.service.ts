@@ -90,7 +90,7 @@ export class PostService {
         const parent = await manager.findOneOrFail(Post, createPostDto.postId, {
           select: ['id', 'authorId'],
           where: {
-            postId: IsNull(),
+            parentId: IsNull(),
           },
         });
         post.parentId = parent.id;
