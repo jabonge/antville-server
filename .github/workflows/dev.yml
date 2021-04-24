@@ -1,9 +1,8 @@
-
 name: deploy develop branch to ec2
 
 on:
   push:
-    branches: [ develop ]
+    branches: [develop]
 
 jobs:
   build:
@@ -21,4 +20,5 @@ jobs:
             git pull
             docker stop app
             docker rm app
+            docker build --rm=true -t server .
             docker-compose up -d
