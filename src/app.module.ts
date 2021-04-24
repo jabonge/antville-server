@@ -10,12 +10,23 @@ import { UserModule } from './domain/user/user.module';
 import { AppGateway } from './app.gateway';
 import { NotificationModule } from './domain/notification/notification.module';
 
+function getEnvFilePath() {
+  const env = process.env.NODE_ENV;
+  if (env === 'production') {
+    return '.env.prod';
+  } else if (env === 'development') {
+    return '.env.dev';
+  } else {
+    return '.env.local';
+  }
+}
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
-      envFilePath: '.env.dev',
+      envFilePath: getEnvFilePath(),
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -25,7 +36,7 @@ import { NotificationModule } from './domain/notification/notification.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: ['dist/**/*.entity{.ts,.js}'],
-      logging: process.env.NODE_ENV !== 'production',
+      logging: process.env.NODE_ENV === 'local',
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     StockModule,

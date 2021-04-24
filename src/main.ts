@@ -4,10 +4,13 @@ import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { VtExceptionFilter } from './infra/exception.filter';
+import helmet from 'helmet';
+import hpp from 'hpp';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  const app = await NestFactory.create(AppModule, { cors: true });
+  app.use(helmet());
+  app.use(hpp());
   app.useGlobalPipes(new ValidationPipe());
   app.useWebSocketAdapter(new WsAdapter(app));
   app.useGlobalFilters(new VtExceptionFilter());

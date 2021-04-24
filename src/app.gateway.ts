@@ -21,7 +21,7 @@ import {
   PUB_SUB,
 } from './util/constant/pubsub';
 
-@WebSocketGateway(4000)
+@WebSocketGateway()
 export class AppGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
