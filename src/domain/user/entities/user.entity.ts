@@ -23,7 +23,7 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Report } from '../../post/entities/report.entity';
 import CustomError from '../../../util/constant/exception';
 import { Notification } from '../../notification/entities/notification.entity';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -87,10 +87,12 @@ export class User {
   stocks: Stock[];
 
   @ApiHideProperty()
+  @Exclude()
   @ManyToMany(() => User, (user) => user.following)
   followers: User[];
 
   @ApiHideProperty()
+  @Exclude()
   @ManyToMany(() => User, (user) => user.followers)
   @JoinTable({
     name: 'users_follows',
@@ -158,7 +160,7 @@ export class User {
   @ApiProperty({ type: 'boolean' })
   @Expose({ name: 'isFollowing' })
   isFollowing() {
-    return this.following?.length === 1;
+    return this.followers?.length > 0;
   }
 
   async checkPassword(passwordInput: string): Promise<boolean> {

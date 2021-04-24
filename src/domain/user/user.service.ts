@@ -51,8 +51,8 @@ export class UserService {
 
     if (myId) {
       query
-        .leftJoin('u.following', 'u_f', 'u_f.id = :myId', { myId })
-        .addSelect(['u_f.id']);
+        .leftJoin('u.followers', 'f', 'f.id = :myId', { myId })
+        .addSelect(['f.id']);
     }
     const user = await query.getOne();
     if (!user) {
@@ -74,8 +74,8 @@ export class UserService {
 
     if (myId) {
       query
-        .leftJoin('u.following', 'u_f', 'u_f.id = :myId', { myId })
-        .addSelect(['u_f.id']);
+        .leftJoin('u.followers', 'f', 'f.id = :myId', { myId })
+        .addSelect(['f.id']);
     }
     const user = await query.getOne();
     if (!user) {

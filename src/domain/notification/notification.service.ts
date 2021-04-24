@@ -47,7 +47,7 @@ export class NotificationService {
     const notifications: Notification[] = [];
     for (let i = 0; i < users.length; i++) {
       const createNotificationDto = new CreateNotificationDto();
-      createNotificationDto.param = `${parentId}` ?? `${postId}`;
+      createNotificationDto.param = parentId ? `${parentId}` : `${postId}`;
       createNotificationDto.type = NotificationType.TAG;
       createNotificationDto.viewerId = users[i].id;
       createNotificationDto.user = writer;

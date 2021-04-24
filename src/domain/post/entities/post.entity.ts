@@ -103,23 +103,6 @@ export class Post {
   @JoinColumn({ name: 'authorId' })
   author: User;
 
-  // @ApiHideProperty()
-  // @ManyToMany(() => Stock, (stock) => stock.posts, {
-  //   onDelete: 'CASCADE',
-  //   cascade: ['insert'],
-  // })
-  // @JoinTable({
-  //   name: 'posts_stocks',
-  //   joinColumn: {
-  //     name: 'postId',
-  //     referencedColumnName: 'id',
-  //   },
-  //   inverseJoinColumn: {
-  //     name: 'stockId',
-  //     referencedColumnName: 'id',
-  //   },
-  // })
-  // stocks: Stock[];
   @ApiHideProperty()
   @Exclude()
   @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })
