@@ -163,11 +163,12 @@ export class PostService {
     );
   }
 
-  async findAllPost(userId: number, cursor: number, limit: number) {
+  async findAllPost(cursor: number, limit: number, userId?: number) {
     const blockUserIds = await this.userService.findBlockingAndBlockerIds(
       userId,
     );
-    return this.postRepository.findAllPost(blockUserIds, userId, cursor, limit);
+
+    return this.postRepository.findAllPost(cursor, limit, blockUserIds, userId);
   }
 
   async findOnePost(postId: number, userId?: number) {
@@ -180,16 +181,15 @@ export class PostService {
     limit: number,
     userId?: number,
   ) {
-    let blockUserIds;
-    if (userId) {
-      blockUserIds = await this.userService.findBlockingAndBlockerIds(userId);
-    }
+    const blockUserIds = await this.userService.findBlockingAndBlockerIds(
+      userId,
+    );
     return this.postRepository.findAllPostById(
       stockId,
       cursor,
       limit,
-      userId,
       blockUserIds,
+      userId,
     );
   }
 

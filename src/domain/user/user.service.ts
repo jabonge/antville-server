@@ -135,8 +135,8 @@ export class UserService {
     }
     await this.connection.transaction(async (manager) => {
       const userCount = await manager.findOne(UserCount, { userId });
-      if (userCount.watchStockCount > 20) {
-        throw new BadRequestException('WatchList Limit Exceed');
+      if (userCount.watchStockCount > 19) {
+        throw new BadRequestException(CustomError.WATCH_LIST_LIMIT_EXCEED);
       }
       await manager
         .createQueryBuilder(User, 'u')
@@ -198,6 +198,9 @@ export class UserService {
   }
 
   async findBlockingAndBlockerIds(userId: number): Promise<number[]> {
+    if (!userId) {
+      return [];
+    }
     const users = await this.userRepository.manager.query(
       `SELECT blockingId,blockerId FROM users_blocks WHERE blockerId = ${userId} OR blockingId = ${userId}`,
     );

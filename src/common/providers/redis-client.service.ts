@@ -39,7 +39,6 @@ export class RedisClientWrapper {
       .map((s) => {
         return plainToClass(StockPriceInfoDto, JSON.parse(s));
       });
-    console.log(stockPriceInfos);
     return stockPriceInfos;
   }
 }

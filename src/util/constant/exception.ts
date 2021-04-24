@@ -16,6 +16,11 @@ const CustomError = {
     errorCode: 603,
     message: 'Invalid Password',
   },
+  // 700 번대 stock 관련
+  WATCH_LIST_LIMIT_EXCEED: {
+    errorCode: 700,
+    message: 'Watchlist Limit is Exceeded',
+  },
 };
 
 export default CustomError;

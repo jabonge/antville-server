@@ -4,24 +4,27 @@ import { Post } from '../entities/post.entity';
 @EntityRepository(Post)
 export class PostRepository extends Repository<Post> {
   async findAllPost(
-    blockingUserIds: number[],
-    userId: number,
     cursor: number,
     limit: number,
+    blockingUserIds: number[],
+    userId?: number,
   ) {
     const query = this.createQueryBuilder('p')
-      .where('p.postId IS NULL')
+      .where('p.parentId IS NULL')
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoinAndSelect('p.author', 'author')
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
-      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
-      .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
       .orderBy('p.id', 'DESC')
       .take(limit);
+    if (userId) {
+      query
+        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+        .addSelect(['u.id']);
+    }
     if (blockingUserIds.length > 0) {
       query.andWhere('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
     }
@@ -34,16 +37,16 @@ export class PostRepository extends Repository<Post> {
     stockId: number,
     cursor: number,
     limit: number,
+    blockingUserIds: number[],
     userId?: number,
-    blockingUserIds?: number[],
   ) {
     const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
     const authorWhere =
-      blockingUserIds && blockingUserIds.length > 0
+      blockingUserIds.length > 0
         ? `AND authorId NOT IN (${blockingUserIds.join(',')})`
         : '';
     const query = this.createQueryBuilder('p')
-      .where('p.postId IS NULL')
+      .where('p.parentId IS NULL')
       .innerJoin(
         `(SELECT postId FROM post_to_stock ps WHERE stockId = ${stockId} ${authorWhere} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
         'ps',
@@ -79,7 +82,7 @@ export class PostRepository extends Repository<Post> {
         ? ''
         : `AND authorId NOT IN (${blockingUserIds.join(',')})`;
     const query = this.createQueryBuilder('p')
-      .where('p.postId IS NULL')
+      .where('p.parentId IS NULL')
       .innerJoin(
         `(SELECT DISTINCT postId FROM post_to_stock ps WHERE stockId IN (${stockIds.join(
           ',',
@@ -107,7 +110,7 @@ export class PostRepository extends Repository<Post> {
     limit: number,
   ) {
     const query = this.createQueryBuilder('p')
-      .where('p.postId IS NULL')
+      .where('p.parentId IS NULL')
       .innerJoinAndSelect('p.author', 'author', 'author.id IN (:ids)', {
         ids: followingIds.join(','),
       })
@@ -135,7 +138,7 @@ export class PostRepository extends Repository<Post> {
     userId?: number,
   ) {
     const query = this.createQueryBuilder('p')
-      .where('p.postId = :id', { id: postId })
+      .where('p.parentId = :id', { id: postId })
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoinAndSelect('p.author', 'author')

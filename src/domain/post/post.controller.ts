@@ -68,13 +68,13 @@ export class PostController {
   }
 
   @Get('all')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(ConditionAuthGuard)
   findAllPost(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user?: User,
   ) {
-    return this.postService.findAllPost(user.id, +cursor, +limit);
+    return this.postService.findAllPost(+cursor, +limit, user?.id);
   }
 
   @Get('watchList')
