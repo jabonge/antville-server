@@ -29,12 +29,14 @@ export class NotificationController {
   }
 
   @Patch(':id')
-  checkNotification(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.notificationService.checkNotification(+id, user.id);
+  async checkNotification(@Param('id') id: string, @CurrentUser() user: User) {
+    await this.notificationService.checkNotification(+id, user.id);
+    return;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.notificationService.remove(+id, user.id);
+  async remove(@Param('id') id: string, @CurrentUser() user: User) {
+    await this.notificationService.remove(+id, user.id);
+    return;
   }
 }

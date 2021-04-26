@@ -9,4 +9,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {}
 export class LocalAuthGuard extends AuthGuard('local') {}
 
 @Injectable()
-export class ConditionAuthGuard extends AuthGuard(['jwt', 'anonymous']) {}
+export class ConditionAuthGuard extends AuthGuard('jwt') {
+  handleRequest(_, user, __, ___) {
+    return user;
+  }
+}

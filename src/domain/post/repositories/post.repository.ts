@@ -203,7 +203,7 @@ export class PostRepository extends Repository<Post> {
     }
     if (myId) {
       query
-        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+        .leftJoin('p.likers', 'u', 'u.id = :userId', { myId })
         .addSelect(['u.id']);
     }
     return query.getMany();
@@ -236,7 +236,7 @@ export class PostRepository extends Repository<Post> {
     }
     if (myId) {
       query
-        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+        .leftJoin('p.likers', 'u', 'u.id = :userId', { myId })
         .addSelect(['u.id']);
     }
     return query.getMany();
