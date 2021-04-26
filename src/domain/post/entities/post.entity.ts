@@ -104,7 +104,6 @@ export class Post {
   author: User;
 
   @ApiHideProperty()
-  @Exclude()
   @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })
   postToStocks: PostToStock[];
 
