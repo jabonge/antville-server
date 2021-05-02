@@ -6,9 +6,18 @@ import {
   GetStocksResponseDto,
 } from './dtos/get-stock.dto';
 import { StockService } from './stock.service';
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { StockPriceInfoDto } from './dtos/stock_price_info.dto';
 
 @ApiTags('stock')
 @Controller('stock')
@@ -32,6 +41,11 @@ export class StockController {
   @Get('popular')
   getPopularList(): Promise<GetStocksResponseDto> {
     return this.stockService.getPopularListWithStockPriceInfo();
+  }
+
+  @Post('prices')
+  getPrices(@Body('symbols') symbols: string[]): Promise<StockPriceInfoDto[]> {
+    return this.stockService.getPrices(symbols);
   }
 
   @Get(':title')

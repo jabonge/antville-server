@@ -132,7 +132,11 @@ export class User {
 
   @ApiHideProperty()
   @OneToMany(() => Notification, (notification) => notification.viewer)
-  notifications: Notification[];
+  receiveNotifications: Notification[];
+
+  @ApiHideProperty()
+  @OneToMany(() => Notification, (notification) => notification.viewer)
+  sendNotifications: Notification[];
 
   @ApiHideProperty()
   @ManyToMany(() => Post, (post) => post.likers)

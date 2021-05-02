@@ -82,6 +82,8 @@ export class NotificationService {
       where = { viewerId: userId };
     }
     return this.notificationRepository.find({
+      // select: ['sender.id', 'sender.nickname', 'sender.profileImg'],
+      relations: ['sender'],
       where,
       order: {
         id: 'DESC',

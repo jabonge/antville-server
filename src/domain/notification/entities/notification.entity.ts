@@ -15,7 +15,6 @@ export enum NotificationType {
   TAG = 'TAG',
   LIKE = 'LIKE',
   FOLLOW = 'FOLLOW',
-  STOCK = 'STOCK',
 }
 
 @Entity()
@@ -32,12 +31,6 @@ export class Notification {
   @Column()
   param: string;
 
-  @Column()
-  content: string;
-
-  @Column({ nullable: true })
-  image: string;
-
   @Column({
     type: 'bool',
     default: false,
@@ -49,11 +42,27 @@ export class Notification {
   viewerId: number;
 
   @ApiHideProperty()
-  @ManyToOne(() => User, (user) => user.notifications, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.receiveNotifications, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({
     name: 'viewerId',
   })
   viewer: User;
+
+  @ApiHideProperty()
+  @Column({ type: 'int', select: false })
+  senderId: number;
+
+  @ApiHideProperty()
+  @ManyToOne(() => User, (user) => user.sendNotifications, {
+    onDelete: 'CASCADE',
+    cascade: ['insert'],
+  })
+  @JoinColumn({
+    name: 'senderId',
+  })
+  sender: User;
 
   @CreateDateColumn()
   createdAt: Date;

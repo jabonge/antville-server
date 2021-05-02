@@ -49,7 +49,7 @@ export class StockRepository extends Repository<Stock> {
       .andWhere(
         new Brackets((qb) => {
           qb.where(`symbol LIKE '${query}%'`).orWhere(
-            `MATCH(enName,krName) AGAINST ('*${query}* *${query}*' IN BOOLEAN MODE)`,
+            `krName LIKE '${query}%'`,
           );
         }),
       )
@@ -80,9 +80,10 @@ export class StockRepository extends Repository<Stock> {
   async getPopularStocks(): Promise<Stock[]> {
     return this.createQueryBuilder('s')
       .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
-      .innerJoin('s.stockMeta', 'meta', 'meta.isPopular = true')
+      .innerJoin('s.stockMeta', 'meta', 'meta.isPopular IS NOT NULL')
       .innerJoin('s.exchange', 'exchange')
       .addSelect(['exchange.name', 'exchange.countryCode'])
+      .orderBy('meta.isPopular', 'ASC')
       .getMany();
   }
 }

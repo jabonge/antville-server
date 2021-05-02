@@ -11,7 +11,7 @@ export function findCacheTags(str: string): string[] {
   while ((match = cacheTagRegex.exec(str))) {
     matches.push((match[0] as string).substr(1));
   }
-  return matches;
+  return Array.from(new Set(matches));
 }
 
 // export function removeMultiLine(str: string): string[] {
@@ -31,7 +31,7 @@ export function findAtSignNickname(str: string): string[] {
   while ((match = atSignRegex.exec(str))) {
     matches.push((match[0] as string).substr(1));
   }
-  return matches;
+  return Array.from(new Set(matches));
 }
 
 export async function getOgTags(link: string) {

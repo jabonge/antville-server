@@ -30,9 +30,12 @@ class AbroadSyncBot {
     const quotes = await getQuotes(exchangeName);
 
     //quotes.length
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < quotes.length; i++) {
       const quote = quotes[i];
       const symbol = quote.symbol;
+      if (!quote.name) {
+        continue;
+      }
       let stock = await getRepository(Stock).findOne({
         where: { symbol },
       });

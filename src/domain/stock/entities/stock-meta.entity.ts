@@ -24,10 +24,10 @@ export class StockMeta {
   marketCap: number;
 
   @Column({
-    type: 'bool',
-    default: false,
+    type: 'int',
+    nullable: true,
   })
-  isPopular: boolean;
+  isPopular: number;
 
   @ApiHideProperty()
   @CreateDateColumn({ select: false })

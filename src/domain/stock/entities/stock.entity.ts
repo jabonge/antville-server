@@ -19,10 +19,10 @@ import { PostToStock } from '../../post/entities/post-stock.entity';
 export enum StockType {
   ETF = 'ETF',
   CRYPTO = 'CRYPTO',
+  INDEX = 'INDEX',
 }
 
 @Entity()
-@Index(['enName', 'krName'], { fulltext: true, parser: 'NGRAM' })
 export class Stock {
   @PrimaryGeneratedColumn()
   id: number;
@@ -43,6 +43,7 @@ export class Stock {
   @Column({
     length: 200,
   })
+  @Index()
   krName: string;
 
   @Column({
@@ -77,10 +78,6 @@ export class Stock {
   @ApiHideProperty()
   @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })
   postToStocks: PostToStock[];
-
-  // @ApiHideProperty()
-  // @ManyToMany(() => Post, (post) => post.stocks)
-  // posts: Post[];
 
   @OneToOne(() => StockCount, (c) => c.stock, { cascade: ['insert'] })
   stockCount?: StockCount;

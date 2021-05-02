@@ -59,6 +59,10 @@ export class StockService {
     };
   }
 
+  async getPrices(symbols: string[]): Promise<StockPriceInfoDto[]> {
+    return this.client.getStockPriceInfos(symbols);
+  }
+
   async getWatchList(userId: number) {
     return this.stockRepository.getWatchList(userId);
   }

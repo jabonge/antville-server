@@ -97,6 +97,7 @@ export class AppGateway implements OnGatewayConnection {
     @ConnectedSocket() client: WebSocket,
     @MessageBody() data: { id: string; symbols?: string[] },
   ) {
+    console.log(data);
     const clientInMap = this.connectedClients.get(data.id);
     if (clientInMap) {
       this.connectedClients.get(data.id).symbols = data.symbols;
@@ -110,6 +111,7 @@ export class AppGateway implements OnGatewayConnection {
     @ConnectedSocket() client: WebSocket,
     @MessageBody() data: { id: string; stockId?: number },
   ) {
+    console.log(data);
     const clientInMap = this.connectedClients.get(data.id);
     if (clientInMap) {
       this.connectedClients.get(data.id).stockId = data.stockId;
