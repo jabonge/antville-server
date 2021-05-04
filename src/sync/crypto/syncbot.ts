@@ -27,19 +27,24 @@ class CryptoSyncBot {
     for (let i = 0; i < krwList.length; i++) {
       const crypto = krwList[i];
       const splitMarketName = crypto.market.split('-');
-      const symbol = splitMarketName[1];
+      const symbol = `${splitMarketName[1]}/${splitMarketName[0]}`;
       let stock = await getRepository(Stock).findOne({
-        where: { symbol },
+        where: { symbol: splitMarketName[1] },
       });
       if (!stock) {
         stock = new Stock();
         stock.type = StockType.CRYPTO;
         stock.krName = crypto.korean_name;
         stock.enName = crypto.english_name;
+        stock.cashTagName = crypto.korean_name;
         stock.symbol = symbol;
         stock.exchange = exchange;
         stock.stockCount = new StockCount();
         stock.stockMeta = new StockMeta();
+        await getRepository(Stock).save(stock);
+      } else {
+        stock.cashTagName = crypto.korean_name;
+        stock.symbol = symbol;
         await getRepository(Stock).save(stock);
       }
     }

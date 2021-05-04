@@ -47,6 +47,13 @@ export class Stock {
   krName: string;
 
   @Column({
+    length: 200,
+    nullable: true,
+  })
+  @Index()
+  cashTagName: string;
+
+  @Column({
     nullable: true,
     type: 'enum',
     enum: StockType,
@@ -63,7 +70,7 @@ export class Stock {
 
   @ApiHideProperty()
   @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock, {
-    cascade: ['insert'],
+    cascade: ['insert', 'update'],
   })
   stockMeta: StockMeta;
 

@@ -3,8 +3,6 @@ import { RedisClientWrapper } from '../../common/providers/redis-client.service'
 import { StockRepository } from './repositories/stock.repository';
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { REDIS_CLIENT } from '../../util/constant';
-import { isKoreanLang } from '../../util/stock';
-import { Stock } from './entities/stock.entity';
 
 @Injectable()
 export class StockService {
@@ -24,13 +22,8 @@ export class StockService {
     return stocks;
   }
 
-  async getStockByTitle(title: string) {
-    let stock: Stock;
-    if (isKoreanLang(title)) {
-      stock = await this.stockRepository.findByTitle(title);
-    } else {
-      stock = await this.stockRepository.findBySymbol(title);
-    }
+  async getStockByTag(tag: string) {
+    const stock = await this.stockRepository.findByTag(tag);
     if (!stock) {
       throw new BadRequestException('Stock is not Exist');
     }
@@ -41,8 +34,8 @@ export class StockService {
     };
   }
 
-  async getStocks(titles: string[]) {
-    const stocks = await this.stockRepository.findByTitles(titles);
+  async getStocks(tags: string[]) {
+    const stocks = await this.stockRepository.findByTags(tags);
     return stocks;
   }
 

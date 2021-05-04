@@ -5,7 +5,14 @@ import { Brackets, EntityRepository, Repository } from 'typeorm';
 export class StockRepository extends Repository<Stock> {
   async findBySymbol(symbol: string): Promise<Stock> {
     return this.createQueryBuilder('s')
-      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
+      .select([
+        's.id',
+        's.enName',
+        's.krName',
+        's.cashTagName',
+        's.symbol',
+        's.type',
+      ])
       .where('s.symbol = :symbol', { symbol })
       .leftJoin('s.stockCount', 'stockCount')
       .addSelect(['stockCount.watchUserCount'])
@@ -14,10 +21,23 @@ export class StockRepository extends Repository<Stock> {
       .getOne();
   }
 
-  async findByTitle(title: string): Promise<Stock> {
+  async findByTag(tag: string): Promise<Stock> {
     return this.createQueryBuilder('s')
-      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
-      .where('s.krName = :title', { title })
+      .select([
+        's.id',
+        's.enName',
+        's.krName',
+        's.cashTagName',
+        's.symbol',
+        's.type',
+      ])
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('s.symbol = :tag', {
+            tag,
+          }).orWhere('s.cashTagName = :tag', { tag });
+        }),
+      )
       .leftJoin('s.stockCount', 'stockCount')
       .addSelect(['stockCount.watchUserCount'])
       .innerJoin('s.exchange', 'exchange')
@@ -25,13 +45,13 @@ export class StockRepository extends Repository<Stock> {
       .getOne();
   }
 
-  async findByTitles(titles: string[]): Promise<Stock[]> {
+  async findByTags(tags: string[]): Promise<Stock[]> {
     return this.createQueryBuilder('s')
       .andWhere(
         new Brackets((qb) => {
-          qb.where('s.symbol IN (:...titles)', {
-            titles,
-          }).orWhere('s.krName IN (:...titles)', { titles });
+          qb.where('s.symbol IN (:...tags)', {
+            tags,
+          }).orWhere('s.cashTagName IN (:...tags)', { tags });
         }),
       )
       .innerJoin('s.exchange', 'exchange')
@@ -41,11 +61,18 @@ export class StockRepository extends Repository<Stock> {
 
   async searchStock(
     query: string,
-    cursor: number,
+    page: number,
     limit: number,
   ): Promise<Stock[]> {
     const dbQuery = this.createQueryBuilder('s')
-      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
+      .select([
+        's.id',
+        's.enName',
+        's.krName',
+        's.cashTagName',
+        's.symbol',
+        's.type',
+      ])
       .andWhere(
         new Brackets((qb) => {
           qb.where(`symbol LIKE '${query}%'`).orWhere(
@@ -53,20 +80,26 @@ export class StockRepository extends Repository<Stock> {
           );
         }),
       )
+      .innerJoin('s.stockMeta', 'meta')
       .innerJoin('s.exchange', 'exchange')
       .addSelect(['exchange.name', 'exchange.countryCode'])
-      .orderBy('s.id', 'ASC')
+      .orderBy('meta.marketCap', 'DESC')
+      .offset(page * limit)
       .limit(limit);
 
-    if (cursor) {
-      dbQuery.andWhere('s.id > :cursor', { cursor });
-    }
     return dbQuery.getMany();
   }
 
   async getWatchList(userId: number): Promise<Stock[]> {
     return this.createQueryBuilder('s')
-      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
+      .select([
+        's.id',
+        's.enName',
+        's.krName',
+        's.cashTagName',
+        's.symbol',
+        's.type',
+      ])
       .innerJoin(
         `(SELECT stockId FROM watchlist WHERE userId = ${userId})`,
         'w',
@@ -79,11 +112,18 @@ export class StockRepository extends Repository<Stock> {
 
   async getPopularStocks(): Promise<Stock[]> {
     return this.createQueryBuilder('s')
-      .select(['s.id', 's.enName', 's.krName', 's.symbol', 's.type'])
+      .select([
+        's.id',
+        's.enName',
+        's.krName',
+        's.cashTagName',
+        's.symbol',
+        's.type',
+      ])
       .innerJoin('s.stockMeta', 'meta', 'meta.isPopular IS NOT NULL')
       .innerJoin('s.exchange', 'exchange')
       .addSelect(['exchange.name', 'exchange.countryCode'])
-      .orderBy('meta.isPopular', 'ASC')
+      .orderBy('meta.isPopular', 'DESC')
       .getMany();
   }
 }

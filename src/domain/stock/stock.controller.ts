@@ -23,13 +23,13 @@ import { StockPriceInfoDto } from './dtos/stock_price_info.dto';
 @Controller('stock')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
-  @Get(':query/search')
+  @Post('search')
   search(
-    @Param('query') query: string,
-    @Query('cursor') cursor: string,
+    @Body() { query }: Record<'query', string>,
+    @Query('page') page: string,
     @Query('limit') limit: string,
   ): Promise<Stock[]> {
-    return this.stockService.search(query, +cursor, +limit);
+    return this.stockService.search(query, +page, +limit);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -48,8 +48,8 @@ export class StockController {
     return this.stockService.getPrices(symbols);
   }
 
-  @Get(':title')
-  getStockByTitle(@Param('title') title: string): Promise<GetStockResponseDto> {
-    return this.stockService.getStockByTitle(title);
+  @Get(':tag')
+  getStockByTitle(@Param('tag') tag: string): Promise<GetStockResponseDto> {
+    return this.stockService.getStockByTag(tag);
   }
 }
