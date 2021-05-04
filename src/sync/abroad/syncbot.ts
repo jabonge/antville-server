@@ -45,13 +45,13 @@ class AbroadSyncBot {
         stock.symbol = symbol;
         stock.enName = quote.name;
         stock.krName = quote.name;
-        stock.cashTagName = quote.name.split(' ').join('');
+        stock.cashTagName = symbol;
         stock.exchange = exchange;
         stock.stockMeta = new StockMeta();
         stock.stockCount = new StockCount();
         await getRepository(Stock).save(stock);
-      } else if (stock && !stock.cashTagName) {
-        stock.cashTagName = quote.name.split(' ').join('');
+      } else if (stock) {
+        stock.cashTagName = symbol;
         await getRepository(Stock).save(stock);
       }
     }

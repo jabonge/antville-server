@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { differenceInDays } from 'date-fns';
-import { LessThan, Repository, EntityManager } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification, NotificationType } from './entities/notification.entity';
@@ -75,21 +75,17 @@ export class NotificationService {
   }
 
   findAllByUser(userId: number, cursor: number, limit: number) {
-    let where;
+    const query = this.notificationRepository
+      .createQueryBuilder('n')
+      .where(`n.viewerId = ${userId}`)
+      .leftJoin('n.sender', 'sender')
+      .addSelect(['sender.id', 'sender.nickname', 'sender.profileImg'])
+      .orderBy('n.id', 'DESC')
+      .limit(limit);
     if (cursor) {
-      where = { viewerId: userId, id: LessThan(cursor) };
-    } else {
-      where = { viewerId: userId };
+      query.andWhere('n.id < :cursor', { cursor });
     }
-    return this.notificationRepository.find({
-      // select: ['sender.id', 'sender.nickname', 'sender.profileImg'],
-      relations: ['sender'],
-      where,
-      order: {
-        id: 'DESC',
-      },
-      take: limit,
-    });
+    return query.getMany();
   }
 
   checkNotification(id: number, userId: number) {

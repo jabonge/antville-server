@@ -1,5 +1,6 @@
 import { Stock } from '../entities/stock.entity';
 import { Brackets, EntityRepository, Repository } from 'typeorm';
+import { isKoreanLang } from '../../../util/stock';
 
 @EntityRepository(Stock)
 export class StockRepository extends Repository<Stock> {
@@ -22,6 +23,7 @@ export class StockRepository extends Repository<Stock> {
   }
 
   async findByTag(tag: string): Promise<Stock> {
+    const isIncludeKoreanLang = isKoreanLang(tag);
     return this.createQueryBuilder('s')
       .select([
         's.id',
@@ -33,9 +35,12 @@ export class StockRepository extends Repository<Stock> {
       ])
       .andWhere(
         new Brackets((qb) => {
-          qb.where('s.symbol = :tag', {
-            tag,
-          }).orWhere('s.cashTagName = :tag', { tag });
+          qb.where(
+            isIncludeKoreanLang ? 's.krName = :tag' : 's.symbol = :tag',
+            {
+              tag,
+            },
+          ).orWhere('s.cashTagName = :tag', { tag });
         }),
       )
       .leftJoin('s.stockCount', 'stockCount')
