@@ -27,6 +27,7 @@
     "syncbot:naver": "ts-node src/sync/naver/index.ts"
   },
   "dependencies": {
+    "@aginix/nestjs-firebase-admin": "^2.1.1",
     "@nestjs/common": "^7.5.1",
     "@nestjs/config": "^0.6.3",
     "@nestjs/core": "^7.5.1",
@@ -48,6 +49,7 @@
     "csv-parse": "^4.15.1",
     "date-fns": "^2.21.0",
     "dotenv": "^8.2.0",
+    "firebase-admin": "^9.7.0",
     "helmet": "^4.5.0",
     "hpp": "^0.2.3",
     "multer-s3": "^2.9.0",

@@ -470,4 +470,20 @@ export class UserService {
       1,
     );
   }
+
+  async updateFcmToken(userId: number, fcmToken: string) {
+    await this.userRepository.update(userId, {
+      fcmToken,
+    });
+    return;
+  }
+
+  async findFcmTokens(userIds: number[]) {
+    return this.userRepository.find({
+      select: ['fcmToken'],
+      where: {
+        id: In(userIds),
+      },
+    });
+  }
 }

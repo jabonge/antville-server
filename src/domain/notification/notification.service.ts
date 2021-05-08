@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { differenceInDays } from 'date-fns';
 import { Repository, EntityManager } from 'typeorm';
+import { FcmService } from '../../lib/fcm/fcm.service';
 import { User } from '../user/entities/user.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification, NotificationType } from './entities/notification.entity';
@@ -11,6 +11,7 @@ export class NotificationService {
   constructor(
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>,
+    private readonly fcmService: FcmService,
   ) {}
 
   async create(
@@ -24,16 +25,15 @@ export class NotificationService {
     ) {
       const duplicatedNotification = await manager.findOne(Notification, {
         viewerId: notification.viewerId,
+        senderId: notification.sender.id,
         type: notification.type,
         param: notification.param,
       });
-      if (
-        duplicatedNotification &&
-        differenceInDays(Date.now(), duplicatedNotification.createdAt) < 7
-      ) {
+      if (duplicatedNotification) {
         return;
       }
     }
+    this.fcmService.sendNotification(createNotificationDto);
     return manager.save(Notification, notification);
   }
 
@@ -44,16 +44,23 @@ export class NotificationService {
     postId: number,
     parentId?: number,
   ) {
-    const notifications: Notification[] = [];
+    const createNotificationDtos: CreateNotificationDto[] = [];
     for (let i = 0; i < users.length; i++) {
       const createNotificationDto = new CreateNotificationDto();
       createNotificationDto.param = parentId ? `${parentId}` : `${postId}`;
       createNotificationDto.type = NotificationType.TAG;
       createNotificationDto.viewerId = users[i].id;
       createNotificationDto.user = writer;
-      notifications.push(createNotificationDto.toNotificationEntity());
+      createNotificationDtos.push(createNotificationDto);
     }
-    return manager.save(Notification, notifications);
+    this.fcmService.sendUserTagNotification(
+      users.map((u) => u.id),
+      createNotificationDtos[0],
+    );
+    return manager.save(
+      Notification,
+      createNotificationDtos.map((c) => c.toNotificationEntity()),
+    );
   }
 
   async createCommentNotification(
@@ -67,7 +74,7 @@ export class NotificationService {
     createNotificationDto.type = NotificationType.COMMENT;
     createNotificationDto.viewerId = viewerId;
     createNotificationDto.user = author;
-
+    this.fcmService.sendNotification(createNotificationDto);
     return manager.save(
       Notification,
       createNotificationDto.toNotificationEntity(),

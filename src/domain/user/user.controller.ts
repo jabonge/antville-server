@@ -18,6 +18,7 @@ import {
   UseInterceptors,
   Query,
   ClassSerializerInterceptor,
+  Patch,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
@@ -162,5 +163,14 @@ export class UserController {
     @Body() editProfileDto: EditProfileDto,
   ) {
     return this.userService.editProfile(user.id, editProfileDto);
+  }
+
+  @Patch('updateFcmToken')
+  @UseGuards(JwtAuthGuard)
+  async updateFcmToken(
+    @CurrentUser() user: User,
+    @Body() { fcmToken }: Record<'fcmToken', string>,
+  ) {
+    return this.userService.updateFcmToken(user.id, fcmToken);
   }
 }

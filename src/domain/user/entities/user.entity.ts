@@ -47,6 +47,10 @@ export class User {
   @Column({ select: false, nullable: true })
   refreshToken: string;
 
+  @ApiHideProperty()
+  @Column({ select: false, nullable: true })
+  fcmToken: string;
+
   @Column({
     default: false,
   })

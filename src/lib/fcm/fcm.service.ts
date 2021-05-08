@@ -1,0 +1,56 @@
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { UserService } from '../../domain/user/user.service';
+import * as admin from 'firebase-admin';
+import { CreateNotificationDto } from '../../domain/notification/dto/create-notification.dto';
+
+@Injectable()
+export class FcmService {
+  constructor(
+    @Inject('MESSAGING') private readonly messaging: admin.messaging.Messaging,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
+  ) {}
+
+  async sendNotification(createNotificationDto: CreateNotificationDto) {
+    try {
+      const users = await this.userService.findFcmTokens([
+        createNotificationDto.viewerId,
+      ]);
+      const message: admin.messaging.Message = {
+        notification: {
+          body: createNotificationDto.getContent(),
+        },
+        data: {
+          param: createNotificationDto.param,
+          type: createNotificationDto.type,
+        },
+        token: users[0].fcmToken,
+      };
+      this.messaging.send(message);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async sendUserTagNotification(
+    receiverIds: number[],
+    createNotificationDto: CreateNotificationDto,
+  ) {
+    try {
+      const users = await this.userService.findFcmTokens(receiverIds);
+      const message: admin.messaging.MulticastMessage = {
+        notification: {
+          body: createNotificationDto.getContent(),
+        },
+        data: {
+          param: createNotificationDto.param,
+          type: createNotificationDto.type,
+        },
+        tokens: users.map((u) => u.fcmToken),
+      };
+      this.messaging.sendMulticast(message);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+}

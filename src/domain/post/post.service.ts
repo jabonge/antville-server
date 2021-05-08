@@ -280,7 +280,7 @@ export class PostService {
         ),
         this.userService.incrementUserCount(manager, user.id, 'postLikeCount'),
       ]);
-      if (post.authorId != user.id && !post.parentId) {
+      if (post.authorId != user.id) {
         const createNotificationDto = new CreateNotificationDto();
         createNotificationDto.param = `${postId}`;
         createNotificationDto.type = NotificationType.LIKE;

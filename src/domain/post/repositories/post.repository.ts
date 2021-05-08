@@ -187,7 +187,8 @@ export class PostRepository extends Repository<Post> {
     myId?: number,
   ) {
     const query = this.createQueryBuilder('p')
-      .where('p.authorId = :id', { id: userId })
+      .where('p.parentId IS NULL')
+      .andWhere('p.authorId = :id', { id: userId })
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoinAndSelect('p.author', 'author')
