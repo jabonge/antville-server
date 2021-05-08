@@ -14,7 +14,7 @@ import { FcmModule } from './lib/fcm/fcm.module';
 function getEnvFilePath() {
   const env = process.env.NODE_ENV;
   if (env === 'production') {
-    return '.env.prod';
+    return '.env.production';
   } else if (env === 'development') {
     return '.env.dev';
   } else {
