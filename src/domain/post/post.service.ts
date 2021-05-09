@@ -55,7 +55,7 @@ export class PostService {
       const link = findLinks(createPostDto.body);
       if (link) {
         const ogResult = await getOgTags(link);
-        if (ogResult?.ogTitle && ogResult?.ogUrl) {
+        if (ogResult) {
           postLink = new PostLink();
           postLink.ogSiteName = ogResult.ogSiteName;
           postLink.ogTitle = ogResult.ogTitle;

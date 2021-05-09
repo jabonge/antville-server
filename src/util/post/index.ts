@@ -39,6 +39,10 @@ export async function getOgTags(link: string) {
     url: link,
     onlyGetOpenGraphInfo: true,
     ogImageFallback: false,
+    headers: {
+      'user-agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
+    },
   };
   try {
     const ogTag = await ogs(options);
@@ -62,7 +66,6 @@ export async function getOgTags(link: string) {
       ogUrl: result.ogUrl,
     };
   } catch (e) {
-    console.log(e);
     return null;
   }
 }
