@@ -40,26 +40,31 @@ export async function getOgTags(link: string) {
     onlyGetOpenGraphInfo: true,
     ogImageFallback: false,
   };
-  const ogTag = await ogs(options);
-  if (ogTag.error) {
+  try {
+    const ogTag = await ogs(options);
+    if (ogTag.error) {
+      return null;
+    }
+    const result = (ogTag as SuccessResult).result;
+    let ogImage: string;
+    if (typeof result.ogImage === 'string') {
+      ogImage = result.ogImage;
+    } else if (typeof result.ogImage === 'object') {
+      ogImage = (result.ogImage as OpenGraphImage).url;
+    } else if (Array.isArray(result.ogImage)) {
+      ogImage = (result.ogImage as OpenGraphImage[])[0].url;
+    }
+    return {
+      ogSiteName: result.ogSiteName,
+      ogImage: ogImage,
+      ogTitle: result.ogTitle,
+      ogDescription: result.ogDescription,
+      ogUrl: result.ogUrl,
+    };
+  } catch (e) {
+    console.log(e);
     return null;
   }
-  const result = (ogTag as SuccessResult).result;
-  let ogImage: string;
-  if (typeof result.ogImage === 'string') {
-    ogImage = result.ogImage;
-  } else if (typeof result.ogImage === 'object') {
-    ogImage = (result.ogImage as OpenGraphImage).url;
-  } else if (Array.isArray(result.ogImage)) {
-    ogImage = (result.ogImage as OpenGraphImage[])[0].url;
-  }
-  return {
-    ogSiteName: result.ogSiteName,
-    ogImage: ogImage,
-    ogTitle: result.ogTitle,
-    ogDescription: result.ogDescription,
-    ogUrl: result.ogUrl,
-  };
 }
 
 export function findLinks(str: string): string | null {

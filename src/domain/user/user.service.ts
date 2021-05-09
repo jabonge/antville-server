@@ -4,7 +4,14 @@ import { CreateUserInput } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, EntityManager, In, Repository } from 'typeorm';
+import {
+  Connection,
+  EntityManager,
+  In,
+  IsNull,
+  Not,
+  Repository,
+} from 'typeorm';
 import { UserCount } from './entities/user-count.entity';
 import { EditProfileDto } from './dto/edit-profile.dto';
 import { StockCount } from '../stock/entities/stock-count.entity';
@@ -483,6 +490,7 @@ export class UserService {
       select: ['fcmToken'],
       where: {
         id: In(userIds),
+        fcmToken: Not(IsNull()),
       },
     });
   }

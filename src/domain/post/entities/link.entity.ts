@@ -18,7 +18,7 @@ export class PostLink {
   @Column({ nullable: true })
   ogSiteName: string;
 
-  @Column()
+  @Column({ nullable: true })
   ogImage: string;
 
   @Column()

@@ -20,8 +20,8 @@ export class VtExceptionFilter implements ExceptionFilter {
     const env = process.env.NODE_ENV;
 
     if (env === 'local') {
-      Logger.error(exception);
     }
+    Logger.error(exception);
 
     let status;
     let message;

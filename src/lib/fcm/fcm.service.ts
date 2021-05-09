@@ -16,6 +16,7 @@ export class FcmService {
       const users = await this.userService.findFcmTokens([
         createNotificationDto.viewerId,
       ]);
+      if (users.length === 0) return;
       const message: admin.messaging.Message = {
         notification: {
           body: createNotificationDto.getContent(),
@@ -38,6 +39,7 @@ export class FcmService {
   ) {
     try {
       const users = await this.userService.findFcmTokens(receiverIds);
+      if (users.length === 0) return;
       const message: admin.messaging.MulticastMessage = {
         notification: {
           body: createNotificationDto.getContent(),
