@@ -146,7 +146,7 @@ export class PostRepository extends Repository<Post> {
       .addSelect(['postCount.likeCount'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'DESC')
+      .orderBy('p.id', 'ASC')
       .take(limit);
     if (userId) {
       query
