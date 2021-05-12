@@ -2,7 +2,6 @@ import { EditProfileDto } from './dto/edit-profile.dto';
 import { ConditionAuthGuard, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.dto';
-import { StockService } from '../stock/stock.service';
 import { UserService } from './user.service';
 import {
   Body,
@@ -19,18 +18,17 @@ import {
   Query,
   ClassSerializerInterceptor,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly stockService: StockService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Post('signUp')
   @HttpCode(HttpStatus.CREATED)
@@ -76,6 +74,23 @@ export class UserController {
   @Put(':id/removeWatchList')
   async removeWatchList(@CurrentUser() user: User, @Param('id') id: string) {
     await this.userService.removeWatchList(user.id, +id);
+    return;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('removeWatchLists')
+  async removeWatchLists(
+    @CurrentUser() user: User,
+    @Body() { stockIds }: Record<'stockIds', number[]>,
+  ) {
+    await this.userService.removeWatchLists(user.id, stockIds);
+    return;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id/sendToTop')
+  async sendToTop(@CurrentUser() user: User, @Param('id') id: string) {
+    await this.userService.sendToTop(user.id, +id);
     return;
   }
 
@@ -172,5 +187,14 @@ export class UserController {
     @Body() { fcmToken }: Record<'fcmToken', string>,
   ) {
     return this.userService.updateFcmToken(user.id, fcmToken);
+  }
+
+  @Patch('changePassword')
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @CurrentUser() user: User,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.userService.changePassword(user, changePasswordDto);
   }
 }

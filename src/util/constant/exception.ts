@@ -16,6 +16,14 @@ const CustomError = {
     errorCode: 603,
     message: 'Invalid Password',
   },
+  REFRESH_TOKEN_EXPIRED: {
+    errorCode: 604,
+    message: 'Refresh Token Expired',
+  },
+  INVALID_REFRESH_TOKEN: {
+    errorCode: 605,
+    message: 'Invalid Refresh Token',
+  },
   // 700 번대 stock 관련
   WATCH_LIST_LIMIT_EXCEED: {
     errorCode: 700,

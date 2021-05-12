@@ -4,8 +4,13 @@ import { JwtPayload } from './auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../user/entities/user.entity';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import CustomError from '../../util/constant/exception';
+import { TokenExpiredError } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -34,15 +39,23 @@ export class AuthService {
   }
 
   reIssueAccessToken(token: string) {
-    const decodedUser = this.verifyRefreshToken(token);
-    if (decodedUser) {
-      return this.issueAccessToken({
-        id: decodedUser.id,
-        email: decodedUser.email,
-        nickname: decodedUser.nickname,
-      });
-    } else {
-      throw new BadRequestException('Invalid Refresh Token');
+    try {
+      const decodedUser = this.verifyRefreshToken(token);
+      if (decodedUser) {
+        return this.issueAccessToken({
+          id: decodedUser.id,
+          email: decodedUser.email,
+          nickname: decodedUser.nickname,
+        });
+      } else {
+        throw new UnauthorizedException(CustomError.INVALID_REFRESH_TOKEN);
+      }
+    } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        throw new UnauthorizedException(CustomError.REFRESH_TOKEN_EXPIRED);
+      } else {
+        throw e;
+      }
     }
   }
 

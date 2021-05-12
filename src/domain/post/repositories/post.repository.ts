@@ -157,7 +157,7 @@ export class PostRepository extends Repository<Post> {
       query.andWhere('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
     }
     if (cursor) {
-      query.andWhere('p.id < :cursor', { cursor });
+      query.andWhere('p.id > :cursor', { cursor });
     }
     return query.getMany();
   }

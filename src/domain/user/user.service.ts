@@ -9,6 +9,7 @@ import {
   EntityManager,
   In,
   IsNull,
+  MoreThan,
   Not,
   Repository,
 } from 'typeorm';
@@ -18,6 +19,7 @@ import { StockCount } from '../stock/entities/stock-count.entity';
 import CustomError from '../../util/constant/exception';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from '../notification/entities/notification.entity';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -134,6 +136,67 @@ export class UserService {
       );
     });
     return;
+  }
+
+  async removeWatchLists(userId: number, stockIds: number[]) {
+    await this.connection.transaction(async (manager) => {
+      const findIds: Array<any> = await manager.query(
+        `SELECT stockId FROM watchlist where userId = ${userId} AND stockId IN (${stockIds.join(
+          ',',
+        )});`,
+      );
+      const findStockIds = findIds.map((e) => e.stockId);
+      if (findIds.length <= 0) return;
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'stocks')
+        .of(userId)
+        .remove(findStockIds);
+      const { watchStockCount } = await manager.findOne(UserCount, { userId });
+      if (watchStockCount > stockIds.length) {
+        await this.decrementUserCount(
+          manager,
+          userId,
+          'watchStockCount',
+          findStockIds.length,
+        );
+      } else {
+        await this.decrementUserCount(
+          manager,
+          userId,
+          'watchStockCount',
+          watchStockCount,
+        );
+      }
+      await manager.decrement(
+        StockCount,
+        {
+          stockId: In(findStockIds),
+          watchUserCount: MoreThan(0),
+        },
+        'watchUserCount',
+        1,
+      );
+    });
+    return;
+  }
+
+  async sendToTop(userId: number, stockId: number) {
+    if (!(await this.isWatching(userId, stockId))) {
+      return;
+    }
+    await this.connection.transaction(async (manager) => {
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'stocks')
+        .of(userId)
+        .remove(stockId);
+      await manager
+        .createQueryBuilder(User, 'u')
+        .relation(User, 'stocks')
+        .of(userId)
+        .add(stockId);
+    });
   }
 
   async addWatchList(userId: number, stockId: number) {
@@ -456,25 +519,35 @@ export class UserService {
     );
   }
 
-  incrementUserCount(manager: EntityManager, userId: number, property: string) {
+  incrementUserCount(
+    manager: EntityManager,
+    userId: number,
+    property: string,
+    count = 1,
+  ) {
     return manager.increment(
       UserCount,
       {
         userId,
       },
       property,
-      1,
+      count,
     );
   }
 
-  decrementUserCount(manager: EntityManager, userId: number, property: string) {
+  decrementUserCount(
+    manager: EntityManager,
+    userId: number,
+    property: string,
+    count = 1,
+  ) {
     return manager.decrement(
       UserCount,
       {
         userId,
       },
       property,
-      1,
+      count,
     );
   }
 
@@ -493,5 +566,23 @@ export class UserService {
         fcmToken: Not(IsNull()),
       },
     });
+  }
+
+  async changePassword(
+    user: User,
+    { changePassword, currentPassword }: ChangePasswordDto,
+  ) {
+    if (changePassword === currentPassword) {
+      throw new BadRequestException(
+        '현재 비밀번호와 동일한 비밀번호로 변경 할 수 없습니다.',
+      );
+    }
+    const userHasPassword = await this.userRepository.findOneOrFail(user.id, {
+      select: ['id', 'password'],
+    });
+    if (await userHasPassword.checkPassword(currentPassword)) {
+      userHasPassword.password = changePassword;
+      await this.save(userHasPassword);
+    }
   }
 }
