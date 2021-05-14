@@ -8,10 +8,11 @@ import { UserController } from './user.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { UserCount } from './entities/user-count.entity';
 import { NotificationModule } from '../notification/notification.module';
+import { WatchList } from './entities/watchlist.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserCount]),
+    TypeOrmModule.forFeature([User, UserCount, WatchList]),
     MulterModule.registerAsync({
       useClass: UploadService,
       inject: [ConfigService],

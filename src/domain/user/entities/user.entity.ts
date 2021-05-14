@@ -1,6 +1,6 @@
+import { WatchList } from './watchlist.entity';
 import { PostToStock } from './../../post/entities/post-stock.entity';
 import { JwtPayload } from '../../auth/auth.interface';
-import { Stock } from '../../stock/entities/stock.entity';
 import bcrypt from 'bcrypt';
 import {
   Column,
@@ -83,12 +83,16 @@ export class User {
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 
+  // @ApiHideProperty()
+  // @ManyToMany(() => Stock)
+  // @JoinTable({
+  //   name: 'watchlist',
+  // })
+  // stocks: Stock[];
+
   @ApiHideProperty()
-  @ManyToMany(() => Stock)
-  @JoinTable({
-    name: 'watchlist',
-  })
-  stocks: Stock[];
+  @OneToMany(() => WatchList, (w) => w.user)
+  watchStocks: WatchList[];
 
   @ApiHideProperty()
   @Exclude()

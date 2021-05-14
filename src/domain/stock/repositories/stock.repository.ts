@@ -105,11 +105,8 @@ export class StockRepository extends Repository<Stock> {
         's.symbol',
         's.type',
       ])
-      .innerJoin(
-        `(SELECT stockId FROM watchlist WHERE userId = ${userId})`,
-        'w',
-        's.id = w.stockId',
-      )
+      .innerJoin('s.watchUsers', 'w', `w.userId = ${userId}`)
+      .orderBy('w.lexorank', 'ASC')
       .innerJoin('s.exchange', 'exchange')
       .addSelect(['exchange.name', 'exchange.countryCode'])
       .getMany();

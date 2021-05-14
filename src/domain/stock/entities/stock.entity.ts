@@ -15,6 +15,7 @@ import {
 import { StockCount } from './stock-count.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { PostToStock } from '../../post/entities/post-stock.entity';
+import { WatchList } from '../../user/entities/watchlist.entity';
 
 export enum StockType {
   ETF = 'ETF',
@@ -67,6 +68,10 @@ export class Stock {
   @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
+
+  @ApiHideProperty()
+  @OneToMany(() => WatchList, (w) => w.stock)
+  watchUsers: WatchList[];
 
   @ApiHideProperty()
   @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock, {

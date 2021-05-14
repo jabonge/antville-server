@@ -20,6 +20,13 @@ import CustomError from '../../util/constant/exception';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from '../notification/entities/notification.entity';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { WatchList } from './entities/watchlist.entity';
+import { LexoRank } from 'lexorank';
+import {
+  ChangeType,
+  ChangeWatchListOrderDto,
+} from './dto/change-watchlist-order.dto';
+import { genLexoRankList } from '../../util/lexorank';
 
 @Injectable()
 export class UserService {
@@ -115,16 +122,83 @@ export class UserService {
     return;
   }
 
+  async changeWatchListOrder(
+    userId: number,
+    { stockId, betweenStockIds, type }: ChangeWatchListOrderDto,
+  ) {
+    const findWatchList = await this.connection.manager.find(WatchList, {
+      where: {
+        userId,
+        stockId: In(betweenStockIds),
+      },
+    });
+    const updateWatchList = await this.connection.manager.findOneOrFail(
+      WatchList,
+      {
+        where: {
+          userId,
+          stockId,
+        },
+      },
+    );
+    let newLexoRank: LexoRank;
+    if (type === ChangeType.FIRST) {
+      if (findWatchList.length !== 1) {
+        throw new BadRequestException();
+      }
+      const lexorank = LexoRank.parse(findWatchList[0].lexorank);
+      newLexoRank = lexorank.genPrev();
+      updateWatchList.lexorank = newLexoRank.toString();
+    } else if (type === ChangeType.LAST) {
+      if (findWatchList.length !== 1) {
+        throw new BadRequestException();
+      }
+      const lexorank = LexoRank.parse(findWatchList[0].lexorank);
+      newLexoRank = lexorank.genNext();
+      updateWatchList.lexorank = newLexoRank.toString();
+    } else if (type === ChangeType.BETWEEN) {
+      if (findWatchList.length !== 2) {
+        throw new BadRequestException();
+      }
+      const firstLexoRank = LexoRank.parse(findWatchList[0].lexorank);
+      const secondLexoRank = LexoRank.parse(findWatchList[1].lexorank);
+      newLexoRank = firstLexoRank.between(secondLexoRank);
+      updateWatchList.lexorank = newLexoRank.toString();
+    } else {
+      throw new BadRequestException();
+    }
+    await this.connection.manager.save(WatchList, updateWatchList);
+    if (newLexoRank.getDecimal().getScale() > 300) {
+      this.lexorankRebalancing(userId);
+    }
+    return;
+  }
+
+  async lexorankRebalancing(userId: number) {
+    const findAllWatchList = await this.connection.manager.find(WatchList, {
+      where: {
+        userId,
+      },
+      order: {
+        lexorank: 'ASC',
+      },
+    });
+    const balancedLexoRankList = genLexoRankList(findAllWatchList.length);
+    for (let i = 0; i < findAllWatchList.length; i++) {
+      findAllWatchList[i].lexorank = balancedLexoRankList[i];
+    }
+    await this.connection.manager.save(WatchList, findAllWatchList);
+  }
+
   async removeWatchList(userId: number, stockId: number) {
     if (!(await this.isWatching(userId, stockId))) {
       return;
     }
     await this.connection.transaction(async (manager) => {
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'stocks')
-        .of(userId)
-        .remove(stockId);
+      await manager.delete(WatchList, {
+        userId,
+        stockId,
+      });
       await this.decrementUserCount(manager, userId, 'watchStockCount');
       await manager.decrement(
         StockCount,
@@ -140,18 +214,18 @@ export class UserService {
 
   async removeWatchLists(userId: number, stockIds: number[]) {
     await this.connection.transaction(async (manager) => {
-      const findIds: Array<any> = await manager.query(
-        `SELECT stockId FROM watchlist where userId = ${userId} AND stockId IN (${stockIds.join(
-          ',',
-        )});`,
-      );
-      const findStockIds = findIds.map((e) => e.stockId);
-      if (findIds.length <= 0) return;
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'stocks')
-        .of(userId)
-        .remove(findStockIds);
+      const findWatchList = await manager.find(WatchList, {
+        where: {
+          userId,
+          stockId: In(stockIds),
+        },
+      });
+      const findStockIds = findWatchList.map((e) => e.stockId);
+      if (findWatchList.length <= 0) return;
+      await manager.delete(WatchList, {
+        userId,
+        stockId: In(findStockIds),
+      });
       const { watchStockCount } = await manager.findOne(UserCount, { userId });
       if (watchStockCount > stockIds.length) {
         await this.decrementUserCount(
@@ -181,24 +255,6 @@ export class UserService {
     return;
   }
 
-  async sendToTop(userId: number, stockId: number) {
-    if (!(await this.isWatching(userId, stockId))) {
-      return;
-    }
-    await this.connection.transaction(async (manager) => {
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'stocks')
-        .of(userId)
-        .remove(stockId);
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'stocks')
-        .of(userId)
-        .add(stockId);
-    });
-  }
-
   async addWatchList(userId: number, stockId: number) {
     if (await this.isWatching(userId, stockId)) {
       return;
@@ -208,11 +264,27 @@ export class UserService {
       if (userCount.watchStockCount > 19) {
         throw new BadRequestException(CustomError.WATCH_LIST_LIMIT_EXCEED);
       }
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'stocks')
-        .of(userId)
-        .add(stockId);
+      const firstWatchList = await manager.find(WatchList, {
+        where: {
+          userId,
+        },
+        order: {
+          lexorank: 'ASC',
+        },
+        take: 1,
+      });
+
+      const watchList = new WatchList();
+      watchList.userId = userId;
+      watchList.stockId = stockId;
+      if (firstWatchList.length > 0) {
+        const first = firstWatchList[0];
+        watchList.lexorank = LexoRank.parse(first.lexorank)
+          .genPrev()
+          .toString();
+      }
+
+      await manager.save(WatchList, watchList);
       await this.incrementUserCount(manager, userId, 'watchStockCount');
       await manager.increment(
         StockCount,
@@ -399,10 +471,11 @@ export class UserService {
   }
 
   async isWatching(myId: number, stockId: number) {
-    const row = await this.userRepository.manager.query(
-      `SELECT COUNT(*) as count FROM watchlist WHERE userId = ${myId} AND stockId = ${stockId}`,
-    );
-    return row[0].count > 0;
+    const count = await this.connection.manager.count(WatchList, {
+      userId: myId,
+      stockId,
+    });
+    return count > 0;
   }
 
   async isFollowing(myId: number, userId: number) {

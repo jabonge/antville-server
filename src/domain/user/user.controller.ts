@@ -1,3 +1,4 @@
+import { ChangeWatchListOrderDto } from './dto/change-watchlist-order.dto';
 import { EditProfileDto } from './dto/edit-profile.dto';
 import { ConditionAuthGuard, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { User } from './entities/user.entity';
@@ -88,9 +89,15 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':id/sendToTop')
-  async sendToTop(@CurrentUser() user: User, @Param('id') id: string) {
-    await this.userService.sendToTop(user.id, +id);
+  @Put('changeWatchListOrder')
+  async changeWatchListOrder(
+    @CurrentUser() user: User,
+    @Body() changeWatchListOrderDto: ChangeWatchListOrderDto,
+  ) {
+    await this.userService.changeWatchListOrder(
+      user.id,
+      changeWatchListOrderDto,
+    );
     return;
   }
 
