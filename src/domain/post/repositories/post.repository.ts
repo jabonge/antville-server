@@ -3,12 +3,7 @@ import { Post } from '../entities/post.entity';
 
 @EntityRepository(Post)
 export class PostRepository extends Repository<Post> {
-  async findAllPost(
-    cursor: number,
-    limit: number,
-    blockingUserIds: number[],
-    userId?: number,
-  ) {
+  async findAllPost(cursor: number, limit: number, userId?: number) {
     const query = this.createQueryBuilder('p')
       .where('p.parentId IS NULL')
       .leftJoin('p.postImgs', 'postImg')
@@ -22,11 +17,13 @@ export class PostRepository extends Repository<Post> {
       .take(limit);
     if (userId) {
       query
+        .innerJoin(
+          `(SELECT blockerId,blockingId FROM users_blocks ub WHERE blockerId = ${userId} OR blockingId = ${userId})`,
+          'ub',
+          'p.authorId != ub.blockerId AND p.authorId != ub.blockingId',
+        )
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
         .addSelect(['u.id']);
-    }
-    if (blockingUserIds.length > 0) {
-      query.andWhere('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
     }
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
@@ -37,20 +34,21 @@ export class PostRepository extends Repository<Post> {
     stockId: number,
     cursor: number,
     limit: number,
-    blockingUserIds: number[],
     userId?: number,
   ) {
+    const userWhere = userId
+      ? `INNER JOIN
+    (SELECT blockerId,blockingId FROM users_blocks WHERE blockerId = ${userId} OR blockingId = ${userId})
+    AS ub
+    ON pts.authorId != ub.blockerId AND pts.authorId != ub.blockingId`
+      : '';
     const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
-    const authorWhere =
-      blockingUserIds.length > 0
-        ? `AND authorId NOT IN (${blockingUserIds.join(',')})`
-        : '';
     const query = this.createQueryBuilder('p')
       .where('p.parentId IS NULL')
       .innerJoin(
-        `(SELECT postId FROM post_to_stock ps WHERE stockId = ${stockId} ${authorWhere} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
-        'ps',
-        'p.id = ps.postId',
+        `(SELECT postId FROM post_to_stock pts ${userWhere} WHERE stockId = ${stockId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        'ipts',
+        'p.id = ipts.postId',
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
@@ -69,26 +67,18 @@ export class PostRepository extends Repository<Post> {
     return query.getMany();
   }
 
-  async findAllPostByWatchList(
-    blockingUserIds: number[],
-    stockIds: number[],
-    userId: number,
-    cursor: number,
-    limit: number,
-  ) {
-    const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
-    const authorWhere =
-      blockingUserIds.length <= 0
-        ? ''
-        : `AND authorId NOT IN (${blockingUserIds.join(',')})`;
+  async findAllPostByWatchList(userId: number, cursor: number, limit: number) {
+    const cursorWhere = cursor ? `WHERE postId < ${cursor}` : '';
     const query = this.createQueryBuilder('p')
       .where('p.parentId IS NULL')
       .innerJoin(
-        `(SELECT DISTINCT postId FROM post_to_stock ps WHERE stockId IN (${stockIds.join(
-          ',',
-        )}) ${authorWhere} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
-        'ps',
-        'p.id = ps.postId',
+        `(SELECT DISTINCT postId FROM post_to_stock pts INNER JOIN
+          (SELECT blockerId,blockingId FROM users_blocks WHERE blockerId = ${userId} OR blockingId = ${userId}) AS ub
+          ON pts.authorId != ub.blockerId AND pts.authorId != ub.blockingId
+          INNER JOIN (SELECT stockId FROM watchlist w WHERE w.userId = ${userId}) AS iw on iw.stockId = pts.stockId
+        ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        'ipts',
+        'p.id = ipts.postId',
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
@@ -103,17 +93,12 @@ export class PostRepository extends Repository<Post> {
     return query.getMany();
   }
 
-  async findAllPostByFollowing(
-    followingIds: number[],
-    userId: number,
-    cursor: number,
-    limit: number,
-  ) {
+  async findAllPostByFollowing(userId: number, cursor: number, limit: number) {
     const query = this.createQueryBuilder('p')
       .where('p.parentId IS NULL')
-      .innerJoinAndSelect('p.author', 'author', 'author.id IN (:ids)', {
-        ids: followingIds.join(','),
-      })
+      .leftJoin('users_follows', 'uf', 'p.authorId = uf.followingId')
+      .andWhere(`uf.followerId = ${userId}`)
+      .innerJoinAndSelect('p.author', 'author')
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoin('p.postCount', 'postCount')
@@ -131,7 +116,6 @@ export class PostRepository extends Repository<Post> {
   }
 
   async getComments(
-    blockingUserIds: number[],
     postId: number,
     cursor: number,
     limit: number,
@@ -150,11 +134,13 @@ export class PostRepository extends Repository<Post> {
       .take(limit);
     if (userId) {
       query
+        .innerJoin(
+          `(SELECT blockerId,blockingId FROM users_blocks ub WHERE blockerId = ${userId} OR blockingId = ${userId})`,
+          'ub',
+          'p.authorId != ub.blockerId AND p.authorId != ub.blockingId',
+        )
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
         .addSelect(['u.id']);
-    }
-    if (blockingUserIds.length > 0) {
-      query.andWhere('p.authorId NOT IN (:ids)', { ids: [...blockingUserIds] });
     }
     if (cursor) {
       query.andWhere('p.id > :cursor', { cursor });

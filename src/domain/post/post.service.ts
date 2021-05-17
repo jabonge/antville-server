@@ -151,24 +151,11 @@ export class PostService {
     limit: number,
     userId?: number,
   ) {
-    const blockUserIds = await this.userService.findBlockingAndBlockerIds(
-      userId,
-    );
-    return this.postRepository.getComments(
-      blockUserIds,
-      postId,
-      cursor,
-      limit,
-      userId,
-    );
+    return this.postRepository.getComments(postId, cursor, limit, userId);
   }
 
   async findAllPost(cursor: number, limit: number, userId?: number) {
-    const blockUserIds = await this.userService.findBlockingAndBlockerIds(
-      userId,
-    );
-
-    return this.postRepository.findAllPost(cursor, limit, blockUserIds, userId);
+    return this.postRepository.findAllPost(cursor, limit, userId);
   }
 
   async findOnePost(postId: number, userId?: number) {
@@ -181,44 +168,15 @@ export class PostService {
     limit: number,
     userId?: number,
   ) {
-    const blockUserIds = await this.userService.findBlockingAndBlockerIds(
-      userId,
-    );
-    return this.postRepository.findAllPostById(
-      stockId,
-      cursor,
-      limit,
-      blockUserIds,
-      userId,
-    );
+    return this.postRepository.findAllPostById(stockId, cursor, limit, userId);
   }
 
   async findAllPostByFollowing(userId: number, cursor: number, limit: number) {
-    const userIds = await this.userService.findFollwingIds(userId);
-    return this.postRepository.findAllPostByFollowing(
-      userIds,
-      userId,
-      cursor,
-      limit,
-    );
+    return this.postRepository.findAllPostByFollowing(userId, cursor, limit);
   }
 
   async findAllPostByWatchList(userId: number, cursor: number, limit: number) {
-    const stocks = await this.stockService.getWatchList(userId);
-    if (stocks.length <= 0) {
-      return [];
-    }
-    const stockIds = stocks.map((s) => s.id);
-    const blockUserIds = await this.userService.findBlockingAndBlockerIds(
-      userId,
-    );
-    return this.postRepository.findAllPostByWatchList(
-      blockUserIds,
-      stockIds,
-      userId,
-      cursor,
-      limit,
-    );
+    return this.postRepository.findAllPostByWatchList(userId, cursor, limit);
   }
 
   async findAllUserPost(

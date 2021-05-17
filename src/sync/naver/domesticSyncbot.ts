@@ -42,7 +42,6 @@ class NaverDomesticSyncBot {
     for (let i = 2; i <= totalPage; i++) {
       const response = await getNaverDomesticStocks(exchangeName, i, pageSize);
       stocks.push(...response.stocks);
-      console.log(stocks.length);
       await sleep(2000);
     }
     for (let i = 0; i < stocks.length; i++) {

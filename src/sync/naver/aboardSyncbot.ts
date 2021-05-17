@@ -31,7 +31,6 @@ class NaverAbroadSyncBot {
     for (let i = 2; i <= totalPage; i++) {
       const response = await getNaverAboardStocks(exchangeName, i, pageSize);
       stocks.push(...response.stocks);
-      console.log(stocks.length);
       await sleep(2000);
     }
 

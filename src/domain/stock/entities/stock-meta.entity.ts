@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -17,12 +18,14 @@ export class StockMeta {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index()
   @Column({
     type: 'double',
     nullable: true,
   })
   marketCap: number;
 
+  @Index()
   @Column({
     type: 'int',
     nullable: true,

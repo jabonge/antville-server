@@ -328,17 +328,6 @@ export class UserService {
     return;
   }
 
-  async findFollwingIds(userId: number): Promise<number[]> {
-    const users = await this.userRepository.manager.query(
-      `SELECT followingId as id FROM users_follows WHERE followerId = ${userId}`,
-    );
-    const userIds = users.map((u) => u.id);
-    if (userIds.length <= 0) {
-      return [];
-    }
-    return userIds;
-  }
-
   async findBlockingAndBlockerIds(userId: number): Promise<number[]> {
     if (!userId) {
       return [];
