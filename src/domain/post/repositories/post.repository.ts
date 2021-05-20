@@ -1,4 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
+import { UserToBlock } from '../../user/entities/user-block.entity';
+import { WatchList } from '../../user/entities/watchlist.entity';
+import { PostToStock } from '../entities/post-stock.entity';
 import { Post } from '../entities/post.entity';
 
 @EntityRepository(Post)
@@ -17,11 +20,16 @@ export class PostRepository extends Repository<Post> {
       .take(limit);
     if (userId) {
       query
-        .innerJoin(
-          `(SELECT blockerId,blockingId FROM users_blocks ub WHERE blockerId = ${userId} OR blockingId = ${userId})`,
-          'ub',
-          'p.authorId != ub.blockerId AND p.authorId != ub.blockingId',
-        )
+        .andWhere((qb) => {
+          const subQuery = qb
+            .subQuery()
+            .select()
+            .from(UserToBlock, 'utb')
+            .where(`utb.blockerId = ${userId}`)
+            .andWhere(`p.authorId = utb.blockedId`)
+            .getQuery();
+          return 'NOT EXISTS ' + subQuery;
+        })
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
         .addSelect(['u.id']);
     }
@@ -36,19 +44,36 @@ export class PostRepository extends Repository<Post> {
     limit: number,
     userId?: number,
   ) {
-    const userWhere = userId
-      ? `INNER JOIN
-    (SELECT blockerId,blockingId FROM users_blocks WHERE blockerId = ${userId} OR blockingId = ${userId})
-    AS ub
-    ON pts.authorId != ub.blockerId AND pts.authorId != ub.blockingId`
-      : '';
-    const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
     const query = this.createQueryBuilder('p')
       .where('p.parentId IS NULL')
       .innerJoin(
-        `(SELECT postId FROM post_to_stock pts ${userWhere} WHERE stockId = ${stockId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        (qb) => {
+          const ptsSubQuery = qb
+            .subQuery()
+            .select(['postId'])
+            .from(PostToStock, 'pts')
+            .where(`pts.stockId = ${stockId}`)
+            .orderBy('pts.postId', 'DESC')
+            .limit(limit);
+          if (cursor) {
+            ptsSubQuery.andWhere(`postId < ${cursor}`);
+          }
+          if (userId) {
+            ptsSubQuery.andWhere((qb) => {
+              const utbSubQuery = qb
+                .subQuery()
+                .select()
+                .from(UserToBlock, 'utb')
+                .where(`utb.blockerId = ${userId}`)
+                .andWhere(`pts.authorId = utb.blockedId`)
+                .getQuery();
+              return 'NOT EXISTS ' + utbSubQuery;
+            });
+          }
+          return ptsSubQuery;
+        },
         'ipts',
-        'p.id = ipts.postId',
+        'ipts.postId = p.id',
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
@@ -63,22 +88,49 @@ export class PostRepository extends Repository<Post> {
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
         .addSelect(['u.id']);
     }
-
     return query.getMany();
   }
 
   async findAllPostByWatchList(userId: number, cursor: number, limit: number) {
-    const cursorWhere = cursor ? `WHERE postId < ${cursor}` : '';
     const query = this.createQueryBuilder('p')
       .where('p.parentId IS NULL')
       .innerJoin(
-        `(SELECT DISTINCT postId FROM post_to_stock pts INNER JOIN
-          (SELECT blockerId,blockingId FROM users_blocks WHERE blockerId = ${userId} OR blockingId = ${userId}) AS ub
-          ON pts.authorId != ub.blockerId AND pts.authorId != ub.blockingId
-          INNER JOIN (SELECT stockId FROM watchlist w WHERE w.userId = ${userId}) AS iw on iw.stockId = pts.stockId
-        ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        (qb) => {
+          const ptsSubQuery = qb
+            .subQuery()
+            .select(['postId'])
+            .from(PostToStock, 'pts')
+            .innerJoin(
+              (qb) => {
+                return qb
+                  .subQuery()
+                  .select(['stockId'])
+                  .from(WatchList, 'w')
+                  .where(`w.userId = ${userId}`);
+              },
+              'iw',
+              'iw.stockId = pts.stockId',
+            )
+            .orderBy('pts.postId', 'DESC')
+            .limit(limit);
+          if (cursor) {
+            ptsSubQuery.andWhere(`postId < ${cursor}`);
+          }
+          if (userId) {
+            ptsSubQuery.andWhere((qb) => {
+              const utbSubQuery = qb
+                .subQuery()
+                .from(UserToBlock, 'utb')
+                .where(`utb.blockerId = ${userId}`)
+                .andWhere(`pts.authorId = utb.blockedId`)
+                .getQuery();
+              return 'NOT EXISTS ' + utbSubQuery;
+            });
+          }
+          return ptsSubQuery;
+        },
         'ipts',
-        'p.id = ipts.postId',
+        'ipts.postId = p.id',
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
@@ -134,11 +186,16 @@ export class PostRepository extends Repository<Post> {
       .take(limit);
     if (userId) {
       query
-        .innerJoin(
-          `(SELECT blockerId,blockingId FROM users_blocks ub WHERE blockerId = ${userId} OR blockingId = ${userId})`,
-          'ub',
-          'p.authorId != ub.blockerId AND p.authorId != ub.blockingId',
-        )
+        .andWhere((qb) => {
+          const subQuery = qb
+            .subQuery()
+            .select()
+            .from(UserToBlock, 'utb')
+            .where(`utb.blockerId = ${userId}`)
+            .andWhere(`p.authorId = utb.blockedId`)
+            .getQuery();
+          return 'NOT EXISTS ' + subQuery;
+        })
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
         .addSelect(['u.id']);
     }

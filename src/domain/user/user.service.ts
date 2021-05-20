@@ -27,6 +27,7 @@ import {
   ChangeWatchListOrderDto,
 } from './dto/change-watchlist-order.dto';
 import { genLexoRankList } from '../../util/lexorank';
+import { BlockType, UserToBlock } from './entities/user-block.entity';
 
 @Injectable()
 export class UserService {
@@ -46,16 +47,23 @@ export class UserService {
   }
 
   async findByNicknames(nicknames: string[], user: User) {
-    const blockUserIds = await this.findBlockingAndBlockerIds(user.id);
-    let users = await this.userRepository.find({
-      where: {
-        nickname: In(nicknames),
-      },
-      select: ['id', 'nickname', 'profileImg'],
-    });
-    users = users.filter(
-      (u) => !blockUserIds.includes(u.id) && u.id !== user.id,
-    );
+    const users = this.userRepository
+      .createQueryBuilder('u')
+      .select(['id', 'nickname', 'profileImg'])
+      .where('u.nickname IN (:...nicknames)', { nicknames })
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select()
+          .from(UserToBlock, 'utb')
+          .where(`utb.blockerId = ${user.id}`)
+          .andWhere(`u.id = utb.blockedId`)
+          .getQuery();
+        return 'NOT EXISTS ' + subQuery;
+      })
+      .limit(10)
+      .getMany();
+
     return users;
   }
 
@@ -328,29 +336,9 @@ export class UserService {
     return;
   }
 
-  async findBlockingAndBlockerIds(userId: number): Promise<number[]> {
-    if (!userId) {
-      return [];
-    }
-    const users = await this.userRepository.manager.query(
-      `SELECT blockingId,blockerId FROM users_blocks WHERE blockerId = ${userId} OR blockingId = ${userId}`,
-    );
-    const userIds = users.map((u) => {
-      if (u.blockerId == userId) {
-        return u.blockingId;
-      } else {
-        return u.blockerId;
-      }
-    });
-    if (userIds.length <= 0) {
-      return [];
-    }
-    return Array.from(new Set(userIds));
-  }
-
   async isBlockingOrBlockedUser(myId: number, userId: number) {
     const row = await this.userRepository.manager.query(
-      `SELECT COUNT(*) as count FROM users_blocks WHERE (blockerId = ${myId} AND blockingId = ${userId}) OR (blockerId = ${userId} AND blockingId = ${myId});`,
+      `SELECT COUNT(*) as count FROM user_to_block WHERE blockerId = ${myId} AND blockedId = ${userId};`,
     );
     return row[0].count > 0;
   }
@@ -363,11 +351,15 @@ export class UserService {
     const isFollowed = await this.isFollowed(myId, userId);
 
     await this.connection.transaction(async (manager) => {
-      await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'blocking')
-        .of(myId)
-        .add(userId);
+      const blocker = new UserToBlock();
+      blocker.blockerId = myId;
+      blocker.blockedId = userId;
+      blocker.blockType = BlockType.BLOCKING;
+      const blockedUser = new UserToBlock();
+      blockedUser.blockerId = userId;
+      blockedUser.blockedId = myId;
+      blockedUser.blockType = BlockType.BLOCKED;
+      await manager.save(UserToBlock, [blocker, blockedUser]);
       if (isFollowing) {
         await Promise.all([
           manager
@@ -394,15 +386,17 @@ export class UserService {
   }
 
   async unBlockUser(myId: number, userId: number) {
-    if (!this.isBlocking(myId, userId)) {
+    if (!(await this.isBlocking(myId, userId))) {
       return;
     }
     await this.connection.transaction(async (manager) => {
       await manager
-        .createQueryBuilder(User, 'u')
-        .relation(User, 'blocking')
-        .of(myId)
-        .remove(userId);
+        .createQueryBuilder()
+        .delete()
+        .from(UserToBlock)
+        .where(`blockerId = ${myId} AND blockedId = ${userId}`)
+        .orWhere(`blockerId = ${userId} AND blockedId = ${myId}`)
+        .execute();
     });
 
     return;
@@ -483,7 +477,7 @@ export class UserService {
 
   async isBlocking(myId: number, userId: number) {
     const row = await this.userRepository.manager.query(
-      `SELECT COUNT(*) as count FROM users_blocks WHERE blockerId = ${myId} AND blockingId = ${userId}`,
+      `SELECT COUNT(*) as count FROM user_to_block WHERE blockerId = ${myId} AND blockedId = ${userId} AND blockType = 'BLOCKING'`,
     );
     return row[0].count > 0;
   }
@@ -529,9 +523,9 @@ export class UserService {
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
       .innerJoin(
-        `(SELECT blockingId FROM users_blocks WHERE blockerId = ${userId} ${cursorWhere} ORDER BY blockingId DESC LIMIT ${limit})`,
+        `(SELECT blockedId FROM user_to_block WHERE blockerId = ${userId} AND blockType = BLOCKING ${cursorWhere} ORDER BY blockedId DESC LIMIT ${limit})`,
         'u_b',
-        'u.id = u_b.blockingId',
+        'u.id = u_b.blockedId',
       );
     return dbQuery.getMany();
   }

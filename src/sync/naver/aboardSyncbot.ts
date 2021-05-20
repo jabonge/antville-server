@@ -43,7 +43,7 @@ class NaverAbroadSyncBot {
       });
       if (stock) {
         stock.krName = naverStock.stockName;
-        stock.cashTagName = naverStock.stockName.split(' ').join('');
+        stock.cashTagName = symbol;
         if (naverStock.marketValue) {
           stock.stockMeta.marketCap = parseInt(
             naverStock.marketValue.split(',').join(''),

@@ -24,6 +24,7 @@ import { Report } from '../../post/entities/report.entity';
 import CustomError from '../../../util/constant/exception';
 import { Notification } from '../../notification/entities/notification.entity';
 import { Exclude, Expose } from 'class-transformer';
+import { UserToBlock } from './user-block.entity';
 
 @Entity()
 export class User {
@@ -83,13 +84,6 @@ export class User {
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 
-  // @ApiHideProperty()
-  // @ManyToMany(() => Stock)
-  // @JoinTable({
-  //   name: 'watchlist',
-  // })
-  // stocks: Stock[];
-
   @ApiHideProperty()
   @OneToMany(() => WatchList, (w) => w.user)
   watchStocks: WatchList[];
@@ -116,23 +110,12 @@ export class User {
   following: User[];
 
   @ApiHideProperty()
-  @ManyToMany(() => User, (user) => user.blocking)
-  blockers: User[];
+  @OneToMany(() => UserToBlock, (utb) => utb.blocker)
+  blockers: UserToBlock[];
 
   @ApiHideProperty()
-  @ManyToMany(() => User, (user) => user.blockers)
-  @JoinTable({
-    name: 'users_blocks',
-    joinColumn: {
-      name: 'blockerId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'blockingId',
-      referencedColumnName: 'id',
-    },
-  })
-  blocking: User[];
+  @OneToMany(() => UserToBlock, (utb) => utb.blockedUser)
+  blockedUsers: UserToBlock[];
 
   @ApiHideProperty()
   @OneToMany(() => Post, (post) => post.author)
