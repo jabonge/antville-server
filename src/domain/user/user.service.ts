@@ -519,14 +519,19 @@ export class UserService {
   }
 
   findBlocking(userId: number, cursor: number, limit: number) {
-    const cursorWhere = cursor ? `AND  < ${cursor}` : '';
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
       .innerJoin(
-        `(SELECT blockedId FROM user_to_block WHERE blockerId = ${userId} AND blockType = BLOCKING ${cursorWhere} ORDER BY blockedId DESC LIMIT ${limit})`,
-        'u_b',
-        'u.id = u_b.blockedId',
-      );
+        'u.blockedUsers',
+        'bu',
+        `bu.blockerId = ${userId} AND bu.blockType = "BLOCKING"`,
+      )
+      .orderBy('bu.id', 'DESC')
+      .limit(limit);
+
+    if (cursor) {
+      dbQuery.andWhere('bu.id < :cursor', { cursor });
+    }
     return dbQuery.getMany();
   }
 
