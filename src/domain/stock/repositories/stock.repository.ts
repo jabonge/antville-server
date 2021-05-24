@@ -1,4 +1,4 @@
-import { Stock } from '../entities/stock.entity';
+import { Stock, StockType } from '../entities/stock.entity';
 import { Brackets, EntityRepository, Repository } from 'typeorm';
 import { isKoreanLang } from '../../../util/stock';
 
@@ -126,6 +126,65 @@ export class StockRepository extends Repository<Stock> {
       .innerJoin('s.exchange', 'exchange')
       .addSelect(['exchange.name', 'exchange.countryCode'])
       .orderBy('meta.isPopular', 'DESC')
+      .getMany();
+  }
+
+  async getTopDomesticStockList(): Promise<Stock[]> {
+    return this.createQueryBuilder('s')
+      .select([
+        's.id',
+        's.enName',
+        's.krName',
+        's.symbol',
+        's.cashTagName',
+        's.type',
+      ])
+      .innerJoin('s.stockMeta', 'meta')
+      .innerJoin('s.exchange', 'exchange', 'exchange.name = "KOSPI"')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
+      .orderBy('meta.marketCap', 'DESC')
+      .limit(20)
+      .cache('DOMESTIC', 1000 * 60 * 60 * 24)
+      .getMany();
+  }
+
+  async getTopAboardStockList(): Promise<Stock[]> {
+    return this.createQueryBuilder('s')
+      .select([
+        's.id',
+        's.enName',
+        's.krName',
+        's.symbol',
+        's.cashTagName',
+        's.type',
+      ])
+      .where('s.type IS NULL')
+      .innerJoin('s.stockMeta', 'meta')
+      .innerJoin('s.exchange', 'exchange', 'exchange.countryCode = "US"')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
+      .orderBy('meta.marketCap', 'DESC')
+      .limit(20)
+      .cache('ABOARD', 1000 * 60 * 60 * 24)
+      .getMany();
+  }
+
+  async getTopCryptoStockList(): Promise<Stock[]> {
+    return this.createQueryBuilder('s')
+      .select([
+        's.id',
+        's.enName',
+        's.krName',
+        's.symbol',
+        's.cashTagName',
+        's.type',
+      ])
+      .where(`s.type = "${StockType.CRYPTO}"`)
+      .innerJoin('s.stockMeta', 'meta')
+      .innerJoin('s.exchange', 'exchange')
+      .addSelect(['exchange.name', 'exchange.countryCode'])
+      .orderBy('meta.marketCap', 'DESC')
+      .limit(20)
+      .cache('CRYPTO', 1000 * 60 * 60 * 24)
       .getMany();
   }
 }

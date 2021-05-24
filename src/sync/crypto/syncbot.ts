@@ -1,3 +1,4 @@
+import { getMarketCapList } from './api/getMarketCap';
 import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
 import { getCryptoList } from './api/getAllCrypto';
@@ -7,6 +8,24 @@ import { Exchange } from '../../domain/stock/entities/exchange.entity';
 
 //Upbit Api
 class CryptoSyncBot {
+  async setMarketCap() {
+    const marketCaps = await getMarketCapList();
+    for (let i = 0; i < marketCaps.length; i++) {
+      const crypto = marketCaps[i];
+      if (crypto.marketCap) {
+        const stock = await getRepository(Stock).findOne({
+          where: { krName: crypto.koreanName },
+          relations: ['stockMeta'],
+        });
+        if (stock) {
+          stock.stockMeta.marketCap = Math.round(
+            Math.round(crypto.marketCap) / 100000000,
+          );
+          await getRepository(Stock).save(stock);
+        }
+      }
+    }
+  }
   async syncAll() {
     const cryptos = await getCryptoList();
     const krwList = cryptos.filter((v) => {

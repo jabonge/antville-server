@@ -26,6 +26,9 @@ export class FcmService {
           type: createNotificationDto.type,
         },
         token: users[0].fcmToken,
+        android: {
+          priority: 'high',
+        },
       };
       this.messaging.send(message);
     } catch (err) {
@@ -49,6 +52,9 @@ export class FcmService {
           type: createNotificationDto.type,
         },
         tokens: users.map((u) => u.fcmToken),
+        android: {
+          priority: 'high',
+        },
       };
       this.messaging.sendMulticast(message);
     } catch (err) {

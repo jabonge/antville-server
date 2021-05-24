@@ -39,17 +39,10 @@ class NaverAbroadSyncBot {
       const symbol = naverStock.symbolCode;
       const stock = await getRepository(Stock).findOne({
         where: { symbol },
-        relations: ['stockMeta'],
       });
       if (stock) {
         stock.krName = naverStock.stockName;
         stock.cashTagName = symbol;
-        if (naverStock.marketValue) {
-          stock.stockMeta.marketCap = parseInt(
-            naverStock.marketValue.split(',').join(''),
-            10,
-          );
-        }
         await getRepository(Stock).save(stock);
       }
     }

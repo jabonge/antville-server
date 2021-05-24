@@ -39,6 +39,18 @@ export class StockService {
     return stocks;
   }
 
+  async getTopDomesticStockList() {
+    return await this.stockRepository.getTopDomesticStockList();
+  }
+
+  async getTopAboardStockList() {
+    return await this.stockRepository.getTopAboardStockList();
+  }
+
+  async getTopCryptoStockList() {
+    return await this.stockRepository.getTopCryptoStockList();
+  }
+
   async getWatchListWithStockPriceInfo(userId: number) {
     const stocks = await this.getWatchList(userId);
     const symbols = stocks.map((v) => v.symbol);

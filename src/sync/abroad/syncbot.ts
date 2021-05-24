@@ -2,6 +2,7 @@ import { Exchange } from '../../domain/stock/entities/exchange.entity';
 import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
 import { getQuotes } from './api/getQuotes';
+import { getEtfList } from './api/getEtfList';
 import { StockCount } from '../../domain/stock/entities/stock-count.entity';
 import { StockMeta } from '../../domain/stock/entities/stock-meta.entity';
 
@@ -11,6 +12,19 @@ class AbroadSyncBot {
 
     for (let i = 0; i < usExchanges.length; i++) {
       await this.syncStock(usExchanges[i]);
+    }
+  }
+  async setEtf() {
+    const etfList = await getEtfList();
+    for (let i = 0; i < etfList.length; i++) {
+      const etf = etfList[i];
+      const stock = await getRepository(Stock).findOne({
+        where: { symbol: etf.symbol },
+      });
+      if (stock) {
+        stock.type = StockType.ETF;
+        await getRepository(Stock).save(stock);
+      }
     }
   }
   async syncStock(exchangeName: string, isEtf = false) {
@@ -38,6 +52,7 @@ class AbroadSyncBot {
       }
       let stock = await getRepository(Stock).findOne({
         where: { symbol },
+        relations: ['stockMeta'],
       });
       if (!stock) {
         stock = new Stock();
@@ -48,10 +63,15 @@ class AbroadSyncBot {
         stock.cashTagName = symbol;
         stock.exchange = exchange;
         stock.stockMeta = new StockMeta();
+        stock.stockMeta.marketCap = Math.round(
+          Math.round(quote.marketCap) / 100000,
+        );
         stock.stockCount = new StockCount();
         await getRepository(Stock).save(stock);
       } else if (stock) {
-        stock.cashTagName = symbol;
+        stock.stockMeta.marketCap = Math.round(
+          Math.round(quote.marketCap) / 100000,
+        );
         await getRepository(Stock).save(stock);
       }
     }

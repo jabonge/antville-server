@@ -7,5 +7,6 @@ dotenv.config({ path: process.cwd() + '/.env.dev' });
 createConnection().then(async (connection) => {
   const abroadSyncBot = new AbroadSyncBot();
   await abroadSyncBot.syncAll();
+  // await abroadSyncBot.setEtf();
   connection.close();
 });

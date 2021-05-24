@@ -43,6 +43,21 @@ export class StockController {
     return this.stockService.getPopularListWithStockPriceInfo();
   }
 
+  @Get('domestic')
+  getTopDomesticStockList(): Promise<Stock[]> {
+    return this.stockService.getTopDomesticStockList();
+  }
+
+  @Get('aboard')
+  getTopAboardStockList(): Promise<Stock[]> {
+    return this.stockService.getTopAboardStockList();
+  }
+
+  @Get('crypto')
+  getTopCryptoStockList(): Promise<Stock[]> {
+    return this.stockService.getTopCryptoStockList();
+  }
+
   @Post('prices')
   getPrices(@Body('symbols') symbols: string[]): Promise<StockPriceInfoDto[]> {
     return this.stockService.getPrices(symbols);

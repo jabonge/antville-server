@@ -55,3 +55,10 @@ export interface Quote {
   sharesOutstanding: number;
   timestamp: number;
 }
+
+export interface EtfStock {
+  symbol: string;
+  name: string;
+  price: number;
+  exchange: string;
+}
