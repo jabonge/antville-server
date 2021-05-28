@@ -1,9 +1,7 @@
 import { Post } from './../post/entities/post.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { plainToClass } from 'class-transformer';
 import { Connection, EntityManager, Repository } from 'typeorm';
-import { GifDto } from '../../common/dtos/gif.dto';
 import { GifImage } from '../../common/entities/gif.entity';
 import { Link } from '../../common/entities/link.entity';
 import { findAtSignNickname, findLinks, getOgTags } from '../../util/post';
@@ -56,15 +54,12 @@ export class CommentService {
         }
       }
     } else if (createCommentDto.gif) {
-      const { gifId, tinyGifUrl, gifUrl, ratio } = plainToClass(
-        GifDto,
-        createCommentDto.gif,
-      );
+      const gifDto = JSON.parse(createCommentDto.gif);
       gifImage = new GifImage();
-      gifImage.id = gifId;
-      gifImage.gifUrl = gifUrl;
-      gifImage.ratio = +ratio;
-      gifImage.tinyGifUrl = tinyGifUrl;
+      gifImage.id = gifDto.gifId;
+      gifImage.gifUrl = gifDto.gifUrl;
+      gifImage.ratio = +gifDto.ratio;
+      gifImage.tinyGifUrl = gifDto.tinyGifUrl;
     }
     const comment = new Comment();
     comment.body = createCommentDto.body;

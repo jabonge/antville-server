@@ -2,6 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -27,7 +28,7 @@ export class PostStockPrice {
   nowPrice?: number;
 
   @ApiHideProperty()
-  @OneToOne(() => Stock, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Stock, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'stockId' })
   stock: Stock;
 
