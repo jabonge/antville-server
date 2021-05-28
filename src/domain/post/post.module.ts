@@ -1,25 +1,17 @@
-import { UserModule } from './../user/user.module';
-import { PostLink } from './entities/link.entity';
+import { UserModule } from '../user/user.module';
 import { PostImg } from './entities/post-img.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UploadService } from './../../lib/multer/multer-s3.service';
 import { Module } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostController } from './post.controller';
-import { MulterModule } from '@nestjs/platform-express';
 import { PostCount } from './entities/post-count.entity';
 import { StockModule } from '../stock/stock.module';
-import { ConfigService } from '@nestjs/config';
 import { PostRepository } from './repositories/post.repository';
 import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PostRepository, PostCount, PostImg, PostLink]),
-    MulterModule.registerAsync({
-      useClass: UploadService,
-      inject: [ConfigService],
-    }),
+    TypeOrmModule.forFeature([PostRepository, PostCount, PostImg]),
     StockModule,
     UserModule,
     NotificationModule,

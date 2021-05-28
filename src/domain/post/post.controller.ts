@@ -50,17 +50,6 @@ export class PostController {
     return this.postService.findAllPostById(+id, +cursor, +limit, user?.id);
   }
 
-  @Get(':id/comment')
-  @UseGuards(ConditionAuthGuard)
-  findAllComment(
-    @Param('id') id: string,
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
-    @CurrentUser() user?: User,
-  ) {
-    return this.postService.getComments(+id, +cursor, +limit, user?.id);
-  }
-
   @Get()
   @UseGuards(ConditionAuthGuard)
   findOne(@Query('id') id: string, @CurrentUser() user?: User) {

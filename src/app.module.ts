@@ -4,12 +4,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StockModule } from './domain/stock/stock.module';
 import { FinancialApiModule } from './lib/financial-api/financial-api.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CommonModule } from './common/common.module';
 import { UserModule } from './domain/user/user.module';
 import { AppGateway } from './app.gateway';
 import { NotificationModule } from './domain/notification/notification.module';
 import { FcmModule } from './lib/fcm/fcm.module';
+import { CommentModule } from './domain/comment/comment.module';
+import { UploadService } from './lib/multer/multer-s3.service';
+import { MulterModule } from '@nestjs/platform-express';
 
 function getEnvFilePath() {
   const env = process.env.NODE_ENV;
@@ -40,6 +43,10 @@ function getEnvFilePath() {
       logging: process.env.NODE_ENV === 'local',
       synchronize: process.env.NODE_ENV !== 'production',
     }),
+    MulterModule.registerAsync({
+      useClass: UploadService,
+      inject: [ConfigService],
+    }),
     FcmModule,
     StockModule,
     FinancialApiModule,
@@ -48,6 +55,7 @@ function getEnvFilePath() {
     AuthModule,
     PostModule,
     NotificationModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [AppGateway],

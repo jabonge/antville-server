@@ -619,12 +619,20 @@ export class UserService {
     return;
   }
 
+  async changePushAlarmOff(userId: number, isOff: boolean) {
+    await this.userRepository.update(userId, {
+      isPushAlarmOff: isOff,
+    });
+    return;
+  }
+
   async findFcmTokens(userIds: number[]) {
     return this.userRepository.find({
       select: ['fcmToken'],
       where: {
         id: In(userIds),
         fcmToken: Not(IsNull()),
+        isPushAlarmOff: false,
       },
     });
   }

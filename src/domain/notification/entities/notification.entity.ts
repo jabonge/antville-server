@@ -11,7 +11,6 @@ import {
 import { User } from '../../user/entities/user.entity';
 
 export enum NotificationType {
-  COMMENT = 'COMMENT',
   TAG = 'TAG',
   LIKE = 'LIKE',
   FOLLOW = 'FOLLOW',

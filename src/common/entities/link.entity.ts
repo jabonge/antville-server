@@ -3,14 +3,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Post } from './post.entity';
+
 @Entity()
-export class PostLink {
+export class Link {
   @ApiHideProperty()
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,7 +19,7 @@ export class PostLink {
   @Column({ nullable: true })
   ogImage: string;
 
-  @Column()
+  @Column({ nullable: true })
   ogTitle: string;
 
   @Column({ nullable: true })
@@ -37,9 +35,4 @@ export class PostLink {
   @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
-
-  @ApiHideProperty()
-  @OneToOne(() => Post, (post) => post.link, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  post: Post;
 }

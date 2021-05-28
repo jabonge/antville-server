@@ -8,7 +8,6 @@ import { Post } from '../entities/post.entity';
 export class PostRepository extends Repository<Post> {
   async findAllPost(cursor: number, limit: number, userId?: number) {
     const query = this.createQueryBuilder('p')
-      .where('p.parentId IS NULL')
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoinAndSelect('p.author', 'author')
@@ -45,7 +44,6 @@ export class PostRepository extends Repository<Post> {
     userId?: number,
   ) {
     const query = this.createQueryBuilder('p')
-      .where('p.parentId IS NULL')
       .innerJoin(
         (qb) => {
           const ptsSubQuery = qb
@@ -93,7 +91,6 @@ export class PostRepository extends Repository<Post> {
 
   async findAllPostByWatchList(userId: number, cursor: number, limit: number) {
     const query = this.createQueryBuilder('p')
-      .where('p.parentId IS NULL')
       .innerJoin(
         (qb) => {
           const ptsSubQuery = qb
@@ -147,7 +144,6 @@ export class PostRepository extends Repository<Post> {
 
   async findAllPostByFollowing(userId: number, cursor: number, limit: number) {
     const query = this.createQueryBuilder('p')
-      .where('p.parentId IS NULL')
       .leftJoin('users_follows', 'uf', 'p.authorId = uf.followingId')
       .andWhere(`uf.followerId = ${userId}`)
       .innerJoinAndSelect('p.author', 'author')
@@ -214,7 +210,12 @@ export class PostRepository extends Repository<Post> {
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
-      .leftJoinAndSelect('p.gifImage', 'gif');
+      .leftJoinAndSelect('p.gifImage', 'gif')
+      .leftJoinAndSelect('p.postStockPrice', 'stockPrice')
+      .leftJoinAndSelect('stockPrice.stock', 'stock')
+      .leftJoin('stock.exchange', 'exchange')
+      .addSelect(['exchange.name', 'exchange.countryCode']);
+
     if (userId) {
       query
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
@@ -230,7 +231,6 @@ export class PostRepository extends Repository<Post> {
     myId?: number,
   ) {
     const query = this.createQueryBuilder('p')
-      .where('p.parentId IS NULL')
       .andWhere('p.authorId = :id', { id: userId })
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')

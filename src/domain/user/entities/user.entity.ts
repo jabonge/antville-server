@@ -20,7 +20,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Post } from '../../post/entities/post.entity';
 import { UserCount } from './user-count.entity';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Report } from '../../post/entities/report.entity';
+import { PostReport } from '../../post/entities/post-report.entity';
 import CustomError from '../../../util/constant/exception';
 import { Notification } from '../../notification/entities/notification.entity';
 import { Exclude, Expose } from 'class-transformer';
@@ -51,6 +51,12 @@ export class User {
   @ApiHideProperty()
   @Column({ select: false, nullable: true })
   fcmToken: string;
+
+  @Column({
+    select: false,
+    default: false,
+  })
+  isPushAlarmOff: boolean;
 
   @Column({
     default: false,
@@ -137,8 +143,8 @@ export class User {
   userCount: UserCount;
 
   @ApiHideProperty()
-  @OneToMany(() => Report, (report) => report.post)
-  reports: Report[];
+  @OneToMany(() => PostReport, (report) => report.post)
+  reports: PostReport[];
 
   @ApiHideProperty()
   @OneToMany(() => PostToStock, (ps) => ps.user, { cascade: ['insert'] })

@@ -1,5 +1,3 @@
-import { PostToStock } from './post-stock.entity';
-import { PostImg } from './post-img.entity';
 import {
   Column,
   CreateDateColumn,
@@ -14,22 +12,17 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { PostCount } from './post-count.entity';
 import { Exclude, Expose } from 'class-transformer';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { PostReport } from './post-report.entity';
 import { Link } from '../../../common/entities/link.entity';
 import { GifImage } from '../../../common/entities/gif.entity';
-import { Comment } from '../../comment/entities/comment.entity';
-import { PostStockPrice } from './post-price.entity';
-
-export enum Sentiment {
-  UP = 'UP',
-  DOWN = 'DOWN',
-}
+import { CommentImg } from './comment-img.entity';
+import { CommentCount } from './comment-count.entity';
+import { CommentReport } from './comment-report.entity';
+import { Post } from '../../post/entities/post.entity';
 
 @Entity()
-export class Post {
+export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -38,13 +31,6 @@ export class Post {
   })
   body: string;
 
-  @Column({
-    nullable: true,
-    type: 'enum',
-    enum: Sentiment,
-  })
-  sentiment: Sentiment;
-
   @CreateDateColumn()
   createdAt: Date;
 
@@ -52,17 +38,34 @@ export class Post {
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 
-  @OneToMany(() => PostImg, (img) => img.post, { cascade: ['insert'] })
-  postImgs: PostImg[];
+  @OneToMany(() => CommentImg, (img) => img.comment, { cascade: ['insert'] })
+  commentImgs: CommentImg[];
 
-  @OneToMany(() => PostReport, (report) => report.post)
-  reports: PostReport[];
+  @OneToMany(() => CommentReport, (report) => report.comment)
+  reports: CommentReport[];
+
+  @Column({ type: 'int' })
+  postId: number;
 
   @ApiHideProperty()
-  @OneToMany(() => Comment, (c) => c.post)
+  @ManyToOne(() => Post, (p) => p.comments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'postId' })
+  post: Post;
+
+  @Column({ type: 'int', nullable: true })
+  parentCommentId: number;
+
+  @ApiHideProperty()
+  @ManyToOne(() => Comment, (c) => c.comments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'parentCommentId' })
+  parentComment: Comment;
+
+  @ApiHideProperty()
+  @OneToMany(() => Comment, (c) => c.parentComment)
   comments: Comment[];
 
   @ApiHideProperty()
+  @Exclude()
   @Column({ nullable: true, select: false })
   linkId: string;
 
@@ -71,6 +74,7 @@ export class Post {
   link?: Link;
 
   @ApiHideProperty()
+  @Exclude()
   @Column({ nullable: true, select: false })
   gifId: string;
 
@@ -81,9 +85,9 @@ export class Post {
   @ApiHideProperty()
   @ManyToMany(() => User, { onDelete: 'CASCADE' })
   @JoinTable({
-    name: 'posts_likers',
+    name: 'comments_likers',
     joinColumn: {
-      name: 'postId',
+      name: 'commentId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
@@ -102,15 +106,8 @@ export class Post {
   @JoinColumn({ name: 'authorId' })
   author: User;
 
-  @ApiHideProperty()
-  @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })
-  postToStocks: PostToStock[];
-
-  @OneToOne(() => PostCount, (c) => c.post, { cascade: ['insert'] })
-  postCount: PostCount;
-
-  @OneToOne(() => PostStockPrice, (c) => c.post, { cascade: ['insert'] })
-  postStockPrice: PostStockPrice;
+  @OneToOne(() => CommentCount, (c) => c.comment, { cascade: ['insert'] })
+  commentCount: CommentCount;
 
   @ApiProperty({ type: 'boolean' })
   @Expose({ name: 'isLikedSelf' })

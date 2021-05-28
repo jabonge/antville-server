@@ -37,17 +37,30 @@ export class NotificationService {
     return manager.save(Notification, notification);
   }
 
+  async likeNotification(
+    manager: EntityManager,
+    user: User,
+    param: number,
+    viewerId: number,
+  ) {
+    const createNotificationDto = new CreateNotificationDto();
+    createNotificationDto.param = `${param}`;
+    createNotificationDto.type = NotificationType.LIKE;
+    createNotificationDto.user = user;
+    createNotificationDto.viewerId = viewerId;
+    await this.create(manager, createNotificationDto);
+  }
+
   async createUserTagNotification(
     manager: EntityManager,
     users: User[],
     writer: User,
     postId: number,
-    parentId?: number,
   ) {
     const createNotificationDtos: CreateNotificationDto[] = [];
     for (let i = 0; i < users.length; i++) {
       const createNotificationDto = new CreateNotificationDto();
-      createNotificationDto.param = parentId ? `${parentId}` : `${postId}`;
+      createNotificationDto.param = postId.toString();
       createNotificationDto.type = NotificationType.TAG;
       createNotificationDto.viewerId = users[i].id;
       createNotificationDto.user = writer;
@@ -60,24 +73,6 @@ export class NotificationService {
     return manager.save(
       Notification,
       createNotificationDtos.map((c) => c.toNotificationEntity()),
-    );
-  }
-
-  async createCommentNotification(
-    manager: EntityManager,
-    author: User,
-    viewerId: number,
-    parentId: number,
-  ) {
-    const createNotificationDto = new CreateNotificationDto();
-    createNotificationDto.param = `${parentId}`;
-    createNotificationDto.type = NotificationType.COMMENT;
-    createNotificationDto.viewerId = viewerId;
-    createNotificationDto.user = author;
-    this.fcmService.sendNotification(createNotificationDto);
-    return manager.save(
-      Notification,
-      createNotificationDto.toNotificationEntity(),
     );
   }
 

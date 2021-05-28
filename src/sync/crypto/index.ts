@@ -6,7 +6,7 @@ dotenv.config({ path: process.cwd() + '/.env.dev' });
 
 createConnection().then(async (connection) => {
   const cryptoSyncBot = new CryptoSyncBot();
-  // await cryptoSyncBot.syncAll();
+  await cryptoSyncBot.syncAll();
   await cryptoSyncBot.setMarketCap();
   connection.close();
 });

@@ -28,8 +28,6 @@ export class CreateNotificationDto {
       return `${this.user.nickname} 님이 회원님을 팔로우 합니다.`;
     } else if (this.type === NotificationType.TAG) {
       return `${this.user.nickname} 님이 게시글에 회원님을 태그하였습니다.`;
-    } else if (this.type === NotificationType.COMMENT) {
-      return `${this.user.nickname} 님이 회원님의 게시글에 댓글을 남겼습니다.`;
     } else {
       throw new BadRequestException('Unexpected Type');
     }

@@ -196,6 +196,15 @@ export class UserController {
     return this.userService.updateFcmToken(user.id, fcmToken);
   }
 
+  @Patch('pushOff')
+  @UseGuards(JwtAuthGuard)
+  async changePushAlarmOff(
+    @CurrentUser() user: User,
+    @Body() { isOff }: Record<'isOff', boolean>,
+  ) {
+    return this.userService.changePushAlarmOff(user.id, isOff);
+  }
+
   @Patch('changePassword')
   @UseGuards(JwtAuthGuard)
   async changePassword(

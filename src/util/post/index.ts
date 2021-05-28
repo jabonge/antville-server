@@ -63,7 +63,7 @@ export async function getOgTags(link: string) {
       ogImage: ogImage,
       ogTitle: result.ogTitle,
       ogDescription: result.ogDescription,
-      ogUrl: result.ogUrl,
+      ogUrl: result.ogUrl ?? link,
     };
   } catch (e) {
     console.log(e);

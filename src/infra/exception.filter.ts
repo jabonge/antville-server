@@ -32,7 +32,7 @@ export class VtExceptionFilter implements ExceptionFilter {
       if (typeof exception.getResponse() === 'object') {
         errorCode = (exception.getResponse() as CustomError).errorCode;
       }
-      if (env === 'production') {
+      if (env === 'production' && !errorCode) {
         message = 'INTERNAL_SERVER_ERROR';
       } else {
         message = exception.message;

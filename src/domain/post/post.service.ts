@@ -1,4 +1,3 @@
-import { PostLink } from './entities/link.entity';
 import { PostImg } from './entities/post-img.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -13,18 +12,18 @@ import { User } from '../user/entities/user.entity';
 import { PostCount } from './entities/post-count.entity';
 import { StockService } from '../stock/stock.service';
 import { PostRepository } from './repositories/post.repository';
-import { Connection, IsNull } from 'typeorm';
+import { Connection, EntityManager } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { PubSub } from '../../common/interfaces/pub_sub.interface';
 import { classToPlain } from 'class-transformer';
-import { GifImage } from './entities/gif.entity';
 import { Stock } from '../stock/entities/stock.entity';
 import { PostToStock } from './entities/post-stock.entity';
-import { Report } from './entities/report.entity';
+import { PostReport } from './entities/post-report.entity';
 import { NEW_POST, PUB_SUB } from '../../util/constant/pubsub';
 import { NotificationService } from '../notification/notification.service';
-import { CreateNotificationDto } from '../notification/dto/create-notification.dto';
-import { NotificationType } from '../notification/entities/notification.entity';
+import { Link } from '../../common/entities/link.entity';
+import { GifImage } from '../../common/entities/gif.entity';
+import { PostStockPrice } from './entities/post-price.entity';
 
 @Injectable()
 export class PostService {
@@ -43,7 +42,7 @@ export class PostService {
     files: Express.MulterS3.File[],
   ) {
     const postImgs: PostImg[] = [];
-    let postLink: PostLink;
+    let postLink: Link;
     let gifImage: GifImage;
     if (files.length > 0) {
       files.forEach((f) => {
@@ -56,7 +55,7 @@ export class PostService {
       if (link) {
         const ogResult = await getOgTags(link);
         if (ogResult) {
-          postLink = new PostLink();
+          postLink = new Link();
           postLink.ogSiteName = ogResult.ogSiteName;
           postLink.ogTitle = ogResult.ogTitle;
           postLink.ogUrl = ogResult.ogUrl;
@@ -80,61 +79,41 @@ export class PostService {
     post.postImgs = postImgs;
     post.link = postLink;
     post.gifImage = gifImage;
-    const userNicknames = findAtSignNickname(createPostDto.body);
-    let users: User[];
-    if (userNicknames.length > 0) {
-      users = await this.userService.findByNicknames(userNicknames, user);
-    }
+
     await this.connection.transaction(async (manager) => {
-      if (createPostDto.postId) {
-        const parent = await manager.findOneOrFail(Post, createPostDto.postId, {
-          select: ['id', 'authorId'],
-          where: {
-            parentId: IsNull(),
-          },
+      const cashTags = findCacheTags(createPostDto.body);
+      let stocks: Stock[];
+      if (cashTags.length > 0) {
+        stocks = await this.stockService.getStocks(cashTags);
+        const postToStocks = stocks.map((s) => {
+          const ps = new PostToStock();
+          ps.stockId = s.id;
+          ps.authorId = user.id;
+          return ps;
         });
-        post.parentId = parent.id;
-        await manager.increment(
-          PostCount,
-          {
-            id: parent.id,
-          },
-          'commentCount',
-          1,
-        );
-        if (!users && parent.authorId != user.id) {
-          await this.notificationService.createCommentNotification(
-            manager,
-            user,
-            parent.authorId,
-            post.parentId,
-          );
-        }
-      } else {
-        const cashTags = findCacheTags(createPostDto.body);
-        let stocks: Stock[];
-        if (cashTags.length > 0) {
-          stocks = await this.stockService.getStocks(cashTags);
-          const postToStocks = stocks.map((s) => {
-            const ps = new PostToStock();
-            ps.stockId = s.id;
-            ps.authorId = user.id;
-            return ps;
-          });
-          post.postToStocks = postToStocks;
+        post.postToStocks = postToStocks;
+        if (stocks[0]) {
+          const priceInfo = await this.stockService.getPrices([
+            stocks[0].symbol,
+          ]);
+          if (priceInfo[0].latest) {
+            const postStockPrice = new PostStockPrice();
+            postStockPrice.price = priceInfo[0].latest;
+            postStockPrice.stockId = stocks[0].id;
+            post.postStockPrice = postStockPrice;
+          }
         }
       }
+
       await manager.save(post);
+      delete post.postStockPrice;
       await this.userService.incrementUserCount(manager, user.id, 'postCount');
-      if (users) {
-        await this.notificationService.createUserTagNotification(
-          manager,
-          users,
-          user,
-          post.id,
-          post.parentId,
-        );
-      }
+      await this.createUserTagNotification(
+        manager,
+        createPostDto.body,
+        user,
+        post.id,
+      );
       if (post.postToStocks?.length > 0) {
         this.pubsub.publisher.publish(
           NEW_POST,
@@ -145,21 +124,23 @@ export class PostService {
     return post;
   }
 
-  async getComments(
-    postId: number,
-    cursor: number,
-    limit: number,
-    userId?: number,
-  ) {
-    return this.postRepository.getComments(postId, cursor, limit, userId);
-  }
-
   async findAllPost(cursor: number, limit: number, userId?: number) {
     return this.postRepository.findAllPost(cursor, limit, userId);
   }
 
   async findOnePost(postId: number, userId?: number) {
-    return this.postRepository.findOnePost(postId, userId);
+    const post = await this.postRepository.findOnePost(postId, userId);
+    if (post.postStockPrice) {
+      const priceInfo = await this.stockService.getPrices([
+        post.postStockPrice.stock.symbol,
+      ]);
+      if (priceInfo.length === 1 && priceInfo[0].latest) {
+        post.postStockPrice.nowPrice = priceInfo[0].latest;
+      } else {
+        delete post.postStockPrice;
+      }
+    }
+    return post;
   }
 
   async findAllPostById(
@@ -219,7 +200,7 @@ export class PostService {
       return;
     }
     const post = await this.postRepository.findOne(postId, {
-      select: ['authorId', 'parentId'],
+      select: ['authorId'],
     });
     await this.connection.transaction(async (manager) => {
       await Promise.all([
@@ -239,12 +220,12 @@ export class PostService {
         this.userService.incrementUserCount(manager, user.id, 'postLikeCount'),
       ]);
       if (post.authorId != user.id) {
-        const createNotificationDto = new CreateNotificationDto();
-        createNotificationDto.param = `${postId}`;
-        createNotificationDto.type = NotificationType.LIKE;
-        createNotificationDto.user = user;
-        createNotificationDto.viewerId = post.authorId;
-        await this.notificationService.create(manager, createNotificationDto);
+        await this.notificationService.likeNotification(
+          manager,
+          user,
+          post.id,
+          post.authorId,
+        );
       }
     });
     return;
@@ -288,10 +269,31 @@ export class PostService {
       await manager.findOneOrFail(Post, {
         id: postId,
       });
-      const report = new Report();
+      const report = new PostReport();
       report.userId = userId;
       report.postId = postId;
-      await manager.save(Report, report);
+      await manager.save(PostReport, report);
     });
+  }
+
+  async createUserTagNotification(
+    manager: EntityManager,
+    body: string,
+    user: User,
+    postId: number,
+  ) {
+    let users: User[];
+    const userNicknames = findAtSignNickname(body);
+    if (userNicknames.length > 0) {
+      users = await this.userService.findByNicknames(userNicknames, user);
+    }
+    if (users) {
+      await this.notificationService.createUserTagNotification(
+        manager,
+        users,
+        user,
+        postId,
+      );
+    }
   }
 }
