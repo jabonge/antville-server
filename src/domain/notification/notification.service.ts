@@ -60,7 +60,7 @@ export class NotificationService {
     const createNotificationDtos: CreateNotificationDto[] = [];
     for (let i = 0; i < users.length; i++) {
       const createNotificationDto = new CreateNotificationDto();
-      createNotificationDto.param = postId.toString();
+      createNotificationDto.param = `${postId}`;
       createNotificationDto.type = NotificationType.TAG;
       createNotificationDto.viewerId = users[i].id;
       createNotificationDto.user = writer;

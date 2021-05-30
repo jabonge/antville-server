@@ -23,7 +23,7 @@ export class CreateNotificationDto {
 
   getContent() {
     if (this.type === NotificationType.LIKE) {
-      return `${this.user.nickname} 님이 회원님의 게시글에 댓글을 남겼습니다.`;
+      return `${this.user.nickname} 님이 회원님의 게시글을 좋아합니다.`;
     } else if (this.type === NotificationType.FOLLOW) {
       return `${this.user.nickname} 님이 회원님을 팔로우 합니다.`;
     } else if (this.type === NotificationType.TAG) {
