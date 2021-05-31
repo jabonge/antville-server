@@ -77,7 +77,7 @@ export class CommentService {
       await manager.increment(
         PostCount,
         {
-          id: post.id,
+          postId: post.id,
         },
         'commentCount',
         1,
@@ -93,7 +93,7 @@ export class CommentService {
         await manager.increment(
           CommentCount,
           {
-            id: parentComment.id,
+            commentId: parentComment.id,
           },
           'nextCommentCount',
           1,

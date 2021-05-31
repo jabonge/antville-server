@@ -212,7 +212,7 @@ export class PostService {
         manager.increment(
           PostCount,
           {
-            id: postId,
+            postId,
           },
           'likeCount',
           1,
