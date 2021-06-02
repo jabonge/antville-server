@@ -11,12 +11,20 @@ export class HtmlController {
     const { tempPassword, viewName } = await this.htmlService.findTempPassword(
       token,
     );
+    res.setHeader(
+      'Content-Security-Policy',
+      "img-src 'self' https://antville-test.s3.ap-northeast-2.amazonaws.com",
+    );
     return res.render(viewName, { tempPassword });
   }
 
   @Get('verify')
   async verifyEmail(@Res() res: Response, @Query('token') token: string) {
     const { viewName } = await this.htmlService.verifyEmail(token);
+    res.setHeader(
+      'Content-Security-Policy',
+      "img-src 'self' https://antville-test.s3.ap-northeast-2.amazonaws.com",
+    );
     return res.render(viewName);
   }
 }

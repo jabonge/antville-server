@@ -46,7 +46,7 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findByEmail(email: string) {
+  async findByEmailWithPassword(email: string) {
     const user = this.userRepository.findOne(
       { email },
       { select: ['id', 'password', 'email', 'nickname'] },
@@ -54,8 +54,8 @@ export class UserService {
     return user;
   }
 
-  async findByEmailOrFail(email: string) {
-    const user = this.userRepository.findOneOrFail(
+  async findByEmail(email: string) {
+    const user = this.userRepository.findOne(
       { email },
       { select: ['id', 'email', 'nickname'] },
     );
@@ -63,11 +63,11 @@ export class UserService {
   }
 
   async findByNicknames(nicknames: string[], user: User) {
-    const users = this.userRepository
+    const users = await this.userRepository
       .createQueryBuilder('u')
-      .select(['id', 'nickname', 'profileImg'])
+      .select(['u.id', 'u.nickname', 'u.profileImg'])
       .where('u.nickname IN (:...nicknames)', { nicknames })
-      .where((qb) => {
+      .andWhere((qb) => {
         const subQuery = qb
           .subQuery()
           .select()
@@ -679,7 +679,7 @@ export class UserService {
         select: ['id', 'password'],
       },
     );
-    if (await userHasPassword.checkPassword(payload.tempPassword)) {
+    if (await userHasPassword.checkPassword(payload.tempPassword, false)) {
       return;
     }
     userHasPassword.password = payload.tempPassword;

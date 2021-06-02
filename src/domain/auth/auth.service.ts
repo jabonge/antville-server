@@ -78,7 +78,7 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.userService.findByEmail(email);
+    const user = await this.userService.findByEmailWithPassword(email);
     if (!user) {
       throw new BadRequestException(CustomError.EMAIL_NOT_FOUND);
     }
@@ -102,7 +102,10 @@ export class AuthService {
   }
 
   async findPassword(email: string) {
-    const user = await this.userService.findByEmailOrFail(email);
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException(CustomError.EMAIL_NOT_FOUND);
+    }
     const token = this.issueFindPasswordToken({
       userId: user.id,
       tempPassword: Math.floor(100000 + Math.random() * 900000).toString(),

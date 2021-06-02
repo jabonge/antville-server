@@ -164,9 +164,12 @@ export class User {
     return this.followers?.length > 0;
   }
 
-  async checkPassword(passwordInput: string): Promise<boolean> {
+  async checkPassword(
+    passwordInput: string,
+    throwError = true,
+  ): Promise<boolean> {
     const ok = await bcrypt.compare(passwordInput, this.password);
-    if (!ok) {
+    if (!ok && throwError) {
       throw new BadRequestException(CustomError.INVALID_PASSWORD);
     }
     return ok;
