@@ -1,3 +1,4 @@
+import { JwtService } from '@nestjs/jwt';
 import { CreateNotificationDto } from './../notification/dto/create-notification.dto';
 import { plainToClass } from 'class-transformer';
 import { CreateUserInput } from './dto/create-user.dto';
@@ -28,11 +29,18 @@ import {
 } from './dto/change-watchlist-order.dto';
 import { genLexoRankList } from '../../util/lexorank';
 import { BlockType, UserToBlock } from './entities/user-block.entity';
+import {
+  FindPasswordPayload,
+  VerifyEmailPayload,
+} from '../auth/auth.interface';
+import { SesService } from '../../lib/ses/ses.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private connection: Connection,
+    private readonly sesService: SesService,
+    private readonly jwtService: JwtService,
     private readonly notificationService: NotificationService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -42,6 +50,14 @@ export class UserService {
     const user = this.userRepository.findOne(
       { email },
       { select: ['id', 'password', 'email', 'nickname'] },
+    );
+    return user;
+  }
+
+  async findByEmailOrFail(email: string) {
+    const user = this.userRepository.findOneOrFail(
+      { email },
+      { select: ['id', 'email', 'nickname'] },
     );
     return user;
   }
@@ -333,6 +349,7 @@ export class UserService {
     user.userCount = new UserCount();
     user.bio = `안녕하세요 앤트빌 주민 ${user.nickname} 입니다.`;
     await this.userRepository.save(user);
+    this.sendVerifyEmail(user);
     return;
   }
 
@@ -653,5 +670,47 @@ export class UserService {
       userHasPassword.password = changePassword;
       await this.save(userHasPassword);
     }
+  }
+
+  async changeTempPassword(payload: FindPasswordPayload) {
+    const userHasPassword = await this.userRepository.findOneOrFail(
+      payload.userId,
+      {
+        select: ['id', 'password'],
+      },
+    );
+    if (await userHasPassword.checkPassword(payload.tempPassword)) {
+      return;
+    }
+    userHasPassword.password = payload.tempPassword;
+    await this.save(userHasPassword);
+  }
+
+  async verifyEmail(payload: VerifyEmailPayload) {
+    const user = await this.userRepository.findOne(payload.userId, {
+      select: ['id', 'isEmailVerified'],
+    });
+    if (user.isEmailVerified) {
+      return;
+    }
+    user.isEmailVerified = true;
+    await this.save(user);
+    return;
+  }
+
+  async sendVerifyEmail(user: User) {
+    if (user.isEmailVerified) {
+      throw new BadRequestException('이미 인증을 완료한 계정입니다.');
+    }
+    const token = this.jwtService.sign(
+      {
+        userId: user.id,
+      },
+      {
+        expiresIn: '1d',
+      },
+    );
+    await this.sesService.verifyEmail(token, user.nickname, user.email);
+    return;
   }
 }

@@ -1,5 +1,3 @@
-import { ConfigService } from '@nestjs/config';
-import { UploadService } from './../../lib/multer/multer-s3.service';
 import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
@@ -9,14 +7,13 @@ import { MulterModule } from '@nestjs/platform-express';
 import { UserCount } from './entities/user-count.entity';
 import { NotificationModule } from '../notification/notification.module';
 import { WatchList } from './entities/watchlist.entity';
+import { SesModule } from '../../lib/ses/ses.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserCount, WatchList]),
-    MulterModule.registerAsync({
-      useClass: UploadService,
-      inject: [ConfigService],
-    }),
+    SesModule,
+    MulterModule,
     NotificationModule,
   ],
   providers: [UserService],

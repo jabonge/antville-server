@@ -13,7 +13,7 @@ interface CustomError {
 }
 
 @Catch()
-export class VtExceptionFilter implements ExceptionFilter {
+export class AVExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();

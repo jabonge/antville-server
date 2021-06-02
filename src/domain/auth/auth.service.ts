@@ -1,6 +1,6 @@
 import { LoginResponseDto } from './dtos/login.dto';
 import { UserService } from '../user/user.service';
-import { JwtPayload } from './auth.interface';
+import { FindPasswordPayload, JwtPayload } from './auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../user/entities/user.entity';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import CustomError from '../../util/constant/exception';
 import { TokenExpiredError } from 'jsonwebtoken';
+import { SesService } from '../../lib/ses/ses.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
+    private readonly sesService: SesService,
   ) {
     this.jwtRefreshKey = this.configService.get<string>('JWT_REFRESH_KEY');
   }
@@ -32,6 +34,15 @@ export class AuthService {
     const signOption: JwtSignOptions = {
       secret: this.jwtRefreshKey,
       expiresIn: '365d',
+    };
+
+    const token = this.jwtService.sign(payload, signOption);
+    return token;
+  }
+
+  issueFindPasswordToken(payload: FindPasswordPayload) {
+    const signOption: JwtSignOptions = {
+      expiresIn: '1d',
     };
 
     const token = this.jwtService.sign(payload, signOption);
@@ -88,5 +99,15 @@ export class AuthService {
 
   async getMe(user: User): Promise<User> {
     return this.userService.getUserProfile(user.id);
+  }
+
+  async findPassword(email: string) {
+    const user = await this.userService.findByEmailOrFail(email);
+    const token = this.issueFindPasswordToken({
+      userId: user.id,
+      tempPassword: Math.floor(100000 + Math.random() * 900000).toString(),
+    });
+    await this.sesService.sendPasswordEmail(token, user.nickname, user.email);
+    return;
   }
 }

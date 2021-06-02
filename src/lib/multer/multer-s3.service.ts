@@ -9,10 +9,10 @@ import MulterS3 from 'multer-s3';
 
 @Injectable()
 export class UploadService implements MulterOptionsFactory {
-  private s3 = new AWS.S3();
+  private s3;
 
   constructor(private readonly confingService: ConfigService) {
-    AWS.config.update({
+    this.s3 = new AWS.S3({
       accessKeyId: this.confingService.get('AWS_ACCESS_KEY'),
       secretAccessKey: this.confingService.get('AWS_SECRET_KEY'),
       region: this.confingService.get('AWS_S3_REGION'),

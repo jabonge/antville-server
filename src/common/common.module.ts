@@ -6,10 +6,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { PubSub } from './interfaces/pub_sub.interface';
 import { PUB_SUB } from '../util/constant/pubsub';
 import { REDIS_CLIENT } from '../util/constant';
+import { MulterModule } from '@nestjs/platform-express';
+import { UploadService } from '../lib/multer/multer-s3.service';
 
 @Global()
 @Module({
   imports: [
+    MulterModule.registerAsync({
+      useClass: UploadService,
+      inject: [ConfigService],
+    }),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => {
         const secret = configService.get<string>('JWT_ACCESS_KEY');
@@ -43,6 +49,6 @@ import { REDIS_CLIENT } from '../util/constant';
       inject: [ConfigService],
     },
   ],
-  exports: [PUB_SUB, REDIS_CLIENT, JwtModule],
+  exports: [PUB_SUB, REDIS_CLIENT, JwtModule, MulterModule],
 })
 export class CommonModule {}

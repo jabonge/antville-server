@@ -96,7 +96,7 @@ export class PostService {
           const priceInfo = await this.stockService.getPrices([
             stocks[0].symbol,
           ]);
-          if (priceInfo[0].latest) {
+          if (priceInfo[0] && priceInfo[0].latest) {
             const postStockPrice = new PostStockPrice();
             postStockPrice.price = priceInfo[0].latest;
             postStockPrice.stockId = stocks[0].id;
@@ -223,7 +223,7 @@ export class PostService {
         await this.notificationService.likeNotification(
           manager,
           user,
-          post.id,
+          postId,
           post.authorId,
         );
       }

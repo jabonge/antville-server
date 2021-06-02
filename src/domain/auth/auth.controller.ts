@@ -27,6 +27,11 @@ export class AuthController {
     return this.authService.login(user);
   }
 
+  @Post('findPassword')
+  async findPassword(@Body('email') email: string) {
+    return this.authService.findPassword(email);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@CurrentUser() user: User): Promise<User> {
