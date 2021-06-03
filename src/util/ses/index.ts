@@ -17,10 +17,8 @@ const changePasswordHtml = (token: string, nickname: string) => {
     >
     <div style="
     width: 100%;
-    display: flex;
+    display: block;
     box-sizing: border-box;
-    flex-direction: column;
-    align-items: flex-start;
     padding-left: 32px;
     padding-right: 32px;
     padding-top: 38px;
@@ -45,12 +43,10 @@ const changePasswordHtml = (token: string, nickname: string) => {
 
       <div style="
       box-sizing: border-box;
-      margin: 0px;
-        width: 100%;
-        padding: 40px 45px 24px 45px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+          margin: 0px auto;
+          width: 100%;
+          padding: 40px 45px 24px 45px;
+          display: block;
       ">
          <p
          style="
@@ -66,12 +62,10 @@ const changePasswordHtml = (token: string, nickname: string) => {
        </p>
        <div  style="
        font-size: 14px;
-       text-align: center;
-       font-weight: 500;
-       line-height: 19.07px;
-       color: rgba(31.88, 31.88, 31.88, 1);
-       margin-bottom: 53px;
-       display: inline;
+            text-align: center;
+            font-weight: 500;
+            line-height: 19.07px;
+            color: rgba(31.88, 31.88, 31.88, 1);
      ">
      <span style="font-weight: 700;">
         ${nickname}
@@ -84,16 +78,20 @@ const changePasswordHtml = (token: string, nickname: string) => {
      
     
      
-       <div
-         style="
-           background-color: rgba(76, 158, 235, 1);
-           border-radius: 5px;
-           padding: 13px 30px;
-         "
-       >
+       
        <a href="${url}" target="_blank" style="
         text-decoration:none;
        ">
+       <div
+            style="
+              background-color: rgba(76, 158, 235, 1);
+              border-radius: 5px;
+              margin: 53px auto 0px auto;
+              box-sizing: border-box;
+              padding: 13px 30px;
+              width: 50%;
+            "
+          >
          <p
            style="
              font-size: 13px;
@@ -105,11 +103,12 @@ const changePasswordHtml = (token: string, nickname: string) => {
          >
            임시 비밀번호 발급받기
          </p>
+         </div>
         </a>
-       </div>
+       
       
        <div style="width: 90%; padding-top: 13px; padding-bottom: 13px;  padding-left: 10px; padding-right: 10px; margin-top: 44px;
-        background-color: rgba(249.69, 249.69, 249.69, 1); border-radius: 5px; display: flex; align-items: center;">
+        background-color: rgba(249.69, 249.69, 249.69, 1); border-radius: 5px; display: block;">
             <p style="font-size: 12px; 
             padding: 0px;
             margin: 0px;
@@ -118,10 +117,8 @@ const changePasswordHtml = (token: string, nickname: string) => {
    
       </div>
       <div style="width: 100%;
-      display: flex;
-      flex-direction: column;
+      display: block;
       box-sizing: border-box;
-      align-items: center;
       padding-left: 32px;
       padding-right: 32px;
       ">
@@ -138,9 +135,10 @@ const changePasswordHtml = (token: string, nickname: string) => {
       ></div>
         <p
         style="
-          font-size: 10px;
-          line-height: 20px;
-          color: rgba(158, 158, 158, 1);
+        font-size: 10px;
+        text-align: center;
+        line-height: 20px;
+        color: rgba(158, 158, 158, 1);
         "
       >
         Copyright© Antville. All rights reserved.
@@ -202,13 +200,11 @@ const verifyEmailHtml = (token: string, nickname: string) => {
       >
       <div style="
       width: 100%;
-      display: flex;
-      box-sizing: border-box;
-      flex-direction: column;
-      align-items: flex-start;
-      padding-left: 32px;
-      padding-right: 32px;
-      padding-top: 38px;
+          display: block;
+          box-sizing: border-box;
+          padding-left: 32px;
+          padding-right: 32px;
+          padding-top: 38px;
     ">
       <img
       style="width: 150px; height: 27.71px"
@@ -230,12 +226,10 @@ const verifyEmailHtml = (token: string, nickname: string) => {
   
         <div style="
         box-sizing: border-box;
-        margin: 0px;
-          width: 100%;
-          padding: 40px 45px 24px 45px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+      margin: 0px auto;
+        width: 100%;
+        padding: 40px 45px 24px 45px;
+        display: block;
         ">
            <p
            style="
@@ -256,7 +250,6 @@ const verifyEmailHtml = (token: string, nickname: string) => {
          line-height: 19.07px;
          color: rgba(31.88, 31.88, 31.88, 1);
          margin-bottom: 53px;
-         display: inline;
        ">
        <span style="font-weight: 700;">
           ${nickname}
@@ -269,16 +262,20 @@ const verifyEmailHtml = (token: string, nickname: string) => {
        
       
        
-         <div
-           style="
-             background-color: rgba(76, 158, 235, 1);
-             border-radius: 5px;
-             padding: 13px 30px;
-           "
-         >
+         
          <a href="${url}" target="_blank" style="
           text-decoration:none;
          ">
+         <div
+       style="
+         background-color: rgba(76, 158, 235, 1);
+         border-radius: 5px;
+         padding: 13px 30px;
+         margin: 0px auto 0px auto;
+         box-sizing: border-box;
+         width: 60%;
+       "
+     >
            <p
              style="
                font-size: 13px;
@@ -290,11 +287,12 @@ const verifyEmailHtml = (token: string, nickname: string) => {
            >
              이메일 주소 인증하기
            </p>
+           </div>
           </a>
-         </div>
+         
         
          <div style="width: 90%; padding-top: 13px; padding-bottom: 13px;  padding-left: 10px; padding-right: 10px; margin-top: 44px;
-          background-color: rgba(249.69, 249.69, 249.69, 1); border-radius: 5px; display: flex; align-items: center;">
+          background-color: rgba(249.69, 249.69, 249.69, 1); border-radius: 5px; display: block;">
               <p style="font-size: 12px; 
               padding: 0px;
               margin: 0px;
@@ -309,12 +307,11 @@ const verifyEmailHtml = (token: string, nickname: string) => {
       
   
       <div style="width: 100%;
-        display: flex;
-        flex-direction: column;
-        box-sizing: border-box;
-        align-items: center;
-        padding-left: 32px;
-        padding-right: 32px;
+      width: 100%;
+      display: block;
+      box-sizing: border-box;
+      padding-left: 32px;
+      padding-right: 32px;
         ">
           <div
           style="
@@ -331,6 +328,7 @@ const verifyEmailHtml = (token: string, nickname: string) => {
           style="
             font-size: 10px;
             line-height: 20px;
+            text-align: center;
             color: rgba(158, 158, 158, 1);
           "
         >

@@ -32,7 +32,7 @@ export class AVExceptionFilter implements ExceptionFilter {
       if (typeof exception.getResponse() === 'object') {
         errorCode = (exception.getResponse() as CustomError).errorCode;
       }
-      if (env === 'production' && !errorCode) {
+      if (env === 'production' && status !== 401) {
         message = 'INTERNAL_SERVER_ERROR';
       } else {
         message = exception.message;

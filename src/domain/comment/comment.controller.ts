@@ -10,9 +10,11 @@ import {
   Query,
   ClassSerializerInterceptor,
   Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../common/decorators/user.decorator';
+import CustomError from '../../util/constant/exception';
 import { ConditionAuthGuard, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/entities/user.entity';
 import { CommentService } from './comment.service';
@@ -31,6 +33,9 @@ export class CommentController {
     @UploadedFiles() files: Express.MulterS3.File[],
     @Body() createCommentDto: CreateCommentDto,
   ) {
+    if (!user.isEmailVerified) {
+      throw new BadRequestException(CustomError.EMAIL_NOT_VERIFIED);
+    }
     return this.commentService.createComment(createCommentDto, user, files);
   }
 

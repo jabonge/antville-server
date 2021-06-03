@@ -29,6 +29,11 @@ const CustomError = {
     errorCode: 700,
     message: 'Watchlist Limit is Exceeded',
   },
+  //800 번대 post 관련
+  EMAIL_NOT_VERIFIED: {
+    errorCode: 800,
+    message: 'Email Not Verified',
+  },
 };
 
 export default CustomError;

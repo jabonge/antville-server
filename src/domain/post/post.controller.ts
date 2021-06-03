@@ -10,6 +10,7 @@ import {
   Query,
   ClassSerializerInterceptor,
   Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -18,6 +19,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { User } from '../user/entities/user.entity';
 import { ApiTags } from '@nestjs/swagger';
+import CustomError from '../../util/constant/exception';
 
 @Controller('post')
 @ApiTags('post')
@@ -33,9 +35,9 @@ export class PostController {
     @UploadedFiles() files: Express.MulterS3.File[],
     @Body() createPostDto: CreatePostDto,
   ) {
-    // if (!user.isEmailVerified) {
-    //   throw new BadRequestException('Email Not Verified');
-    // }
+    if (!user.isEmailVerified) {
+      throw new BadRequestException(CustomError.EMAIL_NOT_VERIFIED);
+    }
     return this.postService.createPost(createPostDto, user, files);
   }
 

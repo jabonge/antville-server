@@ -214,7 +214,7 @@ export class UserController {
     return this.userService.changePassword(user, changePasswordDto);
   }
 
-  @Get('verify')
+  @Post('verify')
   @UseGuards(JwtAuthGuard)
   async verifyEmail(@CurrentUser() user: User) {
     return this.userService.sendVerifyEmail(user);
