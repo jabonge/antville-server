@@ -19,7 +19,7 @@ import {
   CHANGE_STOCK_PRICE_INFO,
   NEW_POST,
   PUB_SUB,
-} from './util/constant/pubsub';
+} from './util/constant/redis';
 
 @WebSocketGateway(4000)
 export class AppGateway implements OnGatewayConnection {

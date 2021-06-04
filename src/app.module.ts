@@ -3,27 +3,15 @@ import { AuthModule } from './domain/auth/auth.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StockModule } from './domain/stock/stock.module';
-import { FinancialApiModule } from './lib/financial-api/financial-api.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommonModule } from './common/common.module';
 import { UserModule } from './domain/user/user.module';
 import { AppGateway } from './app.gateway';
 import { NotificationModule } from './domain/notification/notification.module';
-import { FcmModule } from './lib/fcm/fcm.module';
 import { CommentModule } from './domain/comment/comment.module';
 import { HtmlModule } from './html/html.module';
 import { SesModule } from './lib/ses/ses.module';
-
-function getEnvFilePath() {
-  const env = process.env.NODE_ENV;
-  if (env === 'production') {
-    return '.env.production';
-  } else if (env === 'development') {
-    return '.env.dev';
-  } else {
-    return '.env.local';
-  }
-}
+import { getEnvFilePath } from './util';
 
 @Module({
   imports: [
@@ -43,9 +31,7 @@ function getEnvFilePath() {
       logging: process.env.NODE_ENV === 'local',
       synchronize: process.env.NODE_ENV !== 'production',
     }),
-    FcmModule,
     StockModule,
-    FinancialApiModule,
     CommonModule,
     UserModule,
     AuthModule,

@@ -20,14 +20,16 @@ async function bootstrap() {
   app.useGlobalFilters(new AVExceptionFilter());
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('hbs');
-  const config = new DocumentBuilder()
-    .setTitle('Antville')
-    .setDescription('Antville Api Docs')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('Antville')
+      .setDescription('Antville Api Docs')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+  }
   await app.listen(3000);
 }
 bootstrap();
