@@ -33,7 +33,7 @@ import {
   FindPasswordPayload,
   VerifyEmailPayload,
 } from '../auth/auth.interface';
-import { SesService } from '../../lib/ses/ses.service';
+import { SesService } from '../../shared/ses/ses.service';
 
 @Injectable()
 export class UserService {

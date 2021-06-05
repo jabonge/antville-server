@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/auth.guard';
-import { CurrentUser } from '../../common/decorators/user.decorator';
+import { JwtAuthGuard } from '../../infra/guards/auth.guard';
+import { CurrentUser } from '../../infra/decorators/user.decorator';
 import { User } from '../user/entities/user.entity';
 
 @ApiTags('notification')

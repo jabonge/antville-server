@@ -1,4 +1,4 @@
-import { verifyEmailRequest } from './../../util/ses/index';
+import { verifyEmailRequest } from '../../util/ses/index';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import AWS from 'aws-sdk';

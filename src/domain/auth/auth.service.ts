@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import CustomError from '../../util/constant/exception';
 import { TokenExpiredError } from 'jsonwebtoken';
-import { SesService } from '../../lib/ses/ses.service';
+import { SesService } from '../../shared/ses/ses.service';
 
 @Injectable()
 export class AuthService {

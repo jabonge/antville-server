@@ -14,12 +14,15 @@ import {
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { ConditionAuthGuard, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { CurrentUser } from '../../common/decorators/user.decorator';
+import { CurrentUser } from '../../infra/decorators/user.decorator';
 import { User } from '../user/entities/user.entity';
 import { ApiTags } from '@nestjs/swagger';
 import CustomError from '../../util/constant/exception';
+import {
+  ConditionAuthGuard,
+  JwtAuthGuard,
+} from '../../infra/guards/auth.guard';
 
 @Controller('post')
 @ApiTags('post')

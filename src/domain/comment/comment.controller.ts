@@ -13,9 +13,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { CurrentUser } from '../../common/decorators/user.decorator';
+import { CurrentUser } from '../../infra/decorators/user.decorator';
+import {
+  ConditionAuthGuard,
+  JwtAuthGuard,
+} from '../../infra/guards/auth.guard';
 import CustomError from '../../util/constant/exception';
-import { ConditionAuthGuard, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/entities/user.entity';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';

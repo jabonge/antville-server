@@ -6,10 +6,10 @@
   "password": "antville!",
   "database": "antville",
   "entities": ["src/**/*.entity{.ts,.js}"],
-  "migrations": ["src/migration/*.ts"],
+  "migrations": ["src/infra/migration/*.ts"],
   "logging": true,
   "synchronize": true,
   "cli": {
-    "migrationsDir": "src/migration"
+    "migrationsDir": "src/infra/migration"
   }
 }

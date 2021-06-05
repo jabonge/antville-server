@@ -3,15 +3,13 @@ import { AuthModule } from './domain/auth/auth.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StockModule } from './domain/stock/stock.module';
-import { ConfigModule } from '@nestjs/config';
-import { CommonModule } from './common/common.module';
 import { UserModule } from './domain/user/user.module';
 import { AppGateway } from './app.gateway';
 import { NotificationModule } from './domain/notification/notification.module';
 import { CommentModule } from './domain/comment/comment.module';
-import { HtmlModule } from './html/html.module';
-import { SesModule } from './lib/ses/ses.module';
 import { getEnvFilePath } from './util';
+import { ConfigModule } from '@nestjs/config';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -32,14 +30,12 @@ import { getEnvFilePath } from './util';
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     StockModule,
-    CommonModule,
+    SharedModule,
     UserModule,
     AuthModule,
     PostModule,
     NotificationModule,
     CommentModule,
-    HtmlModule,
-    SesModule,
   ],
   controllers: [],
   providers: [AppGateway],

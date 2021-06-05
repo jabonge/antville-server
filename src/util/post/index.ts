@@ -14,16 +14,6 @@ export function findCacheTags(str: string): string[] {
   return Array.from(new Set(matches));
 }
 
-// export function removeMultiLine(str: string): string[] {
-//   const carrigeReturnRegex = /\n/g;
-//   const matches = [];
-//   let match;
-//   while ((match = carrigeReturnRegex.exec(str))) {
-
-//   }
-//   return matches;
-// }
-
 export function findAtSignNickname(str: string): string[] {
   const atSignRegex = /@([a-zA-Z가-힣_.]{2,})/g;
   const matches = [];

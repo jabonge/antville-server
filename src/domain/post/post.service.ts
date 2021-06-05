@@ -14,16 +14,16 @@ import { StockService } from '../stock/stock.service';
 import { PostRepository } from './repositories/post.repository';
 import { Connection, EntityManager } from 'typeorm';
 import { UserService } from '../user/user.service';
-import { PubSub } from '../../common/interfaces/pub_sub.interface';
 import { classToPlain } from 'class-transformer';
 import { Stock } from '../stock/entities/stock.entity';
 import { PostToStock } from './entities/post-stock.entity';
 import { PostReport } from './entities/post-report.entity';
-import { NEW_POST, PUB_SUB } from '../../util/constant/pubsub';
+import { NEW_POST, PUB_SUB } from '../../util/constant/redis';
 import { NotificationService } from '../notification/notification.service';
 import { Link } from '../../common/entities/link.entity';
 import { GifImage } from '../../common/entities/gif.entity';
 import { PostStockPrice } from './entities/post-price.entity';
+import { PubSub } from '../../shared/redis/interfaces';
 
 @Injectable()
 export class PostService {

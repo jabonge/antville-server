@@ -7,12 +7,10 @@ import { MulterModule } from '@nestjs/platform-express';
 import { UserCount } from './entities/user-count.entity';
 import { NotificationModule } from '../notification/notification.module';
 import { WatchList } from './entities/watchlist.entity';
-import { SesModule } from '../../lib/ses/ses.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserCount, WatchList]),
-    SesModule,
     MulterModule,
     NotificationModule,
   ],

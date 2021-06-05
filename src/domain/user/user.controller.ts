@@ -1,6 +1,5 @@
 import { ChangeWatchListOrderDto } from './dto/change-watchlist-order.dto';
 import { EditProfileDto } from './dto/edit-profile.dto';
-import { ConditionAuthGuard, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.dto';
 import { UserService } from './user.service';
@@ -21,10 +20,14 @@ import {
   Patch,
   Delete,
 } from '@nestjs/common';
-import { CurrentUser } from '../../common/decorators/user.decorator';
+import { CurrentUser } from '../../infra/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import {
+  ConditionAuthGuard,
+  JwtAuthGuard,
+} from '../../infra/guards/auth.guard';
 
 @ApiTags('user')
 @Controller('user')

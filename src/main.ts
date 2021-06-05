@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { AVExceptionFilter } from './infra/exception.filter';
+import { AVExceptionFilter } from './infra/filters/exception.filter';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import { join } from 'path';

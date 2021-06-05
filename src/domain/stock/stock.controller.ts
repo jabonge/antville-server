@@ -1,6 +1,6 @@
 import { Stock } from './entities/stock.entity';
 import { User } from '../user/entities/user.entity';
-import { JwtAuthGuard } from '../auth/guards/auth.guard';
+import { JwtAuthGuard } from '../../infra/guards/auth.guard';
 import {
   GetStockResponseDto,
   GetStocksResponseDto,
@@ -15,7 +15,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser } from '../../common/decorators/user.decorator';
+import { CurrentUser } from '../../infra/decorators/user.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { StockPriceInfoDto } from './dtos/stock_price_info.dto';
 

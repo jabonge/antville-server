@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
-import { FcmService } from '../../lib/fcm/fcm.service';
+import { FcmService } from '../../shared/fcm/fcm.service';
 import { User } from '../user/entities/user.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification, NotificationType } from './entities/notification.entity';
