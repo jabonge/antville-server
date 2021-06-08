@@ -40,6 +40,7 @@ export class UploadService implements MulterOptionsFactory {
         }
       },
       limits: {
+        files: 1,
         fileSize: 1024 * 1024 * 10,
       },
     };

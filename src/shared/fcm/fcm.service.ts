@@ -1,5 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { UserService } from '../../domain/user/user.service';
+import { UserService } from '../../domain/user/services/user.service';
 import * as admin from 'firebase-admin';
 import { CreateNotificationDto } from '../../domain/notification/dto/create-notification.dto';
 

@@ -1,10 +1,7 @@
 import { Stock } from './entities/stock.entity';
 import { User } from '../user/entities/user.entity';
 import { JwtAuthGuard } from '../../infra/guards/auth.guard';
-import {
-  GetStockResponseDto,
-  GetStocksResponseDto,
-} from './dtos/get-stock.dto';
+import { StockResponseDto, StocksResponseDto } from './dtos/stock-response.dto';
 import { StockService } from './stock.service';
 import {
   Body,
@@ -16,10 +13,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../../infra/decorators/user.decorator';
-import { ApiTags } from '@nestjs/swagger';
 import { StockPriceInfoDto } from './dtos/stock_price_info.dto';
 
-@ApiTags('stock')
 @Controller('stock')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
@@ -34,12 +29,12 @@ export class StockController {
 
   @UseGuards(JwtAuthGuard)
   @Get('watchList')
-  getWatchList(@CurrentUser() user: User): Promise<GetStocksResponseDto> {
+  getWatchList(@CurrentUser() user: User): Promise<StocksResponseDto> {
     return this.stockService.getWatchListWithStockPriceInfo(user.id);
   }
 
   @Get('popular')
-  getPopularList(): Promise<GetStocksResponseDto> {
+  getPopularList(): Promise<StocksResponseDto> {
     return this.stockService.getPopularListWithStockPriceInfo();
   }
 
@@ -64,7 +59,7 @@ export class StockController {
   }
 
   @Get(':tag')
-  getStockByTitle(@Param('tag') tag: string): Promise<GetStockResponseDto> {
+  getStockByTitle(@Param('tag') tag: string): Promise<StockResponseDto> {
     return this.stockService.getStockByTag(tag);
   }
 }

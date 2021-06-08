@@ -1,8 +1,8 @@
 const changePasswordHtml = (token: string, nickname: string) => {
   const url =
     process.env.NODE_ENV == 'production'
-      ? `http://13.124.216.113:3000/html/password?token=${token}`
-      : `http://localhost:3000/html/password?token=${token}`;
+      ? `http://13.124.216.113:3000/auth/find-password?token=${token}`
+      : `http://localhost:3000/auth/find-password?token=${token}`;
   return `<!DOCTYPE html>
 <html lang="ko">
   <head>
@@ -184,8 +184,8 @@ export const changePasswordEmailRequest = (
 const verifyEmailHtml = (token: string, nickname: string) => {
   const url =
     process.env.NODE_ENV == 'production'
-      ? `http://13.124.216.113:3000/html/verify?token=${token}`
-      : `http://localhost:3000/html/verify?token=${token}`;
+      ? `http://13.124.216.113:3000/auth/verify?token=${token}`
+      : `http://localhost:3000/auth/verify?token=${token}`;
   return `<!DOCTYPE html>
   <html lang="ko">
     <head>

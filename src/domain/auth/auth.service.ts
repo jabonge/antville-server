@@ -1,5 +1,5 @@
 import { LoginResponseDto } from './dtos/login.dto';
-import { UserService } from '../user/user.service';
+import { UserService } from '../user/services/user.service';
 import { FindPasswordPayload, JwtPayload } from './auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../user/entities/user.entity';
@@ -112,5 +112,45 @@ export class AuthService {
     });
     await this.sesService.sendPasswordEmail(token, user.nickname, user.email);
     return;
+  }
+
+  async findTempPassword(token: string) {
+    let tempPassword;
+    let errorMessage;
+    try {
+      const payload = this.jwtService.verify(token);
+      tempPassword = payload.tempPassword;
+      await this.userService.changeTempPassword(payload);
+    } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        errorMessage = '만료된 요청입니다.';
+      } else {
+        errorMessage = '관리자에게 문의해주세요.';
+      }
+    }
+    if (errorMessage) {
+      return { viewName: 'expire' };
+    } else {
+      return { viewName: 'password', tempPassword };
+    }
+  }
+
+  async verifyEmail(token: string) {
+    let errorMessage;
+    try {
+      const payload = this.jwtService.verify(token);
+      await this.userService.verifyEmail(payload);
+    } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        errorMessage = '만료된 요청입니다.';
+      } else {
+        errorMessage = '관리자에게 문의해주세요.';
+      }
+    }
+    if (errorMessage) {
+      return { viewName: 'expire' };
+    } else {
+      return { viewName: 'verify' };
+    }
   }
 }

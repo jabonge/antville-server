@@ -1,8 +1,7 @@
-import { ChangeWatchListOrderDto } from './dto/change-watchlist-order.dto';
-import { EditProfileDto } from './dto/edit-profile.dto';
-import { User } from './entities/user.entity';
-import { CreateUserInput } from './dto/create-user.dto';
-import { UserService } from './user.service';
+import { EditProfileDto } from '../dtos/edit-profile.dto';
+import { User } from '../entities/user.entity';
+import { CreateUserInput } from '../dtos/create-user.dto';
+import { UserService } from '../services/user.service';
 import {
   Body,
   Controller,
@@ -10,8 +9,6 @@ import {
   UseGuards,
   Param,
   Get,
-  HttpCode,
-  HttpStatus,
   Put,
   UploadedFile,
   UseInterceptors,
@@ -20,44 +17,34 @@ import {
   Patch,
   Delete,
 } from '@nestjs/common';
-import { CurrentUser } from '../../infra/decorators/user.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from '../../../infra/decorators/user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ChangePasswordDto } from './dto/change-password.dto';
+import { ChangePasswordDto } from '../dtos/change-password.dto';
 import {
   ConditionAuthGuard,
   JwtAuthGuard,
-} from '../../infra/guards/auth.guard';
+} from '../../../infra/guards/auth.guard';
 
-@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('signUp')
-  @HttpCode(HttpStatus.CREATED)
+  @Post('sign-up')
   async signUp(@Body() input: CreateUserInput) {
     return this.userService.signUp(input);
   }
 
-  @Get('checkEmail')
+  @Get('email-available')
   async emailDuplicateCheck(@Query('email') email: string) {
     return this.userService.emailDuplicateCheck(email);
   }
 
-  @Get('checkNickname')
+  @Get('nickname-available')
   async nicknameDuplicateCheck(@Query('nickname') nickname: string) {
     return this.userService.nicknameDuplicateCheck(nickname);
   }
 
-  @Get(':id/profile')
-  @UseGuards(ConditionAuthGuard)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async getUserProfile(@Param('id') id: string, @CurrentUser() me: User) {
-    return this.userService.getUserProfile(+id, me?.id);
-  }
-
-  @Get(':nickname/profileByNickname')
+  @Get(':nickname/profile')
   @UseGuards(ConditionAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   async getUserProfileByNickname(
@@ -68,50 +55,13 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':id/addWatchList')
-  async addWatchList(@CurrentUser() user: User, @Param('id') id: string) {
-    await this.userService.addWatchList(user.id, +id);
-    return;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Put(':id/removeWatchList')
-  async removeWatchList(@CurrentUser() user: User, @Param('id') id: string) {
-    await this.userService.removeWatchList(user.id, +id);
-    return;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete('removeWatchLists')
-  async removeWatchLists(
-    @CurrentUser() user: User,
-    @Body() { stockIds }: Record<'stockIds', number[]>,
-  ) {
-    await this.userService.removeWatchLists(user.id, stockIds);
-    return;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Put('changeWatchListOrder')
-  async changeWatchListOrder(
-    @CurrentUser() user: User,
-    @Body() changeWatchListOrderDto: ChangeWatchListOrderDto,
-  ) {
-    await this.userService.changeWatchListOrder(
-      user.id,
-      changeWatchListOrderDto,
-    );
-    return;
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Put(':id/follow')
   async followUser(@CurrentUser() user: User, @Param('id') id: string) {
     return this.userService.followUser(user, +id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':id/unFollow')
+  @Delete(':id/follow')
   async unFollowUser(@CurrentUser() user: User, @Param('id') id: string) {
     return this.userService.unFollowUser(user.id, +id);
   }
@@ -123,7 +73,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':id/unBlock')
+  @Delete(':id/block')
   async unBlockUser(@CurrentUser() user: User, @Param('id') id: string) {
     return this.userService.unBlockUser(user.id, +id);
   }
@@ -146,7 +96,7 @@ export class UserController {
     return this.userService.findFollowing(+userId, +cursor, +limit);
   }
 
-  @Get('blockingUser')
+  @Get('blocking')
   @UseGuards(JwtAuthGuard)
   async findBlocking(
     @Query('cursor') cursor: string,
@@ -165,7 +115,7 @@ export class UserController {
     return this.userService.searchUser(query, +cursor, +limit);
   }
 
-  @Put('updateProfileImg')
+  @Post('profile-img')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('profiles'))
   async updatePropfileImg(
@@ -175,13 +125,13 @@ export class UserController {
     return this.userService.updateProfileImg(user.id, profileImg);
   }
 
-  @Put('removeProfileImg')
+  @Delete('profile-img')
   @UseGuards(JwtAuthGuard)
   async removePropfileImg(@CurrentUser() user: User) {
     return this.userService.removeProfileImg(user.id);
   }
 
-  @Put('editProfile')
+  @Put('profile')
   @UseGuards(JwtAuthGuard)
   async editProfile(
     @CurrentUser() user: User,
@@ -190,7 +140,7 @@ export class UserController {
     return this.userService.editProfile(user.id, editProfileDto);
   }
 
-  @Patch('updateFcmToken')
+  @Patch('fcm-token')
   @UseGuards(JwtAuthGuard)
   async updateFcmToken(
     @CurrentUser() user: User,
@@ -199,16 +149,16 @@ export class UserController {
     return this.userService.updateFcmToken(user.id, fcmToken);
   }
 
-  @Patch('pushOff')
+  @Patch('push-alarm')
   @UseGuards(JwtAuthGuard)
-  async changePushAlarmOff(
+  async changePushAlarm(
     @CurrentUser() user: User,
     @Body() { isOff }: Record<'isOff', boolean>,
   ) {
-    return this.userService.changePushAlarmOff(user.id, isOff);
+    return this.userService.changePushAlarm(user.id, isOff);
   }
 
-  @Patch('changePassword')
+  @Patch('change-password')
   @UseGuards(JwtAuthGuard)
   async changePassword(
     @CurrentUser() user: User,

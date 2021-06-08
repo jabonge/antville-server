@@ -1,4 +1,3 @@
-import { ApiHideProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -36,12 +35,10 @@ export class Notification {
   })
   isChecked: boolean;
 
-  @ApiHideProperty()
   @Column({ type: 'int', nullable: true, select: false })
   viewerId: number;
 
-  @ApiHideProperty()
-  @ManyToOne(() => User, (user) => user.receiveNotifications, {
+  @ManyToOne(() => User, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({
@@ -49,12 +46,10 @@ export class Notification {
   })
   viewer: User;
 
-  @ApiHideProperty()
   @Column({ type: 'int', select: false })
   senderId: number;
 
-  @ApiHideProperty()
-  @ManyToOne(() => User, (user) => user.sendNotifications, {
+  @ManyToOne(() => User, {
     onDelete: 'CASCADE',
     cascade: ['insert'],
   })
@@ -66,7 +61,6 @@ export class Notification {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 }

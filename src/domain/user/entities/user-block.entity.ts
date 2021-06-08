@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 
 export enum BlockType {
@@ -13,16 +6,12 @@ export enum BlockType {
   BLOCKED = 'BLOCKED',
 }
 
-@Entity({ name: 'user_to_block' })
-@Index(['blockerId', 'blockedId'], { unique: true })
-export class UserToBlock {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+@Entity({ name: 'user_block' })
+export class UserBlock {
+  @Column('int', { primary: true })
   blockerId: number;
 
-  @Column()
+  @Column('int', { primary: true })
   blockedId: number;
 
   @Column({
@@ -32,11 +21,11 @@ export class UserToBlock {
   })
   blockType: BlockType;
 
-  @ManyToOne(() => User, (user) => user.blockers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'blockerId' })
   blocker: User;
 
-  @ManyToOne(() => User, (user) => user.blockedUsers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'blockedId' })
   blockedUser: User;
 }

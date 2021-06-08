@@ -13,17 +13,19 @@ import { PostCount } from './entities/post-count.entity';
 import { StockService } from '../stock/stock.service';
 import { PostRepository } from './repositories/post.repository';
 import { Connection, EntityManager } from 'typeorm';
-import { UserService } from '../user/user.service';
+import { UserService } from '../user/services/user.service';
 import { classToPlain } from 'class-transformer';
 import { Stock } from '../stock/entities/stock.entity';
-import { PostToStock } from './entities/post-stock.entity';
+import { StockPost } from './entities/stock-post.entity';
 import { PostReport } from './entities/post-report.entity';
 import { NEW_POST, PUB_SUB } from '../../util/constant/redis';
 import { NotificationService } from '../notification/notification.service';
 import { Link } from '../../common/entities/link.entity';
 import { GifImage } from '../../common/entities/gif.entity';
-import { PostStockPrice } from './entities/post-price.entity';
+import { PostStockPrice } from './entities/post-stock-price.entity';
 import { PubSub } from '../../shared/redis/interfaces';
+import { UserCount } from '../user/entities/user-count.entity';
+import { GifDto } from '../../common/dtos/gif.dto';
 
 @Injectable()
 export class PostService {
@@ -39,18 +41,16 @@ export class PostService {
   async createPost(
     createPostDto: CreatePostDto,
     user: User,
-    files: Express.MulterS3.File[],
+    file: Express.MulterS3.File,
   ) {
     const postImgs: PostImg[] = [];
     let postLink: Link;
     let gifImage: GifImage;
-    if (files.length > 0) {
-      files.forEach((f) => {
-        const img = new PostImg();
-        img.image = f.location;
-        postImgs.push(img);
-      });
-    } else if (!createPostDto.gifId) {
+    if (file) {
+      const img = new PostImg();
+      img.image = file.location;
+      postImgs.push(img);
+    } else if (!createPostDto.gif) {
       const link = findLinks(createPostDto.body);
       if (link) {
         const ogResult = await getOgTags(link);
@@ -63,13 +63,13 @@ export class PostService {
           postLink.ogImage = ogResult.ogImage;
         }
       }
-    } else if (createPostDto.gifId) {
-      const { gifId, tinyGifUrl, gifUrl, ratio } = createPostDto;
+    } else if (createPostDto.gif) {
+      const gifDto = JSON.parse(createPostDto.gif) as GifDto;
       gifImage = new GifImage();
-      gifImage.id = gifId;
-      gifImage.gifUrl = gifUrl;
-      gifImage.ratio = +ratio;
-      gifImage.tinyGifUrl = tinyGifUrl;
+      gifImage.id = gifDto.gifId;
+      gifImage.gifUrl = gifDto.gifUrl;
+      gifImage.ratio = +gifDto.ratio;
+      gifImage.tinyGifUrl = gifDto.tinyGifUrl;
     }
     const post = new Post();
     post.sentiment = createPostDto.sentiment;
@@ -85,13 +85,13 @@ export class PostService {
       let stocks: Stock[];
       if (cashTags.length > 0) {
         stocks = await this.stockService.getStocks(cashTags);
-        const postToStocks = stocks.map((s) => {
-          const ps = new PostToStock();
+        const stockPosts = stocks.map((s) => {
+          const ps = new StockPost();
           ps.stockId = s.id;
           ps.authorId = user.id;
           return ps;
         });
-        post.postToStocks = postToStocks;
+        post.stockPosts = stockPosts;
         if (stocks[0]) {
           const priceInfo = await this.stockService.getPrices([
             stocks[0].symbol,
@@ -107,14 +107,14 @@ export class PostService {
 
       await manager.save(post);
       delete post.postStockPrice;
-      await this.userService.incrementUserCount(manager, user.id, 'postCount');
+      await manager.increment(UserCount, { userId: user.id }, 'postCount', 1);
       await this.createUserTagNotification(
         manager,
         createPostDto.body,
         user,
         post.id,
       );
-      if (post.postToStocks?.length > 0) {
+      if (post.stockPosts?.length > 0) {
         this.pubsub.publisher.publish(
           NEW_POST,
           JSON.stringify(classToPlain(post)),
@@ -143,13 +143,18 @@ export class PostService {
     return post;
   }
 
-  async findAllPostById(
+  async findAllPostByStockId(
     stockId: number,
     cursor: number,
     limit: number,
     userId?: number,
   ) {
-    return this.postRepository.findAllPostById(stockId, cursor, limit, userId);
+    return this.postRepository.findAllPostByStockId(
+      stockId,
+      cursor,
+      limit,
+      userId,
+    );
   }
 
   async findAllPostByFollowing(userId: number, cursor: number, limit: number) {
@@ -217,7 +222,7 @@ export class PostService {
           'likeCount',
           1,
         ),
-        this.userService.incrementUserCount(manager, user.id, 'postLikeCount'),
+        manager.increment(UserCount, { userId: user.id }, 'postLikeCount', 1),
       ]);
       if (post.authorId != user.id) {
         await this.notificationService.likeNotification(
@@ -250,7 +255,7 @@ export class PostService {
           'likeCount',
           1,
         ),
-        this.userService.decrementUserCount(manager, userId, 'postLikeCount'),
+        manager.decrement(UserCount, { userId }, 'postLikeCount', 1),
       ]);
     });
     return;
@@ -258,7 +263,7 @@ export class PostService {
 
   async isLiked(myId: number, postId: number) {
     const row = await this.postRepository.manager.query(
-      `SELECT COUNT(*) as count FROM posts_likers WHERE userId = ${myId} AND postId = ${postId}`,
+      `SELECT COUNT(*) as count FROM post_liker WHERE userId = ${myId} AND postId = ${postId}`,
     );
 
     return row[0].count > 0;

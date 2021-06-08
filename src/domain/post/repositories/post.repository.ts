@@ -1,7 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { UserToBlock } from '../../user/entities/user-block.entity';
-import { WatchList } from '../../user/entities/watchlist.entity';
-import { PostToStock } from '../entities/post-stock.entity';
+import { UserBlock } from '../../user/entities/user-block.entity';
+import { Watchlist } from '../../user/entities/watchlist.entity';
+import { StockPost } from '../entities/stock-post.entity';
 import { Post } from '../entities/post.entity';
 
 @EntityRepository(Post)
@@ -23,9 +23,9 @@ export class PostRepository extends Repository<Post> {
           const subQuery = qb
             .subQuery()
             .select()
-            .from(UserToBlock, 'utb')
-            .where(`utb.blockerId = ${userId}`)
-            .andWhere(`p.authorId = utb.blockedId`)
+            .from(UserBlock, 'ub')
+            .where(`ub.blockerId = ${userId}`)
+            .andWhere(`p.authorId = ub.blockedId`)
             .getQuery();
           return 'NOT EXISTS ' + subQuery;
         })
@@ -37,7 +37,7 @@ export class PostRepository extends Repository<Post> {
     }
     return query.getMany();
   }
-  async findAllPostById(
+  async findAllPostByStockId(
     stockId: number,
     cursor: number,
     limit: number,
@@ -49,7 +49,7 @@ export class PostRepository extends Repository<Post> {
           const ptsSubQuery = qb
             .subQuery()
             .select(['postId'])
-            .from(PostToStock, 'pts')
+            .from(StockPost, 'pts')
             .where(`pts.stockId = ${stockId}`)
             .orderBy('pts.postId', 'DESC')
             .limit(limit);
@@ -61,9 +61,9 @@ export class PostRepository extends Repository<Post> {
               const utbSubQuery = qb
                 .subQuery()
                 .select()
-                .from(UserToBlock, 'utb')
-                .where(`utb.blockerId = ${userId}`)
-                .andWhere(`pts.authorId = utb.blockedId`)
+                .from(UserBlock, 'ub')
+                .where(`ub.blockerId = ${userId}`)
+                .andWhere(`pts.authorId = ub.blockedId`)
                 .getQuery();
               return 'NOT EXISTS ' + utbSubQuery;
             });
@@ -96,13 +96,13 @@ export class PostRepository extends Repository<Post> {
           const ptsSubQuery = qb
             .subQuery()
             .select(['postId'])
-            .from(PostToStock, 'pts')
+            .from(StockPost, 'pts')
             .innerJoin(
               (qb) => {
                 return qb
                   .subQuery()
                   .select(['stockId'])
-                  .from(WatchList, 'w')
+                  .from(Watchlist, 'w')
                   .where(`w.userId = ${userId}`);
               },
               'iw',
@@ -117,9 +117,9 @@ export class PostRepository extends Repository<Post> {
             ptsSubQuery.andWhere((qb) => {
               const utbSubQuery = qb
                 .subQuery()
-                .from(UserToBlock, 'utb')
-                .where(`utb.blockerId = ${userId}`)
-                .andWhere(`pts.authorId = utb.blockedId`)
+                .from(UserBlock, 'ub')
+                .where(`ub.blockerId = ${userId}`)
+                .andWhere(`pts.authorId = ub.blockedId`)
                 .getQuery();
               return 'NOT EXISTS ' + utbSubQuery;
             });
@@ -144,8 +144,8 @@ export class PostRepository extends Repository<Post> {
 
   async findAllPostByFollowing(userId: number, cursor: number, limit: number) {
     const query = this.createQueryBuilder('p')
-      .leftJoin('users_follows', 'uf', 'p.authorId = uf.followingId')
-      .andWhere(`uf.followerId = ${userId}`)
+      .leftJoin('follow', 'f', 'p.authorId = f.followingId')
+      .andWhere(`f.followerId = ${userId}`)
       .innerJoinAndSelect('p.author', 'author')
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
@@ -159,44 +159,6 @@ export class PostRepository extends Repository<Post> {
       .take(limit);
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
-    }
-    return query.getMany();
-  }
-
-  async getComments(
-    postId: number,
-    cursor: number,
-    limit: number,
-    userId?: number,
-  ) {
-    const query = this.createQueryBuilder('p')
-      .where('p.parentId = :id', { id: postId })
-      .leftJoin('p.postImgs', 'postImg')
-      .addSelect('postImg.image')
-      .leftJoinAndSelect('p.author', 'author')
-      .leftJoin('p.postCount', 'postCount')
-      .addSelect(['postCount.likeCount'])
-      .leftJoinAndSelect('p.link', 'link')
-      .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'ASC')
-      .take(limit);
-    if (userId) {
-      query
-        .andWhere((qb) => {
-          const subQuery = qb
-            .subQuery()
-            .select()
-            .from(UserToBlock, 'utb')
-            .where(`utb.blockerId = ${userId}`)
-            .andWhere(`p.authorId = utb.blockedId`)
-            .getQuery();
-          return 'NOT EXISTS ' + subQuery;
-        })
-        .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
-        .addSelect(['u.id']);
-    }
-    if (cursor) {
-      query.andWhere('p.id > :cursor', { cursor });
     }
     return query.getMany();
   }
@@ -261,7 +223,7 @@ export class PostRepository extends Repository<Post> {
     const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
     const query = this.createQueryBuilder('p')
       .innerJoin(
-        `(SELECT postId FROM posts_likers pl WHERE userId = ${userId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
+        `(SELECT postId FROM post_liker pl WHERE userId = ${userId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
         'pl',
         'p.id = pl.postId',
       )

@@ -6,16 +6,12 @@ import {
   Entity,
   Index,
   ManyToOne,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { StockCount } from './stock-count.entity';
-import { ApiHideProperty } from '@nestjs/swagger';
-import { PostToStock } from '../../post/entities/post-stock.entity';
-import { WatchList } from '../../user/entities/watchlist.entity';
 
 export enum StockType {
   ETF = 'ETF',
@@ -61,35 +57,22 @@ export class Stock {
   })
   type: StockType;
 
-  @ApiHideProperty()
   @CreateDateColumn()
   createdAt: Date;
 
-  @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 
-  @ApiHideProperty()
-  @OneToMany(() => WatchList, (w) => w.stock)
-  watchUsers: WatchList[];
-
-  @ApiHideProperty()
   @OneToOne(() => StockMeta, (stockMeta) => stockMeta.stock, {
     cascade: ['insert', 'update'],
   })
   stockMeta: StockMeta;
 
-  @ApiHideProperty()
   @RelationId((stock: Stock) => stock.exchange)
   exchangeId: number;
 
-  @ApiHideProperty()
   @ManyToOne(() => Exchange, (exchange) => exchange.stocks)
   exchange: Exchange;
-
-  @ApiHideProperty()
-  @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })
-  postToStocks: PostToStock[];
 
   @OneToOne(() => StockCount, (c) => c.stock, { cascade: ['insert'] })
   stockCount?: StockCount;

@@ -4,20 +4,19 @@ import {
   Body,
   UseGuards,
   UseInterceptors,
-  UploadedFiles,
   Get,
   Param,
   Query,
   ClassSerializerInterceptor,
   Delete,
   BadRequestException,
+  UploadedFile,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../infra/decorators/user.decorator';
 import { User } from '../user/entities/user.entity';
-import { ApiTags } from '@nestjs/swagger';
 import CustomError from '../../util/constant/exception';
 import {
   ConditionAuthGuard,
@@ -25,7 +24,6 @@ import {
 } from '../../infra/guards/auth.guard';
 
 @Controller('post')
-@ApiTags('post')
 @UseInterceptors(ClassSerializerInterceptor)
 export class PostController {
   constructor(private readonly postService: PostService) {}
@@ -35,24 +33,29 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   create(
     @CurrentUser() user: User,
-    @UploadedFiles() files: Express.MulterS3.File[],
+    @UploadedFile() file: Express.MulterS3.File,
     @Body() createPostDto: CreatePostDto,
   ) {
     if (!user.isEmailVerified) {
       throw new BadRequestException(CustomError.EMAIL_NOT_VERIFIED);
     }
-    return this.postService.createPost(createPostDto, user, files);
+    return this.postService.createPost(createPostDto, user, file);
   }
 
   @UseGuards(ConditionAuthGuard)
   @Get(':id/symbol')
-  findAllPostById(
+  findAllPostByStockId(
     @Param('id') id: number,
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
     @CurrentUser() user?: User,
   ) {
-    return this.postService.findAllPostById(+id, +cursor, +limit, user?.id);
+    return this.postService.findAllPostByStockId(
+      +id,
+      +cursor,
+      +limit,
+      user?.id,
+    );
   }
 
   @Get()
@@ -119,19 +122,19 @@ export class PostController {
     return this.postService.deletePost(user.id, +id);
   }
 
-  @Post(':id/likePost')
+  @Post(':id/like')
   @UseGuards(JwtAuthGuard)
   likePost(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.likePost(user, +id);
   }
 
-  @Post(':id/unLikePost')
+  @Delete(':id/like')
   @UseGuards(JwtAuthGuard)
   unLikePost(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.unLikePost(user.id, +id);
   }
 
-  @Post(':id/createReport')
+  @Post(':id/report')
   @UseGuards(JwtAuthGuard)
   createReport(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.createReport(user.id, +id);

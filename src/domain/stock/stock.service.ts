@@ -11,7 +11,7 @@ export class StockService {
     @Inject(REDIS_CLIENT) private readonly client: RedisClientWrapper,
   ) {}
 
-  async findById(stockId: number) {
+  findById(stockId: number) {
     return this.stockRepository.findOne({
       id: stockId,
     });
@@ -25,7 +25,7 @@ export class StockService {
   async getStockByTag(tag: string) {
     const stock = await this.stockRepository.findByTag(tag);
     if (!stock) {
-      throw new BadRequestException('Stock is not Exist');
+      throw new BadRequestException('존재하지 않는 자산입니다.');
     }
     const stockPriceInfo = await this.client.getStockPriceInfo(stock.symbol);
     return {

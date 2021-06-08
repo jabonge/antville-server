@@ -1,4 +1,3 @@
-import { ApiHideProperty } from '@nestjs/swagger';
 import {
   Column,
   Entity,
@@ -20,12 +19,10 @@ export class PostReport {
   @Column({ type: 'int', nullable: true })
   userId?: number;
 
-  @ApiHideProperty()
   @ManyToOne(() => Post, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })
   post: Post;
 
-  @ApiHideProperty()
   @ManyToOne(() => User)
   @JoinColumn({ name: 'userId' })
   user: User;

@@ -7,12 +7,14 @@ import { MulterModule } from '@nestjs/platform-express';
 import { UploadService } from '../shared/multer/multer-s3.service';
 import { RedisClientWrapper } from './redis/redis-client.service';
 import { pubsub } from './redis/pub-sub.service';
+import { SesService } from './ses/ses.service';
 
 @Global()
 @Module({
   imports: [
     MulterModule.registerAsync({
       useClass: UploadService,
+      inject: [ConfigService],
     }),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => {
@@ -24,18 +26,17 @@ import { pubsub } from './redis/pub-sub.service';
           },
         };
       },
+      inject: [ConfigService],
     }),
   ],
   providers: [
-    {
-      provide: PUB_SUB,
-      useValue: pubsub,
-    },
+    pubsub,
     {
       provide: REDIS_CLIENT,
       useClass: RedisClientWrapper,
     },
+    SesService,
   ],
-  exports: [PUB_SUB, REDIS_CLIENT, JwtModule, MulterModule],
+  exports: [PUB_SUB, REDIS_CLIENT, SesService, JwtModule, MulterModule],
 })
 export class SharedModule {}

@@ -14,12 +14,12 @@ import {
 import WebSocket, { Server } from 'ws';
 import { IncomingMessage } from 'node:http';
 import { Post } from './domain/post/entities/post.entity';
-import { PubSub } from './common/interfaces/pub_sub.interface';
 import {
   CHANGE_STOCK_PRICE_INFO,
   NEW_POST,
   PUB_SUB,
 } from './util/constant/redis';
+import { PubSub } from './shared/redis/interfaces';
 
 @WebSocketGateway(4000)
 export class AppGateway implements OnGatewayConnection {
@@ -63,9 +63,9 @@ export class AppGateway implements OnGatewayConnection {
           if (
             stockId &&
             ws.readyState === WebSocket.OPEN &&
-            post.postToStocks?.map((s) => s.stockId)?.includes(stockId)
+            post.stockPosts?.map((s) => s.stockId)?.includes(stockId)
           ) {
-            delete post.postToStocks;
+            delete post.stockPosts;
             ws.send(message);
           }
         });

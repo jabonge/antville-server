@@ -1,6 +1,5 @@
 import { Stock } from './stock.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ApiHideProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Exchange {
@@ -13,7 +12,6 @@ export class Exchange {
   @Column()
   countryCode: string;
 
-  @ApiHideProperty()
   @OneToMany(() => Stock, (stock) => stock.exchange)
   stocks: Stock[];
 }

@@ -1,8 +1,8 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import redis from 'redis';
-import { PubSub } from '../../common/interfaces/pub_sub.interface';
 import { PUB_SUB } from '../../util/constant/redis';
+import { PubSub } from './interfaces';
 
 export const pubsub: Provider = {
   provide: PUB_SUB,
@@ -15,4 +15,5 @@ export const pubsub: Provider = {
       subscriber: redis.createClient(port, host, { password }),
     };
   },
+  inject: [ConfigService],
 };

@@ -1,4 +1,4 @@
-import { PostToStock } from './post-stock.entity';
+import { StockPost } from './stock-post.entity';
 import { PostImg } from './post-img.entity';
 import {
   Column,
@@ -16,12 +16,9 @@ import {
 import { User } from '../../user/entities/user.entity';
 import { PostCount } from './post-count.entity';
 import { Exclude, Expose } from 'class-transformer';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { PostReport } from './post-report.entity';
 import { Link } from '../../../common/entities/link.entity';
 import { GifImage } from '../../../common/entities/gif.entity';
-import { Comment } from '../../comment/entities/comment.entity';
-import { PostStockPrice } from './post-price.entity';
+import { PostStockPrice } from './post-stock-price.entity';
 
 export enum Sentiment {
   UP = 'UP',
@@ -48,21 +45,12 @@ export class Post {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 
   @OneToMany(() => PostImg, (img) => img.post, { cascade: ['insert'] })
   postImgs: PostImg[];
 
-  @OneToMany(() => PostReport, (report) => report.post)
-  reports: PostReport[];
-
-  @ApiHideProperty()
-  @OneToMany(() => Comment, (c) => c.post)
-  comments: Comment[];
-
-  @ApiHideProperty()
   @Column({ nullable: true, select: false })
   linkId: string;
 
@@ -70,7 +58,6 @@ export class Post {
   @JoinColumn({ name: 'linkId' })
   link?: Link;
 
-  @ApiHideProperty()
   @Column({ nullable: true, select: false })
   gifId: string;
 
@@ -78,10 +65,9 @@ export class Post {
   @JoinColumn({ name: 'gifId' })
   gifImage?: GifImage;
 
-  @ApiHideProperty()
   @ManyToMany(() => User, { onDelete: 'CASCADE' })
   @JoinTable({
-    name: 'posts_likers',
+    name: 'post_liker',
     joinColumn: {
       name: 'postId',
       referencedColumnName: 'id',
@@ -94,17 +80,15 @@ export class Post {
   @Exclude()
   likers: User[];
 
-  @ApiHideProperty()
   @Column({ type: 'int', nullable: true, select: false })
   authorId: number | null;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'authorId' })
   author: User;
 
-  @ApiHideProperty()
-  @OneToMany(() => PostToStock, (ps) => ps.post, { cascade: ['insert'] })
-  postToStocks: PostToStock[];
+  @OneToMany(() => StockPost, (sp) => sp.post, { cascade: ['insert'] })
+  stockPosts: StockPost[];
 
   @OneToOne(() => PostCount, (c) => c.post, { cascade: ['insert'] })
   postCount: PostCount;
@@ -112,7 +96,6 @@ export class Post {
   @OneToOne(() => PostStockPrice, (c) => c.post, { cascade: ['insert'] })
   postStockPrice: PostStockPrice;
 
-  @ApiProperty({ type: 'boolean' })
   @Expose({ name: 'isLikedSelf' })
   isLikedSelf() {
     return this.likers?.length === 1;

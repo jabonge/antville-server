@@ -1,39 +1,23 @@
 import { JwtService } from '@nestjs/jwt';
-import { CreateNotificationDto } from './../notification/dto/create-notification.dto';
+import { CreateNotificationDto } from '../../notification/dto/create-notification.dto';
 import { plainToClass } from 'class-transformer';
-import { CreateUserInput } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
+import { CreateUserInput } from '../dtos/create-user.dto';
+import { User } from '../entities/user.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  Connection,
-  EntityManager,
-  In,
-  IsNull,
-  MoreThan,
-  Not,
-  Repository,
-} from 'typeorm';
-import { UserCount } from './entities/user-count.entity';
-import { EditProfileDto } from './dto/edit-profile.dto';
-import { StockCount } from '../stock/entities/stock-count.entity';
-import CustomError from '../../util/constant/exception';
-import { NotificationService } from '../notification/notification.service';
-import { NotificationType } from '../notification/entities/notification.entity';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { WatchList } from './entities/watchlist.entity';
-import { LexoRank } from 'lexorank';
-import {
-  ChangeType,
-  ChangeWatchListOrderDto,
-} from './dto/change-watchlist-order.dto';
-import { genLexoRankList } from '../../util/lexorank';
-import { BlockType, UserToBlock } from './entities/user-block.entity';
+import { Connection, In, IsNull, Not, Repository } from 'typeorm';
+import { UserCount } from '../entities/user-count.entity';
+import { EditProfileDto } from '../dtos/edit-profile.dto';
+import CustomError from '../../../util/constant/exception';
+import { NotificationService } from '../../notification/notification.service';
+import { NotificationType } from '../../notification/entities/notification.entity';
+import { ChangePasswordDto } from '../dtos/change-password.dto';
+import { BlockType, UserBlock } from '../entities/user-block.entity';
 import {
   FindPasswordPayload,
   VerifyEmailPayload,
-} from '../auth/auth.interface';
-import { SesService } from '../../shared/ses/ses.service';
+} from '../../auth/auth.interface';
+import { SesService } from '../../../shared/ses/ses.service';
 
 @Injectable()
 export class UserService {
@@ -47,19 +31,17 @@ export class UserService {
   ) {}
 
   async findByEmailWithPassword(email: string) {
-    const user = this.userRepository.findOne(
+    return this.userRepository.findOne(
       { email },
       { select: ['id', 'password', 'email', 'nickname'] },
     );
-    return user;
   }
 
   async findByEmail(email: string) {
-    const user = this.userRepository.findOne(
+    return this.userRepository.findOne(
       { email },
       { select: ['id', 'email', 'nickname'] },
     );
-    return user;
   }
 
   async findByNicknames(nicknames: string[], user: User) {
@@ -71,9 +53,9 @@ export class UserService {
         const subQuery = qb
           .subQuery()
           .select()
-          .from(UserToBlock, 'utb')
-          .where(`utb.blockerId = ${user.id}`)
-          .andWhere(`u.id = utb.blockedId`)
+          .from(UserBlock, 'ub')
+          .where(`ub.blockerId = ${user.id}`)
+          .andWhere(`u.id = ub.blockedId`)
           .getQuery();
         return 'NOT EXISTS ' + subQuery;
       })
@@ -101,9 +83,8 @@ export class UserService {
     return user;
   }
 
-  async findById(id: number) {
-    const user = this.userRepository.findOne({ id });
-    return user;
+  findById(id: number) {
+    return this.userRepository.findOne({ id });
   }
 
   async getUserProfile(userId: number, myId?: number) {
@@ -130,9 +111,9 @@ export class UserService {
       { select: ['id'] },
     );
     if (user) {
-      throw new BadRequestException(CustomError.DUPLICATED_EMAIL);
+      return { available: true };
     }
-    return;
+    return { available: false };
   }
 
   async nicknameDuplicateCheck(nickname: string) {
@@ -141,185 +122,9 @@ export class UserService {
       { select: ['id'] },
     );
     if (user) {
-      throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
+      return { available: true };
     }
-    return;
-  }
-
-  async changeWatchListOrder(
-    userId: number,
-    { stockId, betweenStockIds, type }: ChangeWatchListOrderDto,
-  ) {
-    const findWatchList = await this.connection.manager.find(WatchList, {
-      where: {
-        userId,
-        stockId: In(betweenStockIds),
-      },
-    });
-    const updateWatchList = await this.connection.manager.findOneOrFail(
-      WatchList,
-      {
-        where: {
-          userId,
-          stockId,
-        },
-      },
-    );
-    let newLexoRank: LexoRank;
-    if (type === ChangeType.FIRST) {
-      if (findWatchList.length !== 1) {
-        throw new BadRequestException();
-      }
-      const lexorank = LexoRank.parse(findWatchList[0].lexorank);
-      newLexoRank = lexorank.genPrev();
-      updateWatchList.lexorank = newLexoRank.toString();
-    } else if (type === ChangeType.LAST) {
-      if (findWatchList.length !== 1) {
-        throw new BadRequestException();
-      }
-      const lexorank = LexoRank.parse(findWatchList[0].lexorank);
-      newLexoRank = lexorank.genNext();
-      updateWatchList.lexorank = newLexoRank.toString();
-    } else if (type === ChangeType.BETWEEN) {
-      if (findWatchList.length !== 2) {
-        throw new BadRequestException();
-      }
-      const firstLexoRank = LexoRank.parse(findWatchList[0].lexorank);
-      const secondLexoRank = LexoRank.parse(findWatchList[1].lexorank);
-      newLexoRank = firstLexoRank.between(secondLexoRank);
-      updateWatchList.lexorank = newLexoRank.toString();
-    } else {
-      throw new BadRequestException();
-    }
-    await this.connection.manager.save(WatchList, updateWatchList);
-    if (newLexoRank.getDecimal().getScale() > 300) {
-      this.lexorankRebalancing(userId);
-    }
-    return;
-  }
-
-  async lexorankRebalancing(userId: number) {
-    const findAllWatchList = await this.connection.manager.find(WatchList, {
-      where: {
-        userId,
-      },
-      order: {
-        lexorank: 'ASC',
-      },
-    });
-    const balancedLexoRankList = genLexoRankList(findAllWatchList.length);
-    for (let i = 0; i < findAllWatchList.length; i++) {
-      findAllWatchList[i].lexorank = balancedLexoRankList[i];
-    }
-    await this.connection.manager.save(WatchList, findAllWatchList);
-  }
-
-  async removeWatchList(userId: number, stockId: number) {
-    if (!(await this.isWatching(userId, stockId))) {
-      return;
-    }
-    await this.connection.transaction(async (manager) => {
-      await manager.delete(WatchList, {
-        userId,
-        stockId,
-      });
-      await this.decrementUserCount(manager, userId, 'watchStockCount');
-      await manager.decrement(
-        StockCount,
-        {
-          stockId,
-        },
-        'watchUserCount',
-        1,
-      );
-    });
-    return;
-  }
-
-  async removeWatchLists(userId: number, stockIds: number[]) {
-    await this.connection.transaction(async (manager) => {
-      const findWatchList = await manager.find(WatchList, {
-        where: {
-          userId,
-          stockId: In(stockIds),
-        },
-      });
-      const findStockIds = findWatchList.map((e) => e.stockId);
-      if (findWatchList.length <= 0) return;
-      await manager.delete(WatchList, {
-        userId,
-        stockId: In(findStockIds),
-      });
-      const { watchStockCount } = await manager.findOne(UserCount, { userId });
-      if (watchStockCount > stockIds.length) {
-        await this.decrementUserCount(
-          manager,
-          userId,
-          'watchStockCount',
-          findStockIds.length,
-        );
-      } else {
-        await this.decrementUserCount(
-          manager,
-          userId,
-          'watchStockCount',
-          watchStockCount,
-        );
-      }
-      await manager.decrement(
-        StockCount,
-        {
-          stockId: In(findStockIds),
-          watchUserCount: MoreThan(0),
-        },
-        'watchUserCount',
-        1,
-      );
-    });
-    return;
-  }
-
-  async addWatchList(userId: number, stockId: number) {
-    if (await this.isWatching(userId, stockId)) {
-      return;
-    }
-    await this.connection.transaction(async (manager) => {
-      const userCount = await manager.findOne(UserCount, { userId });
-      if (userCount.watchStockCount > 19) {
-        throw new BadRequestException(CustomError.WATCH_LIST_LIMIT_EXCEED);
-      }
-      const firstWatchList = await manager.find(WatchList, {
-        where: {
-          userId,
-        },
-        order: {
-          lexorank: 'ASC',
-        },
-        take: 1,
-      });
-
-      const watchList = new WatchList();
-      watchList.userId = userId;
-      watchList.stockId = stockId;
-      if (firstWatchList.length > 0) {
-        const first = firstWatchList[0];
-        watchList.lexorank = LexoRank.parse(first.lexorank)
-          .genPrev()
-          .toString();
-      }
-
-      await manager.save(WatchList, watchList);
-      await this.incrementUserCount(manager, userId, 'watchStockCount');
-      await manager.increment(
-        StockCount,
-        {
-          stockId,
-        },
-        'watchUserCount',
-        1,
-      );
-    });
-    return;
+    return { available: false };
   }
 
   async save(user: User) {
@@ -342,7 +147,7 @@ export class UserService {
       nickname: input.nickname,
     });
     if (duplicatedNicknameUser) {
-      throw new BadRequestException('Nickname is duplicated');
+      throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
     }
 
     const user = plainToClass(CreateUserInput, input).toUser();
@@ -353,29 +158,30 @@ export class UserService {
   }
 
   async isBlockingOrBlockedUser(myId: number, userId: number) {
-    const row = await this.userRepository.manager.query(
-      `SELECT COUNT(*) as count FROM user_to_block WHERE blockerId = ${myId} AND blockedId = ${userId};`,
-    );
-    return row[0].count > 0;
+    const count = await this.connection.manager.count(UserBlock, {
+      blockerId: myId,
+      blockedId: userId,
+    });
+    return count > 0;
   }
 
   async blockUser(myId: number, userId: number) {
-    if (await this.isBlocking(myId, userId)) {
+    if (await this.isBlockingOrBlockedUser(myId, userId)) {
       return;
     }
     const isFollowing = await this.isFollowing(myId, userId);
     const isFollowed = await this.isFollowed(myId, userId);
 
     await this.connection.transaction(async (manager) => {
-      const blocker = new UserToBlock();
+      const blocker = new UserBlock();
       blocker.blockerId = myId;
       blocker.blockedId = userId;
       blocker.blockType = BlockType.BLOCKING;
-      const blockedUser = new UserToBlock();
+      const blockedUser = new UserBlock();
       blockedUser.blockerId = userId;
       blockedUser.blockedId = myId;
       blockedUser.blockType = BlockType.BLOCKED;
-      await manager.save(UserToBlock, [blocker, blockedUser]);
+      await manager.save(UserBlock, [blocker, blockedUser]);
       if (isFollowing) {
         await Promise.all([
           manager
@@ -383,8 +189,22 @@ export class UserService {
             .relation(User, 'following')
             .of(myId)
             .remove(userId),
-          this.decrementUserCount(manager, myId, 'following'),
-          this.decrementUserCount(manager, userId, 'followers'),
+          manager.decrement(
+            UserCount,
+            {
+              userId: myId,
+            },
+            'following',
+            1,
+          ),
+          manager.decrement(
+            UserCount,
+            {
+              userId,
+            },
+            'followers',
+            1,
+          ),
         ]);
       } else if (isFollowed) {
         await Promise.all([
@@ -393,8 +213,22 @@ export class UserService {
             .relation(User, 'following')
             .of(userId)
             .remove(myId),
-          this.decrementUserCount(manager, userId, 'following'),
-          this.decrementUserCount(manager, myId, 'followers'),
+          manager.decrement(
+            UserCount,
+            {
+              userId,
+            },
+            'following',
+            1,
+          ),
+          manager.decrement(
+            UserCount,
+            {
+              userId: myId,
+            },
+            'followers',
+            1,
+          ),
         ]);
       }
     });
@@ -402,14 +236,14 @@ export class UserService {
   }
 
   async unBlockUser(myId: number, userId: number) {
-    if (!(await this.isBlocking(myId, userId))) {
+    if (!(await this.isBlockingOrBlockedUser(myId, userId))) {
       return;
     }
     await this.connection.transaction(async (manager) => {
       await manager
         .createQueryBuilder()
         .delete()
-        .from(UserToBlock)
+        .from(UserBlock)
         .where(`blockerId = ${myId} AND blockedId = ${userId}`)
         .orWhere(`blockerId = ${userId} AND blockedId = ${myId}`)
         .execute();
@@ -428,7 +262,7 @@ export class UserService {
     );
     if (isBlockingOrBlocked) {
       throw new BadRequestException(
-        'Blocked Or Blocking User Do Not Allow Following',
+        '유저가 차단을 했거나 당한 상태에서 팔로우 할 수 없습니다.',
       );
     }
     const createNotificationDto = new CreateNotificationDto();
@@ -443,8 +277,22 @@ export class UserService {
           .relation(User, 'following')
           .of(me.id)
           .add(userId),
-        this.incrementUserCount(manager, me.id, 'following'),
-        this.incrementUserCount(manager, userId, 'followers'),
+        manager.increment(
+          UserCount,
+          {
+            userId,
+          },
+          'following',
+          1,
+        ),
+        manager.increment(
+          UserCount,
+          {
+            userId,
+          },
+          'followers',
+          1,
+        ),
         this.notificationService.create(manager, createNotificationDto),
       ]);
     });
@@ -462,38 +310,37 @@ export class UserService {
           .relation(User, 'following')
           .of(myId)
           .remove(userId),
-        this.decrementUserCount(manager, myId, 'following'),
-        this.decrementUserCount(manager, userId, 'followers'),
+        manager.decrement(
+          UserCount,
+          {
+            userId,
+          },
+          'following',
+          1,
+        ),
+        manager.decrement(
+          UserCount,
+          {
+            userId,
+          },
+          'followers',
+          1,
+        ),
       ]);
     });
     return;
   }
 
-  async isWatching(myId: number, stockId: number) {
-    const count = await this.connection.manager.count(WatchList, {
-      userId: myId,
-      stockId,
-    });
-    return count > 0;
-  }
-
   async isFollowing(myId: number, userId: number) {
     const row = await this.userRepository.manager.query(
-      `SELECT COUNT(*) as count FROM users_follows WHERE followerId = ${myId} AND followingId = ${userId}`,
+      `SELECT COUNT(*) as count FROM follow WHERE followerId = ${myId} AND followingId = ${userId}`,
     );
     return row[0].count > 0;
   }
 
   async isFollowed(myId: number, userId: number) {
     const row = await this.userRepository.manager.query(
-      `SELECT COUNT(*) as count FROM users_follows WHERE followingId = ${myId} AND followerId = ${userId}`,
-    );
-    return row[0].count > 0;
-  }
-
-  async isBlocking(myId: number, userId: number) {
-    const row = await this.userRepository.manager.query(
-      `SELECT COUNT(*) as count FROM user_to_block WHERE blockerId = ${myId} AND blockedId = ${userId} AND blockType = 'BLOCKING'`,
+      `SELECT COUNT(*) as count FROM follow WHERE followingId = ${myId} AND followerId = ${userId}`,
     );
     return row[0].count > 0;
   }
@@ -515,7 +362,7 @@ export class UserService {
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
       .innerJoin(
-        `(SELECT followerId FROM users_follows WHERE followingId = ${userId} ${cursorWhere} ORDER BY followerId DESC LIMIT ${limit})`,
+        `(SELECT followerId FROM follow WHERE followingId = ${userId} ${cursorWhere} ORDER BY followerId DESC LIMIT ${limit})`,
         'u_f',
         'u.id = u_f.followerId',
       );
@@ -527,7 +374,7 @@ export class UserService {
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
       .innerJoin(
-        `(SELECT followingId FROM users_follows WHERE followerId = ${userId} ${cursorWhere} ORDER BY followingId DESC LIMIT ${limit})`,
+        `(SELECT followingId FROM follow WHERE followerId = ${userId} ${cursorWhere} ORDER BY followingId DESC LIMIT ${limit})`,
         'u_f',
         'u.id = u_f.followingId',
       );
@@ -539,14 +386,14 @@ export class UserService {
       .createQueryBuilder('u')
       .innerJoin(
         'u.blockedUsers',
-        'bu',
-        `bu.blockerId = ${userId} AND bu.blockType = "BLOCKING"`,
+        'b',
+        `b.blockerId = ${userId} AND b.blockType = "BLOCKING"`,
       )
       .orderBy('bu.id', 'DESC')
       .limit(limit);
 
     if (cursor) {
-      dbQuery.andWhere('bu.id < :cursor', { cursor });
+      dbQuery.andWhere('b.id < :cursor', { cursor });
     }
     return dbQuery.getMany();
   }
@@ -596,38 +443,6 @@ export class UserService {
     );
   }
 
-  incrementUserCount(
-    manager: EntityManager,
-    userId: number,
-    property: string,
-    count = 1,
-  ) {
-    return manager.increment(
-      UserCount,
-      {
-        userId,
-      },
-      property,
-      count,
-    );
-  }
-
-  decrementUserCount(
-    manager: EntityManager,
-    userId: number,
-    property: string,
-    count = 1,
-  ) {
-    return manager.decrement(
-      UserCount,
-      {
-        userId,
-      },
-      property,
-      count,
-    );
-  }
-
   async updateFcmToken(userId: number, fcmToken: string) {
     await this.userRepository.update(userId, {
       fcmToken,
@@ -635,7 +450,7 @@ export class UserService {
     return;
   }
 
-  async changePushAlarmOff(userId: number, isOff: boolean) {
+  async changePushAlarm(userId: number, isOff: boolean) {
     await this.userRepository.update(userId, {
       isPushAlarmOff: isOff,
     });

@@ -1,4 +1,3 @@
-import { ApiHideProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -9,7 +8,6 @@ import {
 
 @Entity()
 export class Link {
-  @ApiHideProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -28,11 +26,9 @@ export class Link {
   @Column()
   ogUrl: string;
 
-  @ApiHideProperty()
   @CreateDateColumn()
   createdAt: Date;
 
-  @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 }

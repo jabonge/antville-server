@@ -1,4 +1,3 @@
-import { ApiHideProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -14,7 +13,6 @@ import { Stock } from './stock.entity';
 
 @Entity()
 export class StockMeta {
-  @ApiHideProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -32,19 +30,15 @@ export class StockMeta {
   })
   isPopular: number;
 
-  @ApiHideProperty()
   @CreateDateColumn({ select: false })
   createdAt: Date;
 
-  @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 
-  @ApiHideProperty()
   @RelationId((stockMeta: StockMeta) => stockMeta.stock)
   stockId: number;
 
-  @ApiHideProperty()
   @OneToOne(() => Stock, (stock) => stock.stockMeta, {
     onDelete: 'CASCADE',
   })

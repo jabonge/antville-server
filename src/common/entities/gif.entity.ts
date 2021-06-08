@@ -1,4 +1,3 @@
-import { ApiHideProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -21,11 +20,9 @@ export class GifImage {
   @Column()
   tinyGifUrl: string;
 
-  @ApiHideProperty()
   @CreateDateColumn({ select: false })
   createdAt: Date;
 
-  @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 }

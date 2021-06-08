@@ -7,14 +7,15 @@ import { Link } from '../../common/entities/link.entity';
 import { findAtSignNickname, findLinks, getOgTags } from '../../util/post';
 import { NotificationService } from '../notification/notification.service';
 import { PostCount } from '../post/entities/post-count.entity';
-import { UserToBlock } from '../user/entities/user-block.entity';
+import { UserBlock } from '../user/entities/user-block.entity';
 import { User } from '../user/entities/user.entity';
-import { UserService } from '../user/user.service';
+import { UserService } from '../user/services/user.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
 import { CommentCount } from './entities/comment-count.entity';
 import { CommentImg } from './entities/comment-img.entity';
 import { CommentReport } from './entities/comment-report.entity';
 import { Comment } from './entities/comment.entity';
+import { GifDto } from '../../common/dtos/gif.dto';
 
 @Injectable()
 export class CommentService {
@@ -29,17 +30,15 @@ export class CommentService {
   async createComment(
     createCommentDto: CreateCommentDto,
     user: User,
-    files: Express.MulterS3.File[],
+    file: Express.MulterS3.File,
   ) {
     const commentImgs: CommentImg[] = [];
     let link: Link;
     let gifImage: GifImage;
-    if (files.length > 0) {
-      files.forEach((f) => {
-        const img = new CommentImg();
-        img.image = f.location;
-        commentImgs.push(img);
-      });
+    if (file) {
+      const img = new CommentImg();
+      img.image = file.location;
+      commentImgs.push(img);
     } else if (!createCommentDto.gif) {
       const firstlink = findLinks(createCommentDto.body);
       if (firstlink) {
@@ -54,7 +53,7 @@ export class CommentService {
         }
       }
     } else if (createCommentDto.gif) {
-      const gifDto = JSON.parse(createCommentDto.gif);
+      const gifDto = JSON.parse(createCommentDto.gif) as GifDto;
       gifImage = new GifImage();
       gifImage.id = gifDto.gifId;
       gifImage.gifUrl = gifDto.gifUrl;
@@ -136,9 +135,9 @@ export class CommentService {
           const subQuery = qb
             .subQuery()
             .select()
-            .from(UserToBlock, 'utb')
-            .where(`utb.blockerId = ${userId}`)
-            .andWhere(`c.authorId = utb.blockedId`)
+            .from(UserBlock, 'ub')
+            .where(`ub.blockerId = ${userId}`)
+            .andWhere(`c.authorId = ub.blockedId`)
             .getQuery();
           return 'NOT EXISTS ' + subQuery;
         })
@@ -175,9 +174,9 @@ export class CommentService {
           const subQuery = qb
             .subQuery()
             .select()
-            .from(UserToBlock, 'utb')
-            .where(`utb.blockerId = ${userId}`)
-            .andWhere(`c.authorId = utb.blockedId`)
+            .from(UserBlock, 'ub')
+            .where(`ub.blockerId = ${userId}`)
+            .andWhere(`c.authorId = ub.blockedId`)
             .getQuery();
           return 'NOT EXISTS ' + subQuery;
         })
@@ -258,7 +257,7 @@ export class CommentService {
 
   async isLiked(myId: number, commentId: number) {
     const row = await this.connection.manager.query(
-      `SELECT COUNT(*) as count FROM comments_likers WHERE userId = ${myId} AND commentId = ${commentId}`,
+      `SELECT COUNT(*) as count FROM comment_liker WHERE userId = ${myId} AND commentId = ${commentId}`,
     );
 
     return row[0].count > 0;

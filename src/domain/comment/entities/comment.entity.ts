@@ -13,12 +13,10 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Exclude, Expose } from 'class-transformer';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Link } from '../../../common/entities/link.entity';
 import { GifImage } from '../../../common/entities/gif.entity';
 import { CommentImg } from './comment-img.entity';
 import { CommentCount } from './comment-count.entity';
-import { CommentReport } from './comment-report.entity';
 import { Post } from '../../post/entities/post.entity';
 
 @Entity()
@@ -34,37 +32,29 @@ export class Comment {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 
   @OneToMany(() => CommentImg, (img) => img.comment, { cascade: ['insert'] })
   commentImgs: CommentImg[];
 
-  @OneToMany(() => CommentReport, (report) => report.comment)
-  reports: CommentReport[];
-
   @Column({ type: 'int' })
   postId: number;
 
-  @ApiHideProperty()
-  @ManyToOne(() => Post, (p) => p.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Post, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })
   post: Post;
 
   @Column({ type: 'int', nullable: true })
   parentCommentId: number;
 
-  @ApiHideProperty()
   @ManyToOne(() => Comment, (c) => c.comments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'parentCommentId' })
   parentComment: Comment;
 
-  @ApiHideProperty()
   @OneToMany(() => Comment, (c) => c.parentComment)
   comments: Comment[];
 
-  @ApiHideProperty()
   @Exclude()
   @Column({ nullable: true, select: false })
   linkId: string;
@@ -73,7 +63,6 @@ export class Comment {
   @JoinColumn({ name: 'linkId' })
   link?: Link;
 
-  @ApiHideProperty()
   @Exclude()
   @Column({ nullable: true, select: false })
   gifId: string;
@@ -82,10 +71,9 @@ export class Comment {
   @JoinColumn({ name: 'gifId' })
   gifImage?: GifImage;
 
-  @ApiHideProperty()
   @ManyToMany(() => User, { onDelete: 'CASCADE' })
   @JoinTable({
-    name: 'comments_likers',
+    name: 'comment_liker',
     joinColumn: {
       name: 'commentId',
       referencedColumnName: 'id',
@@ -98,18 +86,16 @@ export class Comment {
   @Exclude()
   likers: User[];
 
-  @ApiHideProperty()
   @Column({ type: 'int', nullable: true, select: false })
   authorId: number | null;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'authorId' })
   author: User;
 
   @OneToOne(() => CommentCount, (c) => c.comment, { cascade: ['insert'] })
   commentCount: CommentCount;
 
-  @ApiProperty({ type: 'boolean' })
   @Expose({ name: 'isLikedSelf' })
   isLikedSelf() {
     return this.likers?.length === 1;

@@ -1,4 +1,4 @@
-import { UserService } from '../../user/user.service';
+import { UserService } from '../../user/services/user.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../auth.interface';
 import { ExtractJwt, Strategy } from 'passport-jwt';

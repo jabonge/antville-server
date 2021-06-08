@@ -4,13 +4,13 @@ import {
   Body,
   UseGuards,
   UseInterceptors,
-  UploadedFiles,
   Get,
   Param,
   Query,
   ClassSerializerInterceptor,
   Delete,
   BadRequestException,
+  UploadedFile,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../infra/decorators/user.decorator';
@@ -33,13 +33,13 @@ export class CommentController {
   @UseGuards(JwtAuthGuard)
   create(
     @CurrentUser() user: User,
-    @UploadedFiles() files: Express.MulterS3.File[],
+    @UploadedFile() file: Express.MulterS3.File,
     @Body() createCommentDto: CreateCommentDto,
   ) {
     if (!user.isEmailVerified) {
       throw new BadRequestException(CustomError.EMAIL_NOT_VERIFIED);
     }
-    return this.commentService.createComment(createCommentDto, user, files);
+    return this.commentService.createComment(createCommentDto, user, file);
   }
 
   @Get(':id/first')
@@ -81,13 +81,13 @@ export class CommentController {
     return this.commentService.likeComment(user, +id);
   }
 
-  @Post(':id/unLike')
+  @Delete(':id/like')
   @UseGuards(JwtAuthGuard)
   unLikeComment(@Param('id') id: string, @CurrentUser() user: User) {
     return this.commentService.unLikeComment(user.id, +id);
   }
 
-  @Post(':id/createReport')
+  @Post(':id/report')
   @UseGuards(JwtAuthGuard)
   createCommentReport(@Param('id') id: string, @CurrentUser() user: User) {
     return this.commentService.createReport(user.id, +id);

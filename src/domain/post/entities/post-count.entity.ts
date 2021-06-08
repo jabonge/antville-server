@@ -8,11 +8,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Post } from './post.entity';
-import { ApiHideProperty } from '@nestjs/swagger';
 
 @Entity()
 export class PostCount {
-  @ApiHideProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -28,19 +26,15 @@ export class PostCount {
   })
   commentCount: number;
 
-  @ApiHideProperty()
   @CreateDateColumn()
   createdAt: Date;
 
-  @ApiHideProperty()
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
 
-  @ApiHideProperty()
   @Column({ type: 'int', nullable: true, select: false })
   postId: number | null;
 
-  @ApiHideProperty()
   @OneToOne(() => Post, (p) => p.postCount, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })
   post: Post;
