@@ -22,7 +22,7 @@ export class AuthController {
   reIssueAccessToken(@Body() { refreshToken }: { refreshToken: string }) {
     const token = this.authService.reIssueAccessToken(refreshToken);
     return {
-      token,
+      accessToken: token,
     };
   }
   @UseGuards(LocalAuthGuard)
