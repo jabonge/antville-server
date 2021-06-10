@@ -28,7 +28,7 @@ export class StockController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('watchList')
+  @Get('watchlist')
   getWatchList(@CurrentUser() user: User): Promise<StocksResponseDto> {
     return this.stockService.getWatchListWithStockPriceInfo(user.id);
   }

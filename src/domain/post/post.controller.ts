@@ -95,6 +95,16 @@ export class PostController {
     return this.postService.findAllPostByFollowing(user.id, +cursor, +limit);
   }
 
+  @Get('popular')
+  @UseGuards(ConditionAuthGuard)
+  findAllPopularStockPost(
+    @Query('cursor') cursor: string,
+    @Query('limit') limit: string,
+    @CurrentUser() me?: User,
+  ) {
+    return this.postService.findAllPopularStockPost(+cursor, +limit, me?.id);
+  }
+
   @Get(':id/user')
   @UseGuards(ConditionAuthGuard)
   findAllUserPost(

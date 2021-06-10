@@ -160,6 +160,10 @@ export class PostService {
     return this.postRepository.findAllPostByFollowing(userId, cursor, limit);
   }
 
+  async findAllPopularStockPost(cursor: number, limit: number, myId?: number) {
+    return this.postRepository.findAllPopularStockPost(cursor, limit, myId);
+  }
+
   async findAllPostByWatchList(userId: number, cursor: number, limit: number) {
     return this.postRepository.findAllPostByWatchList(userId, cursor, limit);
   }
