@@ -18,7 +18,7 @@ export class PostImg {
   @Column()
   image: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   createdAt: Date;
 
   @UpdateDateColumn({ select: false })

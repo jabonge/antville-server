@@ -52,6 +52,7 @@ export class Post {
   postImgs: PostImg[];
 
   @Column({ nullable: true, select: false })
+  @Exclude()
   linkId: string;
 
   @ManyToOne(() => Link, { cascade: ['insert'] })
@@ -59,6 +60,7 @@ export class Post {
   link?: Link;
 
   @Column({ nullable: true, select: false })
+  @Exclude()
   gifId: string;
 
   @ManyToOne(() => GifImage, { cascade: ['insert'] })
@@ -81,6 +83,7 @@ export class Post {
   likers: User[];
 
   @Column({ type: 'int', nullable: true, select: false })
+  @Exclude()
   authorId: number | null;
 
   @ManyToOne(() => User)
@@ -88,6 +91,7 @@ export class Post {
   author: User;
 
   @OneToMany(() => StockPost, (sp) => sp.post, { cascade: ['insert'] })
+  @Exclude()
   stockPosts: StockPost[];
 
   @OneToOne(() => PostCount, (c) => c.post, { cascade: ['insert'] })

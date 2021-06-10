@@ -6,12 +6,14 @@ import {
   Entity,
   Index,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { StockCount } from './stock-count.entity';
+import { Watchlist } from '../../user/entities/watchlist.entity';
 
 export enum StockType {
   ETF = 'ETF',
@@ -73,6 +75,9 @@ export class Stock {
 
   @ManyToOne(() => Exchange, (exchange) => exchange.stocks)
   exchange: Exchange;
+
+  @OneToMany(() => Watchlist, (w) => w.stock)
+  watchUsers: Watchlist[];
 
   @OneToOne(() => StockCount, (c) => c.stock, { cascade: ['insert'] })
   stockCount?: StockCount;

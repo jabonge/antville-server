@@ -24,14 +24,14 @@ export class WatchlistController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id/remove')
+  @Delete(':id')
   async removeWatchList(@CurrentUser() user: User, @Param('id') id: string) {
     await this.watchlistService.removeWatchList(user.id, +id);
     return;
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete('removes')
+  @Delete()
   async removeWatchLists(
     @CurrentUser() user: User,
     @Body() { stockIds }: Record<'stockIds', number[]>,

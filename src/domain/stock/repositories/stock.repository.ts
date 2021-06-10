@@ -148,7 +148,7 @@ export class StockRepository extends Repository<Stock> {
       .getMany();
   }
 
-  async getTopAboardStockList(): Promise<Stock[]> {
+  async getTopUsStockList(): Promise<Stock[]> {
     return this.createQueryBuilder('s')
       .select([
         's.id',

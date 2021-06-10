@@ -11,10 +11,11 @@ import {
   Delete,
   BadRequestException,
   UploadedFile,
+  Put,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../infra/decorators/user.decorator';
 import { User } from '../user/entities/user.entity';
 import CustomError from '../../util/constant/exception';
@@ -29,7 +30,7 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('create')
-  @UseInterceptors(FilesInterceptor('posts'))
+  @UseInterceptors(FileInterceptor('posts'))
   @UseGuards(JwtAuthGuard)
   create(
     @CurrentUser() user: User,
@@ -74,7 +75,7 @@ export class PostController {
     return this.postService.findAllPost(+cursor, +limit, user?.id);
   }
 
-  @Get('watchList')
+  @Get('watchlist')
   @UseGuards(JwtAuthGuard)
   findAllPostByWatchList(
     @Query('cursor') cursor: string,
@@ -94,23 +95,23 @@ export class PostController {
     return this.postService.findAllPostByFollowing(user.id, +cursor, +limit);
   }
 
-  @Get('user')
+  @Get(':id/user')
   @UseGuards(ConditionAuthGuard)
   findAllUserPost(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
-    @Query('id') userId: string,
+    @Param('id') userId: string,
     @CurrentUser() me?: User,
   ) {
     return this.postService.findAllUserPost(+cursor, +limit, +userId, me?.id);
   }
 
-  @Get('like')
+  @Get(':id/like')
   @UseGuards(ConditionAuthGuard)
   findAllLikedPost(
     @Query('cursor') cursor: string,
     @Query('limit') limit: string,
-    @Query('id') userId: string,
+    @Param('id') userId: string,
     @CurrentUser() me?: User,
   ) {
     return this.postService.findAllLikedPost(+cursor, +limit, +userId, me?.id);
@@ -122,7 +123,7 @@ export class PostController {
     return this.postService.deletePost(user.id, +id);
   }
 
-  @Post(':id/like')
+  @Put(':id/like')
   @UseGuards(JwtAuthGuard)
   likePost(@Param('id') id: string, @CurrentUser() user: User) {
     return this.postService.likePost(user, +id);

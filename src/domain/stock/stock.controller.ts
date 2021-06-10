@@ -43,9 +43,9 @@ export class StockController {
     return this.stockService.getTopDomesticStockList();
   }
 
-  @Get('aboard')
-  getTopAboardStockList(): Promise<Stock[]> {
-    return this.stockService.getTopAboardStockList();
+  @Get('us')
+  getTopUsStockList(): Promise<Stock[]> {
+    return this.stockService.getTopUsStockList();
   }
 
   @Get('crypto')

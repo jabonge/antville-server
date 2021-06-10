@@ -46,32 +46,32 @@ export class PostRepository extends Repository<Post> {
     const query = this.createQueryBuilder('p')
       .innerJoin(
         (qb) => {
-          const ptsSubQuery = qb
+          const spSubQuery = qb
             .subQuery()
             .select(['postId'])
-            .from(StockPost, 'pts')
-            .where(`pts.stockId = ${stockId}`)
-            .orderBy('pts.postId', 'DESC')
+            .from(StockPost, 'sp')
+            .where(`sp.stockId = ${stockId}`)
+            .orderBy('sp.postId', 'DESC')
             .limit(limit);
           if (cursor) {
-            ptsSubQuery.andWhere(`postId < ${cursor}`);
+            spSubQuery.andWhere(`postId < ${cursor}`);
           }
           if (userId) {
-            ptsSubQuery.andWhere((qb) => {
+            spSubQuery.andWhere((qb) => {
               const utbSubQuery = qb
                 .subQuery()
                 .select()
                 .from(UserBlock, 'ub')
                 .where(`ub.blockerId = ${userId}`)
-                .andWhere(`pts.authorId = ub.blockedId`)
+                .andWhere(`sp.authorId = ub.blockedId`)
                 .getQuery();
               return 'NOT EXISTS ' + utbSubQuery;
             });
           }
-          return ptsSubQuery;
+          return spSubQuery;
         },
-        'ipts',
-        'ipts.postId = p.id',
+        'isp',
+        'isp.postId = p.id',
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
@@ -93,10 +93,10 @@ export class PostRepository extends Repository<Post> {
     const query = this.createQueryBuilder('p')
       .innerJoin(
         (qb) => {
-          const ptsSubQuery = qb
+          const spSubQuery = qb
             .subQuery()
             .select(['postId'])
-            .from(StockPost, 'pts')
+            .from(StockPost, 'sp')
             .innerJoin(
               (qb) => {
                 return qb
@@ -106,28 +106,28 @@ export class PostRepository extends Repository<Post> {
                   .where(`w.userId = ${userId}`);
               },
               'iw',
-              'iw.stockId = pts.stockId',
+              'iw.stockId = sp.stockId',
             )
-            .orderBy('pts.postId', 'DESC')
+            .orderBy('sp.postId', 'DESC')
             .limit(limit);
           if (cursor) {
-            ptsSubQuery.andWhere(`postId < ${cursor}`);
+            spSubQuery.andWhere(`postId < ${cursor}`);
           }
           if (userId) {
-            ptsSubQuery.andWhere((qb) => {
+            spSubQuery.andWhere((qb) => {
               const utbSubQuery = qb
                 .subQuery()
                 .from(UserBlock, 'ub')
                 .where(`ub.blockerId = ${userId}`)
-                .andWhere(`pts.authorId = ub.blockedId`)
+                .andWhere(`sp.authorId = ub.blockedId`)
                 .getQuery();
               return 'NOT EXISTS ' + utbSubQuery;
             });
           }
-          return ptsSubQuery;
+          return spSubQuery;
         },
-        'ipts',
-        'ipts.postId = p.id',
+        'isp',
+        'isp.postId = p.id',
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
@@ -185,6 +185,63 @@ export class PostRepository extends Repository<Post> {
     }
     return query.getOne();
   }
+
+  // async findAllPopularStockPost(
+  //   cursor: number,
+  //   limit: number,
+  //   userId: number,
+  //   myId?: number,
+  // ) {
+  //   const query = this.createQueryBuilder('p')
+  //     .innerJoin(
+  //       (qb) => {
+  //         const spSubQuery = qb
+  //           .subQuery()
+  //           .select(['postId'])
+  //           .from(StockPost, 'sp')
+  //           .where(`sp.stockId = ${stockId}`)
+  //           .orderBy('sp.postId', 'DESC')
+  //           .limit(limit);
+  //         if (cursor) {
+  //           spSubQuery.andWhere(`postId < ${cursor}`);
+  //         }
+  //         if (userId) {
+  //           spSubQuery.andWhere((qb) => {
+  //             const utbSubQuery = qb
+  //               .subQuery()
+  //               .select()
+  //               .from(UserBlock, 'ub')
+  //               .where(`ub.blockerId = ${userId}`)
+  //               .andWhere(`sp.authorId = ub.blockedId`)
+  //               .getQuery();
+  //             return 'NOT EXISTS ' + utbSubQuery;
+  //           });
+  //         }
+  //         return spSubQuery;
+  //       },
+  //       'isp',
+  //       'isp.postId = p.id',
+  //     )
+  //     .leftJoin('p.postImgs', 'postImg')
+  //     .addSelect('postImg.image')
+  //     .leftJoinAndSelect('p.author', 'author')
+  //     .leftJoin('p.postCount', 'postCount')
+  //     .addSelect(['postCount.likeCount', 'postCount.commentCount'])
+  //     .addSelect(['u.id'])
+  //     .leftJoinAndSelect('p.link', 'link')
+  //     .leftJoinAndSelect('p.gifImage', 'gif')
+  //     .orderBy('p.id', 'DESC')
+  //     .take(limit);
+  //   if (cursor) {
+  //     query.andWhere('p.id < :cursor', { cursor });
+  //   }
+  //   if (myId) {
+  //     query
+  //       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId: myId })
+  //       .addSelect(['u.id']);
+  //   }
+  //   return query.getMany();
+  // }
 
   async findAllUserPost(
     cursor: number,

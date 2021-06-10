@@ -43,8 +43,8 @@ export class StockService {
     return await this.stockRepository.getTopDomesticStockList();
   }
 
-  async getTopAboardStockList() {
-    return await this.stockRepository.getTopAboardStockList();
+  async getTopUsStockList() {
+    return await this.stockRepository.getTopUsStockList();
   }
 
   async getTopCryptoStockList() {

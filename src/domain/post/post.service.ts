@@ -106,7 +106,6 @@ export class PostService {
       }
 
       await manager.save(post);
-      delete post.postStockPrice;
       await manager.increment(UserCount, { userId: user.id }, 'postCount', 1);
       await this.createUserTagNotification(
         manager,
@@ -194,10 +193,11 @@ export class PostService {
   }
 
   async deletePost(userId: number, postId: number) {
-    return this.postRepository.delete({
+    await this.postRepository.delete({
       authorId: userId,
       id: postId,
     });
+    return;
   }
 
   async likePost(user: User, postId: number) {

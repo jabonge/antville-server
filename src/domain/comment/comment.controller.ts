@@ -11,8 +11,9 @@ import {
   Delete,
   BadRequestException,
   UploadedFile,
+  Put,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../../infra/decorators/user.decorator';
 import {
   ConditionAuthGuard,
@@ -29,7 +30,7 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post('create')
-  @UseInterceptors(FilesInterceptor('comments'))
+  @UseInterceptors(FileInterceptor('comments'))
   @UseGuards(JwtAuthGuard)
   create(
     @CurrentUser() user: User,
@@ -75,7 +76,7 @@ export class CommentController {
     return this.commentService.deleteComment(user.id, +id);
   }
 
-  @Post(':id/like')
+  @Put(':id/like')
   @UseGuards(JwtAuthGuard)
   likeComment(@Param('id') id: string, @CurrentUser() user: User) {
     return this.commentService.likeComment(user, +id);

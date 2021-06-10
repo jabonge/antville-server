@@ -190,10 +190,11 @@ export class CommentService {
   }
 
   async deleteComment(userId: number, commentId: number) {
-    return this.commentRepository.delete({
+    await this.commentRepository.delete({
       authorId: userId,
       id: commentId,
     });
+    return;
   }
 
   async likeComment(user: User, commentId: number) {

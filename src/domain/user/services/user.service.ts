@@ -111,9 +111,9 @@ export class UserService {
       { select: ['id'] },
     );
     if (user) {
-      return { available: true };
+      return { available: false };
     }
-    return { available: false };
+    return { available: true };
   }
 
   async nicknameDuplicateCheck(nickname: string) {
@@ -122,9 +122,9 @@ export class UserService {
       { select: ['id'] },
     );
     if (user) {
-      return { available: true };
+      return { available: false };
     }
-    return { available: false };
+    return { available: true };
   }
 
   async save(user: User) {
@@ -358,25 +358,25 @@ export class UserService {
   }
 
   findFollowers(userId: number, cursor: number, limit: number) {
-    const cursorWhere = cursor ? `AND  < ${cursor}` : '';
+    const cursorWhere = cursor ? `AND followerId < ${cursor}` : '';
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
       .innerJoin(
         `(SELECT followerId FROM follow WHERE followingId = ${userId} ${cursorWhere} ORDER BY followerId DESC LIMIT ${limit})`,
-        'u_f',
-        'u.id = u_f.followerId',
+        'f',
+        'u.id = f.followerId',
       );
     return dbQuery.getMany();
   }
 
   findFollowing(userId: number, cursor: number, limit: number) {
-    const cursorWhere = cursor ? `AND  < ${cursor}` : '';
+    const cursorWhere = cursor ? `AND followingId < ${cursor}` : '';
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
       .innerJoin(
         `(SELECT followingId FROM follow WHERE followerId = ${userId} ${cursorWhere} ORDER BY followingId DESC LIMIT ${limit})`,
-        'u_f',
-        'u.id = u_f.followingId',
+        'f',
+        'u.id = f.followingId',
       );
     return dbQuery.getMany();
   }
@@ -389,11 +389,11 @@ export class UserService {
         'b',
         `b.blockerId = ${userId} AND b.blockType = "BLOCKING"`,
       )
-      .orderBy('bu.id', 'DESC')
+      .orderBy('u.id', 'DESC')
       .limit(limit);
 
     if (cursor) {
-      dbQuery.andWhere('b.id < :cursor', { cursor });
+      dbQuery.andWhere('u.id < :cursor', { cursor });
     }
     return dbQuery.getMany();
   }
@@ -432,8 +432,8 @@ export class UserService {
     return { profileImg: profileImg.location };
   }
 
-  removeProfileImg(userId: number) {
-    return this.userRepository.update(
+  async removeProfileImg(userId: number) {
+    await this.userRepository.update(
       {
         id: userId,
       },
@@ -441,6 +441,7 @@ export class UserService {
         profileImg: null,
       },
     );
+    return;
   }
 
   async updateFcmToken(userId: number, fcmToken: string) {

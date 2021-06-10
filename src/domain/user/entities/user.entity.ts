@@ -12,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
 
@@ -19,6 +20,7 @@ import { UserCount } from './user-count.entity';
 
 import CustomError from '../../../util/constant/exception';
 import { Exclude, Expose } from 'class-transformer';
+import { UserBlock } from './user-block.entity';
 
 @Entity()
 export class User {
@@ -98,6 +100,9 @@ export class User {
     },
   })
   following: User[];
+
+  @OneToMany(() => UserBlock, (utb) => utb.blockedUser)
+  blockedUsers: UserBlock[];
 
   @OneToOne(() => UserCount, (c) => c.user, { cascade: ['insert'] })
   userCount: UserCount;
