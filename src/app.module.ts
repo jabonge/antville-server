@@ -10,6 +10,7 @@ import { CommentModule } from './domain/comment/comment.module';
 import { getEnvFilePath } from './util';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
+import { ChartModule } from './domain/chart/chart.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SharedModule } from './shared/shared.module';
     PostModule,
     NotificationModule,
     CommentModule,
+    ChartModule,
   ],
   controllers: [],
   providers: [AppGateway],

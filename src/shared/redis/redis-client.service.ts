@@ -3,19 +3,22 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import redis, { RedisClient } from 'redis';
 import { promisify } from 'util';
-import { plainToClass } from 'class-transformer';
+import { plainToClass, classToPlain } from 'class-transformer';
+import { ChartData } from '../../domain/chart/interfaces/chart.interface';
 
 @Injectable()
 export class RedisClientWrapper {
   private readonly client: RedisClient;
   private readonly getAsync;
   private readonly mgetAsync;
+  private readonly setAsync;
 
   constructor(private readonly configService: ConfigService) {
     const host = this.configService.get<string>('REDIS_HOST');
     const port = this.configService.get<number>('REDIS_PORT');
     const password = this.configService.get<string>('REDIS_PASSWORD');
     this.client = redis.createClient(port, host, { password });
+    this.setAsync = promisify(this.client.set).bind(this.client);
     this.getAsync = promisify(this.client.get).bind(this.client);
     this.mgetAsync = promisify(this.client.mget).bind(this.client);
   }
@@ -40,5 +43,28 @@ export class RedisClientWrapper {
         return plainToClass(StockPriceInfoDto, JSON.parse(s));
       });
     return stockPriceInfos;
+  }
+
+  getChartInfo(key: string) {
+    return this.getAsync(key);
+  }
+
+  setChartInfo(key: string, value: string) {
+    return this.setAsync(key, value);
+  }
+
+  async getChartData(key: string) {
+    const chartDataString = await this.getAsync(key);
+    if (!chartDataString) {
+      return [];
+    }
+    const chartData: ChartData[] = JSON.parse(chartDataString).map((v) =>
+      plainToClass(ChartData, v),
+    );
+    return chartData;
+  }
+
+  setChartData(key: string, data: ChartData[]) {
+    return this.setAsync(key, JSON.stringify(classToPlain(data)));
   }
 }
