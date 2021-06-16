@@ -81,7 +81,13 @@ export class NotificationService {
       .createQueryBuilder('n')
       .where(`n.viewerId = ${userId}`)
       .leftJoin('n.sender', 'sender')
-      .addSelect(['sender.id', 'sender.nickname', 'sender.profileImg'])
+      .addSelect([
+        'sender.id',
+        'sender.nickname',
+        'sender.profileImg',
+        'sender.wadizBadge',
+        'sender.influencerBadge',
+      ])
       .orderBy('n.id', 'DESC')
       .limit(limit);
     if (cursor) {

@@ -47,7 +47,7 @@ export class UserService {
   async findByNicknames(nicknames: string[], user: User) {
     const users = await this.userRepository
       .createQueryBuilder('u')
-      .select(['u.id', 'u.nickname', 'u.profileImg'])
+      .select(['u.id', 'u.nickname'])
       .where('u.nickname IN (:...nicknames)', { nicknames })
       .andWhere((qb) => {
         const subQuery = qb

@@ -62,6 +62,16 @@ export class User {
   subscribeNewsLetter: boolean;
 
   @Column({
+    default: false,
+  })
+  wadizBadge: boolean;
+
+  @Column({
+    default: false,
+  })
+  influencerBadge: boolean;
+
+  @Column({
     nullable: true,
   })
   bio?: string;
