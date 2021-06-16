@@ -26,6 +26,11 @@ export interface UpbitCandleData {
 //   unit: 10
 //   }
 
+export interface UsStockDayFullData {
+  symbol: string;
+  historical: UsStockCandleData[];
+}
+
 export interface UsStockCandleData {
   date: string;
   open: number;
@@ -36,7 +41,7 @@ export interface UsStockCandleData {
 }
 
 // {
-//   date: "2021-06-11 16:00:00",
+//   date: "2021-06-11 16:00:00", or "2021-06-12"
 //   open: 127.26,
 //   low: 127.205,
 //   high: 127.34,
@@ -46,6 +51,7 @@ export interface UsStockCandleData {
 export class ChartInfo {
   updatedAt?: string;
   lastChartDate?: string;
+  length?: number;
 }
 
 export class ChartData {
@@ -85,7 +91,7 @@ export class ChartData {
 
   static usCandleToChartData(data: UsStockCandleData) {
     return new ChartData(
-      data.date.split(' ')[1].substring(0, 5),
+      data.date,
       data.open,
       data.low,
       data.high,

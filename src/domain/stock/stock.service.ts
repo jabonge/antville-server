@@ -17,6 +17,16 @@ export class StockService {
     });
   }
 
+  findBySymbol(symbol: string) {
+    return this.stockRepository.findOneOrFail({
+      select: ['type', 'id'],
+      where: {
+        symbol,
+      },
+      relations: ['exchange'],
+    });
+  }
+
   async search(query: string, cursor: number, limit: number) {
     const stocks = await this.stockRepository.searchStock(query, cursor, limit);
     return stocks;
