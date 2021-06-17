@@ -7,6 +7,7 @@ import {
   getDay,
   getHours,
   parseISO,
+  startOfDay,
   startOfHour,
   subDays,
   subMonths,
@@ -198,25 +199,24 @@ export class ChartService {
       console.log(`chartInfo.length: ${chartInfo.length}`);
 
       const diff = differenceInMinutes(now, lastChartDate);
+      console.log(`diff : ${diff}`);
 
-      console.log(`diff: ${diff}`);
-      if (diff < 5) {
-        return false;
-      } else {
-        if (this.isUsStockMarketOpen()) {
+      if (this.isUsStockMarketOpen()) {
+        if (diff > 5) {
           return true;
         } else {
-          if (chartInfo.length < 79) {
-            return true;
-          } else {
-            const nowUpdateAtDiff = differenceInDays(now, updatedAt);
-            console.log(`nowUpdateAtDiff: ${nowUpdateAtDiff}`);
-            if (nowUpdateAtDiff > 0) {
-              return true;
-            } else {
-              return false;
-            }
+          return false;
+        }
+      } else {
+        if (chartInfo.length < 79) {
+          return true;
+        } else {
+          const isSameDayNowAndUpdateAt =
+            differenceInDays(startOfDay(now), startOfDay(updatedAt)) === 0;
+          if (isSameDayNowAndUpdateAt) {
+            return this.isIncludeStockMaketTime(now, updatedAt);
           }
+          return true;
         }
       }
     } else if (type === ChartType.Week) {
@@ -234,29 +234,31 @@ export class ChartService {
           timeZone: nyTimeZone,
         }),
       );
-      const diff = differenceInMinutes(now, lastChartDate);
+
       console.log(`now: ${now}`);
       console.log(`lastChartDate: ${lastChartDate}`);
       console.log(`updatedAt: ${updatedAt}`);
       console.log(`chartInfo.length: ${chartInfo.length}`);
+
+      const diff = differenceInMinutes(now, lastChartDate);
       console.log(`diff: ${diff}`);
-      if (diff < 30) {
-        return false;
-      } else {
-        if (this.isUsStockMarketOpen()) {
+
+      if (this.isUsStockMarketOpen()) {
+        if (diff > 30) {
           return true;
         } else {
-          if (chartInfo?.length % 14 !== 0) {
-            return true;
-          } else {
-            const nowUpdateAtDiff = differenceInDays(now, updatedAt);
-            console.log(`nowUpdateAtDiff: ${nowUpdateAtDiff}`);
-            if (nowUpdateAtDiff > 0) {
-              return true;
-            } else {
-              return false;
-            }
+          return false;
+        }
+      } else {
+        if (chartInfo.length % 14 !== 0) {
+          return true;
+        } else {
+          const isSameDayNowAndUpdateAt =
+            differenceInMinutes(startOfDay(now), startOfDay(updatedAt)) === 0;
+          if (isSameDayNowAndUpdateAt) {
+            return this.isIncludeStockMaketTime(now, updatedAt);
           }
+          return true;
         }
       }
     } else if (
@@ -290,7 +292,7 @@ export class ChartService {
       } else {
         const nowUpdateAtDiff = differenceInDays(now, updatedAt);
         console.log(nowUpdateAtDiff);
-        if (nowUpdateAtDiff > 0) {
+        if (nowUpdateAtDiff !== 0) {
           return true;
         } else {
           return false;
@@ -370,6 +372,24 @@ export class ChartService {
         return false;
       }
       return true;
+    }
+  }
+
+  isIncludeStockMaketTime(now: Date, updatedAt: Date) {
+    const day = getDay(now);
+    if (day === 0 || day === 6) {
+      return false;
+    } else {
+      const nowHour = getHours(now);
+      const updateAtHour = getHours(updatedAt);
+      const diffTime = differenceInMinutes(now, updatedAt);
+      console.log(`diffTime: ${diffTime}`);
+      if (updateAtHour < 9 || nowHour > 16) {
+        if (diffTime > 390) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 }
