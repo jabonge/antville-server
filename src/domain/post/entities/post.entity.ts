@@ -91,7 +91,6 @@ export class Post {
   author: User;
 
   @OneToMany(() => StockPost, (sp) => sp.post, { cascade: ['insert'] })
-  @Exclude()
   stockPosts: StockPost[];
 
   @OneToOne(() => PostCount, (c) => c.post, { cascade: ['insert'] })

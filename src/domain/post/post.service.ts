@@ -106,6 +106,7 @@ export class PostService {
       }
 
       await manager.save(post);
+      delete post.postStockPrice;
       await manager.increment(UserCount, { userId: user.id }, 'postCount', 1);
       await this.createUserTagNotification(
         manager,
