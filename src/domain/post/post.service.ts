@@ -92,14 +92,17 @@ export class PostService {
           return ps;
         });
         post.stockPosts = stockPosts;
-        if (stocks[0]) {
+        const firstCashTagStock = stocks.find(
+          (v) => v.cashTagName === cashTags[0],
+        );
+        if (firstCashTagStock) {
           const priceInfo = await this.stockService.getPrices([
-            stocks[0].symbol,
+            firstCashTagStock.symbol,
           ]);
           if (priceInfo[0] && priceInfo[0].latest) {
             const postStockPrice = new PostStockPrice();
             postStockPrice.price = priceInfo[0].latest;
-            postStockPrice.stockId = stocks[0].id;
+            postStockPrice.stockId = firstCashTagStock.id;
             post.postStockPrice = postStockPrice;
           }
         }
@@ -293,9 +296,10 @@ export class PostService {
     postId: number,
   ) {
     let users: User[];
-    const userNicknames = findAtSignNickname(body);
-    if (userNicknames.length > 0) {
-      users = await this.userService.findByNicknames(userNicknames, user);
+    const findNicknames = findAtSignNickname(body);
+    const removeSelf = findNicknames.filter((v) => v !== user.nickname);
+    if (removeSelf.length > 0) {
+      users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
       await this.notificationService.createUserTagNotification(

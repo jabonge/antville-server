@@ -283,9 +283,10 @@ export class CommentService {
     postId: number,
   ) {
     let users: User[];
-    const userNicknames = findAtSignNickname(body);
-    if (userNicknames.length > 0) {
-      users = await this.userService.findByNicknames(userNicknames, user);
+    const findNicknames = findAtSignNickname(body);
+    const removeSelf = findNicknames.filter((v) => v !== user.nickname);
+    if (removeSelf.length > 0) {
+      users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
       await this.notificationService.createUserTagNotification(

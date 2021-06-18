@@ -44,7 +44,7 @@ export class UserService {
     );
   }
 
-  async findByNicknames(nicknames: string[], user: User) {
+  async findByNicknames(nicknames: string[], userId: number) {
     const users = await this.userRepository
       .createQueryBuilder('u')
       .select(['u.id', 'u.nickname'])
@@ -54,7 +54,7 @@ export class UserService {
           .subQuery()
           .select()
           .from(UserBlock, 'ub')
-          .where(`ub.blockerId = ${user.id}`)
+          .where(`ub.blockerId = ${userId}`)
           .andWhere(`u.id = ub.blockedId`)
           .getQuery();
         return 'NOT EXISTS ' + subQuery;
