@@ -18,7 +18,7 @@ export class UsStockApiService {
       )
       .toPromise();
     if (data.length > 79) {
-      data = data.slice(0, data.length - 79);
+      data = data.slice(0, 79);
     }
     return data.map((v) => ChartData.usCandleToChartData(v));
   }

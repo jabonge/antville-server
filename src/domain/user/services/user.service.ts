@@ -451,9 +451,9 @@ export class UserService {
     return;
   }
 
-  async changePushAlarm(userId: number, isOff: boolean) {
+  async changePushAlarm(userId: number, push: boolean) {
     await this.userRepository.update(userId, {
-      isPushAlarmOff: isOff,
+      pushAlarm: push,
     });
     return;
   }
@@ -464,7 +464,7 @@ export class UserService {
       where: {
         id: In(userIds),
         fcmToken: Not(IsNull()),
-        isPushAlarmOff: false,
+        pushAlarm: true,
       },
     });
   }

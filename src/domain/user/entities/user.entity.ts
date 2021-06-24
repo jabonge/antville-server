@@ -46,10 +46,9 @@ export class User {
   fcmToken: string;
 
   @Column({
-    select: false,
-    default: false,
+    default: true,
   })
-  isPushAlarmOff: boolean;
+  pushAlarm: boolean;
 
   @Column({
     default: false,

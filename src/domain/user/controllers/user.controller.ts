@@ -153,9 +153,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   async changePushAlarm(
     @CurrentUser() user: User,
-    @Body() { isOff }: Record<'isOff', boolean>,
+    @Body() { push }: Record<'push', boolean>,
   ) {
-    return this.userService.changePushAlarm(user.id, isOff);
+    return this.userService.changePushAlarm(user.id, push);
   }
 
   @Patch('change-password')
