@@ -1,8 +1,8 @@
+import { krTimeZone } from './../../util/constant/time';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import {
   differenceInDays,
-  differenceInHours,
   differenceInMinutes,
   getDay,
   getHours,
@@ -25,6 +25,7 @@ import {
   hourMinuteFormat,
   nyTimeZone,
 } from '../../util/constant/time';
+import differenceInHours from 'date-fns/differenceInHours';
 
 export enum ChartType {
   Day = '1d',
@@ -69,24 +70,37 @@ export class ChartService {
       return true;
     }
     if (type === ChartType.Day) {
-      const diff = differenceInMinutes(
-        new Date(format(Date.now(), hourMinuteFormat)),
-        new Date(chartInfo.lastChartDate),
+      const now = new Date(
+        format(utcToZonedTime(Date.now(), krTimeZone), hourMinuteFormat),
       );
-      console.log(new Date(format(Date.now(), hourMinuteFormat)));
-      console.log(new Date(chartInfo.lastChartDate));
+      const lastChartDate = new Date(
+        format(parseISO(chartInfo.lastChartDate), hourMinuteFormat, {
+          timeZone: krTimeZone,
+        }),
+      );
+      const diff = differenceInMinutes(now, lastChartDate);
+      console.log(now);
+      console.log(lastChartDate);
       console.log(diff);
       if (diff < 5) {
         return false;
       }
       return true;
     } else if (type === ChartType.Week) {
-      const diff = differenceInHours(
-        startOfHour(Date.now()),
-        new Date(chartInfo.lastChartDate),
+      const now = new Date(
+        format(
+          utcToZonedTime(startOfHour(Date.now()), krTimeZone),
+          hourMinuteFormat,
+        ),
       );
-      console.log(startOfHour(Date.now()));
-      console.log(new Date(chartInfo.lastChartDate));
+      const lastChartDate = new Date(
+        format(parseISO(chartInfo.lastChartDate), hourMinuteFormat, {
+          timeZone: krTimeZone,
+        }),
+      );
+      const diff = differenceInHours(now, lastChartDate);
+      console.log(now);
+      console.log(lastChartDate);
       console.log(diff);
       if (diff < 1) {
         return false;
@@ -97,25 +111,34 @@ export class ChartService {
       type == ChartType.ThreeMonth ||
       type === ChartType.SixMonth
     ) {
-      const diff = differenceInDays(
-        new Date(format(Date.now(), dayFormat)),
-        new Date(chartInfo.lastChartDate),
+      const now = new Date(
+        format(utcToZonedTime(Date.now(), krTimeZone), dayFormat),
       );
-      console.log(new Date(format(Date.now(), dayFormat)));
-      console.log(new Date(chartInfo.lastChartDate));
+      const lastChartDate = new Date(
+        format(parseISO(chartInfo.lastChartDate), dayFormat, {
+          timeZone: krTimeZone,
+        }),
+      );
+      const diff = differenceInDays(now, lastChartDate);
+      console.log(now);
+      console.log(lastChartDate);
       console.log(diff);
       if (diff < 1) {
         return false;
       }
       return true;
     } else if (type === ChartType.Year) {
-      console.log(chartInfo.lastChartDate);
-      const diff = differenceInDays(
-        new Date(format(Date.now(), dayFormat)),
-        new Date(chartInfo.lastChartDate),
+      const now = new Date(
+        format(utcToZonedTime(Date.now(), krTimeZone), dayFormat),
       );
-      console.log(new Date(format(Date.now(), dayFormat)));
-      console.log(new Date(chartInfo.lastChartDate));
+      const lastChartDate = new Date(
+        format(parseISO(chartInfo.lastChartDate), dayFormat, {
+          timeZone: krTimeZone,
+        }),
+      );
+      const diff = differenceInDays(now, lastChartDate);
+      console.log(now);
+      console.log(lastChartDate);
       console.log(diff);
       if (diff < 7) {
         return false;

@@ -17,8 +17,10 @@ export class UsStockApiService {
         `${this.baseUrl}/historical-chart/5min/${market}?apikey=${process.env.FINANCIAL_API_KEY}&from=${from}&to=${to}`,
       )
       .toPromise();
-    if (data.length > 79) {
+    if (data.length > 158) {
       data = data.slice(0, 79);
+    } else if (data.length > 79) {
+      data = data.slice(0, data.length - 79);
     }
     return data.map((v) => ChartData.usCandleToChartData(v));
   }
