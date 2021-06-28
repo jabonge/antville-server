@@ -17,6 +17,7 @@ import { SlackModule } from 'nestjs-slack-webhook';
 import { WebhookInterceptor } from './infra/interceptors/slack.interceptor';
 import { LoggerMiddleware } from './infra/middlewares/logger.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -53,7 +54,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     CommentModule,
     ChartModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     AppGateway,
     {
