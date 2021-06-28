@@ -16,6 +16,7 @@ export class WebhookInterceptor implements NestInterceptor {
     private readonly slack: IncomingWebhook,
   ) {}
   intercept(_: ExecutionContext, next: CallHandler): Observable<any> {
+    if (process.env.NODE_ENV === 'local') return next.handle();
     return next.handle().pipe(
       catchError((error) => {
         this.slack.send({

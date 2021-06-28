@@ -97,8 +97,8 @@ export class AuthService {
     };
   }
 
-  async getMe(user: User): Promise<User> {
-    return this.userService.getUserProfile(user.id);
+  async getMe(id: number): Promise<User> {
+    return this.userService.getUserProfile(id);
   }
 
   async findPassword(email: string) {

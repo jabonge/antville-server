@@ -22,7 +22,13 @@ async function bootstrap() {
   app.setViewEngine('hbs');
   app.use(helmet());
   app.use(hpp());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      disableErrorMessages: process.env.NODE_ENV !== 'local',
+      stopAtFirstError: true,
+    }),
+  );
   app.useWebSocketAdapter(new WsAdapter(app));
   app.useGlobalFilters(new AVExceptionFilter());
 

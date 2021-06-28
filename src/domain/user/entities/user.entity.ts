@@ -71,6 +71,12 @@ export class User {
   influencerBadge: boolean;
 
   @Column({
+    default: false,
+    select: false,
+  })
+  isBannded: boolean;
+
+  @Column({
     nullable: true,
   })
   bio?: string;

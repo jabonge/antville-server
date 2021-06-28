@@ -12,6 +12,7 @@ import {
   BadRequestException,
   UploadedFile,
   Put,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -22,7 +23,10 @@ import CustomError from '../../util/constant/exception';
 import {
   ConditionAuthGuard,
   JwtAuthGuard,
+  JwtPayloadAuthGuard,
 } from '../../infra/guards/auth.guard';
+import { PaginationParamsDto } from '../../common/dtos/pagination-param.dto';
+import { FindOneParamDto } from '../../common/dtos/id-param.dto';
 
 @Controller('post')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -37,6 +41,9 @@ export class PostController {
     @UploadedFile() file: Express.MulterS3.File,
     @Body() createPostDto: CreatePostDto,
   ) {
+    if (user.isBannded) {
+      throw new BadRequestException(CustomError.BANNED_USER);
+    }
     if (!user.isEmailVerified) {
       throw new BadRequestException(CustomError.EMAIL_NOT_VERIFIED);
     }
@@ -46,108 +53,96 @@ export class PostController {
   @UseGuards(ConditionAuthGuard)
   @Get(':id/symbol')
   findAllPostByStockId(
-    @Param('id') id: number,
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
+    @Param() { id }: FindOneParamDto,
+    @Query() { cursor, limit }: PaginationParamsDto,
     @CurrentUser() user?: User,
   ) {
-    return this.postService.findAllPostByStockId(
-      +id,
-      +cursor,
-      +limit,
-      user?.id,
-    );
+    return this.postService.findAllPostByStockId(id, cursor, limit, user?.id);
   }
 
   @Get()
   @UseGuards(ConditionAuthGuard)
-  findOne(@Query('id') id: string, @CurrentUser() user?: User) {
+  findOne(@Query('id', ParseIntPipe) id: number, @CurrentUser() user?: User) {
     return this.postService.findOnePost(+id, user?.id);
   }
 
   @Get('all')
   @UseGuards(ConditionAuthGuard)
   findAllPost(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
     @CurrentUser() user?: User,
   ) {
-    return this.postService.findAllPost(+cursor, +limit, user?.id);
+    return this.postService.findAllPost(cursor, limit, user?.id);
   }
 
   @Get('watchlist')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   findAllPostByWatchList(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
     @CurrentUser() user: User,
   ) {
-    return this.postService.findAllPostByWatchList(user.id, +cursor, +limit);
+    return this.postService.findAllPostByWatchList(user.id, cursor, limit);
   }
 
   @Get('following')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   findAllPostByFollowing(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
     @CurrentUser() user: User,
   ) {
-    return this.postService.findAllPostByFollowing(user.id, +cursor, +limit);
+    return this.postService.findAllPostByFollowing(user.id, cursor, limit);
   }
 
   @Get('popular')
   @UseGuards(ConditionAuthGuard)
   findAllPopularStockPost(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
     @CurrentUser() me?: User,
   ) {
-    return this.postService.findAllPopularStockPost(+cursor, +limit, me?.id);
+    return this.postService.findAllPopularStockPost(cursor, limit, me?.id);
   }
 
   @Get(':id/user')
   @UseGuards(ConditionAuthGuard)
   findAllUserPost(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
-    @Param('id') userId: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
+    @Param() { id }: FindOneParamDto,
     @CurrentUser() me?: User,
   ) {
-    return this.postService.findAllUserPost(+cursor, +limit, +userId, me?.id);
+    return this.postService.findAllUserPost(cursor, limit, id, me?.id);
   }
 
   @Get(':id/like')
   @UseGuards(ConditionAuthGuard)
   findAllLikedPost(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
-    @Param('id') userId: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
+    @Param() { id }: FindOneParamDto,
     @CurrentUser() me?: User,
   ) {
-    return this.postService.findAllLikedPost(+cursor, +limit, +userId, me?.id);
+    return this.postService.findAllLikedPost(cursor, limit, id, me?.id);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  deletePost(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.postService.deletePost(user.id, +id);
+  deletePost(@Param() { id }: FindOneParamDto, @CurrentUser() user: User) {
+    return this.postService.deletePost(user.id, id);
   }
 
   @Put(':id/like')
   @UseGuards(JwtAuthGuard)
-  likePost(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.postService.likePost(user, +id);
+  likePost(@Param() { id }: FindOneParamDto, @CurrentUser() user: User) {
+    return this.postService.likePost(user, id);
   }
 
   @Delete(':id/like')
-  @UseGuards(JwtAuthGuard)
-  unLikePost(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.postService.unLikePost(user.id, +id);
+  @UseGuards(JwtPayloadAuthGuard)
+  unLikePost(@Param() { id }: FindOneParamDto, @CurrentUser() user: User) {
+    return this.postService.unLikePost(user.id, id);
   }
 
   @Post(':id/report')
   @UseGuards(JwtAuthGuard)
-  createReport(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.postService.createReport(user.id, +id);
+  createReport(@Param() { id }: FindOneParamDto, @CurrentUser() user: User) {
+    return this.postService.createReport(user.id, id);
   }
 }

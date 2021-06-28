@@ -11,11 +11,12 @@ import { getEnvFilePath } from './util';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
 import { ChartModule } from './domain/chart/chart.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { RavenInterceptor, RavenModule } from 'nest-raven';
 import { SlackModule } from 'nestjs-slack-webhook';
 import { WebhookInterceptor } from './infra/interceptors/slack.interceptor';
 import { LoggerMiddleware } from './infra/middlewares/logger.middleware';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -34,7 +35,11 @@ import { LoggerMiddleware } from './infra/middlewares/logger.middleware';
       database: process.env.DB_NAME,
       entities: ['dist/**/*.entity{.ts,.js}'],
       logging: process.env.NODE_ENV === 'local',
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: process.env.NODE_ENV === 'local',
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 10,
+      limit: 20,
     }),
     SlackModule.forRoot({
       url: process.env.SLACK_WEBHOOK_URL,
@@ -67,6 +72,10 @@ import { LoggerMiddleware } from './infra/middlewares/logger.middleware';
     {
       provide: APP_INTERCEPTOR,
       useClass: WebhookInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

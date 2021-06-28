@@ -1,6 +1,7 @@
 import { Stock, StockType } from '../entities/stock.entity';
 import { Brackets, EntityRepository, Repository } from 'typeorm';
 import { isKoreanLang } from '../../../util/stock';
+import { StockMeta } from '../entities/stock-meta.entity';
 
 @EntityRepository(Stock)
 export class StockRepository extends Repository<Stock> {
@@ -122,10 +123,21 @@ export class StockRepository extends Repository<Stock> {
         's.symbol',
         's.type',
       ])
-      .innerJoin('s.stockMeta', 'meta', 'meta.isPopular IS NOT NULL')
+      .innerJoin(
+        (qb) => {
+          const subQuery = qb
+            .subQuery()
+            .select(['stockId'])
+            .from(StockMeta, 'meta')
+            .where(`meta.isPopular IS NOT NULL`)
+            .orderBy('meta.isPopular', 'DESC');
+          return subQuery;
+        },
+        'ism',
+        'ism.stockId = s.id',
+      )
       .innerJoin('s.exchange', 'exchange')
       .addSelect(['exchange.name', 'exchange.countryCode'])
-      .orderBy('meta.isPopular', 'DESC')
       .getMany();
   }
 

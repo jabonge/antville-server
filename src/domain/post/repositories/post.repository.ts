@@ -11,7 +11,14 @@ export class PostRepository extends Repository<Post> {
     const query = this.createQueryBuilder('p')
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
@@ -76,7 +83,14 @@ export class PostRepository extends Repository<Post> {
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
@@ -131,7 +145,14 @@ export class PostRepository extends Repository<Post> {
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
@@ -171,7 +192,14 @@ export class PostRepository extends Repository<Post> {
         'ipf',
         'ipf.id = p.id',
       )
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoin('p.postCount', 'postCount')
@@ -189,7 +217,14 @@ export class PostRepository extends Repository<Post> {
       .where('p.id = :id', { id: postId })
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
@@ -254,7 +289,14 @@ export class PostRepository extends Repository<Post> {
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
@@ -280,7 +322,14 @@ export class PostRepository extends Repository<Post> {
       .andWhere('p.authorId = :id', { id: userId })
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .addSelect(['u.id'])
@@ -323,7 +372,14 @@ export class PostRepository extends Repository<Post> {
         'ipl',
         'ipl.postId = p.id',
       )
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoin('p.postCount', 'postCount')

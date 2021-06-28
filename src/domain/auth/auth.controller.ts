@@ -1,5 +1,8 @@
 import { LoginResponseDto, LoginInputDto } from './dtos/login.dto';
-import { LocalAuthGuard, JwtAuthGuard } from '../../infra/guards/auth.guard';
+import {
+  LocalAuthGuard,
+  JwtPayloadAuthGuard,
+} from '../../infra/guards/auth.guard';
 import { User } from '../user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
@@ -13,13 +16,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../../infra/decorators/user.decorator';
+import { RefreshDto } from './dtos/refresh.dto';
+import { EmailDto } from '../../common/dtos/email.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('refresh')
-  reIssueAccessToken(@Body() { refreshToken }: { refreshToken: string }) {
+  reIssueAccessToken(@Body() { refreshToken }: RefreshDto) {
     const token = this.authService.reIssueAccessToken(refreshToken);
     return {
       accessToken: token,
@@ -35,14 +40,14 @@ export class AuthController {
   }
 
   @Post('find-password')
-  async findPassword(@Body('email') email: string) {
+  async findPassword(@Body() { email }: EmailDto) {
     return this.authService.findPassword(email);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   @Get('me')
   getMe(@CurrentUser() user: User): Promise<User> {
-    return this.authService.getMe(user);
+    return this.authService.getMe(user.id);
   }
 
   //--- html response ---

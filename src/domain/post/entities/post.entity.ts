@@ -55,7 +55,7 @@ export class Post {
   @Exclude()
   linkId: string;
 
-  @ManyToOne(() => Link, { cascade: ['insert'] })
+  @ManyToOne(() => Link, { cascade: ['insert'], onDelete: 'SET NULL' })
   @JoinColumn({ name: 'linkId' })
   link?: Link;
 
@@ -63,7 +63,7 @@ export class Post {
   @Exclude()
   gifId: string;
 
-  @ManyToOne(() => GifImage, { cascade: ['insert'] })
+  @ManyToOne(() => GifImage, { cascade: ['insert'], onDelete: 'SET NULL' })
   @JoinColumn({ name: 'gifId' })
   gifImage?: GifImage;
 
@@ -86,7 +86,7 @@ export class Post {
   @Exclude()
   authorId: number | null;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'authorId' })
   author: User;
 

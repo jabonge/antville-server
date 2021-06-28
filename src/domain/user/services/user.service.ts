@@ -78,13 +78,15 @@ export class UserService {
     }
     const user = await query.getOne();
     if (!user) {
-      throw new BadRequestException();
+      throw new BadRequestException(CustomError.INVALID_USER);
     }
     return user;
   }
 
   findById(id: number) {
-    return this.userRepository.findOne({ id });
+    return this.userRepository.findOne(id, {
+      select: ['id', 'nickname', 'isEmailVerified', 'isBannded', 'email'],
+    });
   }
 
   async getUserProfile(userId: number, myId?: number) {
@@ -470,7 +472,7 @@ export class UserService {
   }
 
   async changePassword(
-    user: User,
+    userId: number,
     { changePassword, currentPassword }: ChangePasswordDto,
   ) {
     if (changePassword === currentPassword) {
@@ -478,7 +480,7 @@ export class UserService {
         '현재 비밀번호와 동일한 비밀번호로 변경 할 수 없습니다.',
       );
     }
-    const userHasPassword = await this.userRepository.findOneOrFail(user.id, {
+    const userHasPassword = await this.userRepository.findOneOrFail(userId, {
       select: ['id', 'password'],
     });
     if (await userHasPassword.checkPassword(currentPassword)) {

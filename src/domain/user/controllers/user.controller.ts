@@ -16,6 +16,7 @@ import {
   ClassSerializerInterceptor,
   Patch,
   Delete,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { CurrentUser } from '../../../infra/decorators/user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -23,7 +24,12 @@ import { ChangePasswordDto } from '../dtos/change-password.dto';
 import {
   ConditionAuthGuard,
   JwtAuthGuard,
+  JwtPayloadAuthGuard,
 } from '../../../infra/guards/auth.guard';
+import { FindOneParamDto } from '../../../common/dtos/id-param.dto';
+import { PaginationParamsDto } from '../../../common/dtos/pagination-param.dto';
+import { EmailDto } from '../../../common/dtos/email.dto';
+import { NotEmptyStringPipe } from '../../../infra/pipes/not-empty-string.pipe';
 
 @Controller('user')
 export class UserController {
@@ -35,12 +41,14 @@ export class UserController {
   }
 
   @Get('email-available')
-  async emailDuplicateCheck(@Query('email') email: string) {
+  async emailDuplicateCheck(@Query('email') { email }: EmailDto) {
     return this.userService.emailDuplicateCheck(email);
   }
 
   @Get('nickname-available')
-  async nicknameDuplicateCheck(@Query('nickname') nickname: string) {
+  async nicknameDuplicateCheck(
+    @Query('nickname', NotEmptyStringPipe) nickname: string,
+  ) {
     return this.userService.nicknameDuplicateCheck(nickname);
   }
 
@@ -48,75 +56,80 @@ export class UserController {
   @UseGuards(ConditionAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   async getUserProfileByNickname(
-    @Param('nickname') nickname: string,
-    @CurrentUser() me: User,
+    @Param('nickname', NotEmptyStringPipe) nickname: string,
+    @CurrentUser() me?: User,
   ) {
     return this.userService.getUserProfileByNickname(nickname, me?.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id/follow')
-  async followUser(@CurrentUser() user: User, @Param('id') id: string) {
-    return this.userService.followUser(user, +id);
+  async followUser(
+    @CurrentUser() user: User,
+    @Param() { id }: FindOneParamDto,
+  ) {
+    return this.userService.followUser(user, id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   @Delete(':id/follow')
-  async unFollowUser(@CurrentUser() user: User, @Param('id') id: string) {
-    return this.userService.unFollowUser(user.id, +id);
+  async unFollowUser(
+    @CurrentUser() user: User,
+    @Param() { id }: FindOneParamDto,
+  ) {
+    return this.userService.unFollowUser(user.id, id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   @Put(':id/block')
-  async blockUser(@CurrentUser() user: User, @Param('id') id: string) {
-    return this.userService.blockUser(user.id, +id);
+  async blockUser(@CurrentUser() user: User, @Param() { id }: FindOneParamDto) {
+    return this.userService.blockUser(user.id, id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   @Delete(':id/block')
-  async unBlockUser(@CurrentUser() user: User, @Param('id') id: string) {
-    return this.userService.unBlockUser(user.id, +id);
+  async unBlockUser(
+    @CurrentUser() user: User,
+    @Param() { id }: FindOneParamDto,
+  ) {
+    return this.userService.unBlockUser(user.id, id);
   }
 
   @Get(':id/followers')
   async findFollowers(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
-    @Param('id') userId: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
+    @Param() { id }: FindOneParamDto,
   ) {
-    return this.userService.findFollowers(+userId, +cursor, +limit);
+    return this.userService.findFollowers(id, cursor, limit);
   }
 
   @Get(':id/following')
   async findFollowing(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
-    @Param('id') userId: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
+    @Param() { id }: FindOneParamDto,
   ) {
-    return this.userService.findFollowing(+userId, +cursor, +limit);
+    return this.userService.findFollowing(id, cursor, limit);
   }
 
   @Get('blocking')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   async findBlocking(
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
     @CurrentUser() me: User,
   ) {
-    return this.userService.findBlocking(me.id, +cursor, +limit);
+    return this.userService.findBlocking(me.id, cursor, limit);
   }
 
   @Get('search')
   async searchUser(
-    @Query('query') query: string,
-    @Query('cursor') cursor: string,
-    @Query('limit') limit: string,
+    @Query('query', NotEmptyStringPipe) query: string,
+    @Query() { cursor, limit }: PaginationParamsDto,
   ) {
-    return this.userService.searchUser(query, +cursor, +limit);
+    return this.userService.searchUser(query, cursor, limit);
   }
 
   @Post('profile-img')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   @UseInterceptors(FileInterceptor('profiles'))
   async updatePropfileImg(
     @CurrentUser() user: User,
@@ -126,13 +139,13 @@ export class UserController {
   }
 
   @Delete('profile-img')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   async removePropfileImg(@CurrentUser() user: User) {
     return this.userService.removeProfileImg(user.id);
   }
 
   @Put('profile')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   async editProfile(
     @CurrentUser() user: User,
     @Body() editProfileDto: EditProfileDto,
@@ -141,30 +154,30 @@ export class UserController {
   }
 
   @Patch('fcm-token')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   async updateFcmToken(
     @CurrentUser() user: User,
-    @Body() { fcmToken }: Record<'fcmToken', string>,
+    @Body('fcmToken', NotEmptyStringPipe) fcmToken: string,
   ) {
     return this.userService.updateFcmToken(user.id, fcmToken);
   }
 
   @Patch('push-alarm')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   async changePushAlarm(
     @CurrentUser() user: User,
-    @Body() { push }: Record<'push', boolean>,
+    @Body('push', ParseBoolPipe) push: boolean,
   ) {
     return this.userService.changePushAlarm(user.id, push);
   }
 
   @Patch('change-password')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   async changePassword(
     @CurrentUser() user: User,
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
-    return this.userService.changePassword(user, changePasswordDto);
+    return this.userService.changePassword(user.id, changePasswordDto);
   }
 
   @Post('verify')

@@ -1,5 +1,5 @@
 import { Post } from './../post/entities/post.entity';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, EntityManager, Repository } from 'typeorm';
 import { GifImage } from '../../common/entities/gif.entity';
@@ -16,6 +16,7 @@ import { CommentImg } from './entities/comment-img.entity';
 import { CommentReport } from './entities/comment-report.entity';
 import { Comment } from './entities/comment.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
+import CustomError from '../../util/constant/exception';
 
 @Injectable()
 export class CommentService {
@@ -120,9 +121,16 @@ export class CommentService {
       .createQueryBuilder('c')
       .where('c.postId = :id', { id: postId })
       .andWhere('c.parentCommentId IS NULL')
+      .innerJoin('c.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('c.commentImgs', 'commentImg')
       .addSelect('commentImg.image')
-      .leftJoinAndSelect('c.author', 'author')
       .leftJoin('c.commentCount', 'commentCount')
       .addSelect(['commentCount.likeCount', 'commentCount.nextCommentCount'])
       .leftJoinAndSelect('c.link', 'link')
@@ -159,9 +167,16 @@ export class CommentService {
     const query = this.commentRepository
       .createQueryBuilder('c')
       .where('c.parentCommentId = :id', { id: parentCommentId })
+      .innerJoin('c.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('c.commentImgs', 'commentImg')
       .addSelect('commentImg.image')
-      .leftJoinAndSelect('c.author', 'author')
       .leftJoin('c.commentCount', 'commentCount')
       .addSelect(['commentCount.likeCount'])
       .leftJoinAndSelect('c.link', 'link')
@@ -265,15 +280,22 @@ export class CommentService {
   }
 
   async createReport(userId: number, commentId: number) {
-    await this.connection.transaction(async (manager) => {
-      await manager.findOneOrFail(Comment, {
-        id: commentId,
-      });
-      const report = new CommentReport();
-      report.userId = userId;
-      report.commentId = commentId;
-      await manager.save(CommentReport, report);
+    await this.connection.manager.findOneOrFail(Post, {
+      id: commentId,
     });
+    const isExistReport = await this.connection.manager.findOne(CommentReport, {
+      where: {
+        userId,
+        commentId,
+      },
+    });
+    if (isExistReport) {
+      throw new BadRequestException(CustomError.ALREADY_REPORT);
+    }
+    const report = new CommentReport();
+    report.userId = userId;
+    report.commentId = commentId;
+    await this.connection.manager.save(CommentReport, report);
   }
 
   async createUserTagNotification(

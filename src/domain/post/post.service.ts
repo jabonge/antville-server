@@ -1,5 +1,5 @@
 import { PostImg } from './entities/post-img.entity';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from './entities/post.entity';
 import {
@@ -26,6 +26,7 @@ import { PostStockPrice } from './entities/post-stock-price.entity';
 import { PubSub } from '../../shared/redis/interfaces';
 import { UserCount } from '../user/entities/user-count.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
+import CustomError from '../../util/constant/exception';
 
 @Injectable()
 export class PostService {
@@ -278,15 +279,22 @@ export class PostService {
   }
 
   async createReport(userId: number, postId: number) {
-    await this.connection.transaction(async (manager) => {
-      await manager.findOneOrFail(Post, {
-        id: postId,
-      });
-      const report = new PostReport();
-      report.userId = userId;
-      report.postId = postId;
-      await manager.save(PostReport, report);
+    await this.connection.manager.findOneOrFail(Post, {
+      id: postId,
     });
+    const isExistReport = await this.connection.manager.findOne(PostReport, {
+      where: {
+        userId,
+        postId,
+      },
+    });
+    if (isExistReport) {
+      throw new BadRequestException(CustomError.ALREADY_REPORT);
+    }
+    const report = new PostReport();
+    report.userId = userId;
+    report.postId = postId;
+    await this.connection.manager.save(PostReport, report);
   }
 
   async createUserTagNotification(

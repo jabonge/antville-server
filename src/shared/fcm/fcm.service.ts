@@ -31,9 +31,7 @@ export class FcmService {
         },
       };
       this.messaging.send(message);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (_) {}
   }
 
   async sendUserTagNotification(
@@ -57,8 +55,6 @@ export class FcmService {
         },
       };
       this.messaging.sendMulticast(message);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (_) {}
   }
 }

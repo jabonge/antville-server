@@ -1,7 +1,7 @@
 import { StockPriceInfoDto } from './domain/stock/dtos/stock_price_info.dto';
 import { JwtPayload } from './domain/auth/auth.interface';
 import { JwtService } from '@nestjs/jwt';
-import { Inject } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -20,8 +20,10 @@ import {
   PUB_SUB,
 } from './util/constant/redis';
 import { PubSub } from './shared/redis/interfaces';
+import { WsThrottlerGuard } from './infra/guards/ws-throttler.guard';
 
 @WebSocketGateway(4000)
+@UseGuards(WsThrottlerGuard)
 export class AppGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;

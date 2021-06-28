@@ -59,7 +59,7 @@ export class Comment {
   @Column({ nullable: true, select: false })
   linkId: string;
 
-  @ManyToOne(() => Link, { cascade: ['insert'] })
+  @ManyToOne(() => Link, { cascade: ['insert'], onDelete: 'SET NULL' })
   @JoinColumn({ name: 'linkId' })
   link?: Link;
 
@@ -67,7 +67,7 @@ export class Comment {
   @Column({ nullable: true, select: false })
   gifId: string;
 
-  @ManyToOne(() => GifImage, { cascade: ['insert'] })
+  @ManyToOne(() => GifImage, { cascade: ['insert'], onDelete: 'SET NULL' })
   @JoinColumn({ name: 'gifId' })
   gifImage?: GifImage;
 
@@ -89,7 +89,7 @@ export class Comment {
   @Column({ type: 'int', nullable: true, select: false })
   authorId: number | null;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'authorId' })
   author: User;
 
