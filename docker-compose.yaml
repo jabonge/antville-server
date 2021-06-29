@@ -21,11 +21,10 @@ services:
   app:
     container_name: app
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       context: ./
     ports:
       - 3000:3000
-      - 4000:4000
     depends_on:
       - db
       - redis

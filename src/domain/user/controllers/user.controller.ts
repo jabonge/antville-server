@@ -17,6 +17,7 @@ import {
   Patch,
   Delete,
   ParseBoolPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { CurrentUser } from '../../../infra/decorators/user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -28,8 +29,8 @@ import {
 } from '../../../infra/guards/auth.guard';
 import { FindOneParamDto } from '../../../common/dtos/id-param.dto';
 import { PaginationParamsDto } from '../../../common/dtos/pagination-param.dto';
-import { EmailDto } from '../../../common/dtos/email.dto';
 import { NotEmptyStringPipe } from '../../../infra/pipes/not-empty-string.pipe';
+import { isEmail } from 'class-validator';
 
 @Controller('user')
 export class UserController {
@@ -41,7 +42,10 @@ export class UserController {
   }
 
   @Get('email-available')
-  async emailDuplicateCheck(@Query('email') { email }: EmailDto) {
+  async emailDuplicateCheck(@Query('email') email: string) {
+    if (!isEmail(email)) {
+      throw new BadRequestException('Invalid Email');
+    }
     return this.userService.emailDuplicateCheck(email);
   }
 

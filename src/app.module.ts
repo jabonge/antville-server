@@ -1,6 +1,11 @@
 import { PostModule } from './domain/post/post.module';
 import { AuthModule } from './domain/auth/auth.module';
-import { HttpException, MiddlewareConsumer, Module } from '@nestjs/common';
+import {
+  HttpException,
+  MiddlewareConsumer,
+  Module,
+  RequestMethod,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StockModule } from './domain/stock/stock.module';
 import { UserModule } from './domain/user/user.module';
@@ -18,6 +23,7 @@ import { WebhookInterceptor } from './infra/interceptors/slack.interceptor';
 import { LoggerMiddleware } from './infra/middlewares/logger.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import ormConfig from './ormconfig';
 
 @Module({
   imports: [
@@ -27,17 +33,7 @@ import { AppController } from './app.controller';
       isGlobal: true,
       envFilePath: getEnvFilePath(),
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: ['dist/**/*.entity{.ts,.js}'],
-      logging: process.env.NODE_ENV === 'local',
-      synchronize: process.env.NODE_ENV === 'local',
-    }),
+    TypeOrmModule.forRoot(ormConfig),
     ThrottlerModule.forRoot({
       ttl: 10,
       limit: 20,
@@ -82,6 +78,9 @@ import { AppController } from './app.controller';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer
+      .apply(LoggerMiddleware)
+      .exclude({ path: 'health', method: RequestMethod.GET })
+      .forRoutes('*');
   }
 }

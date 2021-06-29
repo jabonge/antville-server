@@ -22,7 +22,7 @@ import {
 import { PubSub } from './shared/redis/interfaces';
 import { WsThrottlerGuard } from './infra/guards/ws-throttler.guard';
 
-@WebSocketGateway(4000)
+@WebSocketGateway()
 @UseGuards(WsThrottlerGuard)
 export class AppGateway implements OnGatewayConnection {
   @WebSocketServer()

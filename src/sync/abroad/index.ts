@@ -1,12 +1,11 @@
 import { createConnection } from 'typeorm';
 import AbroadSyncBot from './syncbot';
-import * as dotenv from 'dotenv';
 
-dotenv.config({ path: process.cwd() + '/.env.dev' });
+import ormConfig from '../ormconfig';
 
-createConnection().then(async (connection) => {
+createConnection(ormConfig).then(async (connection) => {
   const abroadSyncBot = new AbroadSyncBot();
   await abroadSyncBot.syncAll();
-  // await abroadSyncBot.setEtf();
+  await abroadSyncBot.setEtf();
   connection.close();
 });
