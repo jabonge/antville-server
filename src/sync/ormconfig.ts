@@ -14,6 +14,7 @@ const ormConfig: ConnectionOptions = {
   database: process.env.DB_NAME,
   logging: true,
   synchronize: process.env.NODE_ENV === 'local',
+  timezone: process.env.DB_TIMEZONE,
   entities: [process.cwd() + '/src/**/*.entity{.ts,.js}'],
 };
 

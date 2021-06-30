@@ -13,6 +13,7 @@ const ormConfig: ConnectionOptions = {
   database: process.env.DB_NAME,
   logging: process.env.NODE_ENV === 'local',
   synchronize: process.env.NODE_ENV === 'local',
+  timezone: process.env.DB_TIMEZONE,
   entities: ['src/**/*.entity{.ts,.js}'],
   migrations: ['src/infra/migration/*.ts'],
   cli: {

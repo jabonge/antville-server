@@ -42,7 +42,6 @@ class NaverAbroadSyncBot {
       });
       if (stock) {
         stock.krName = naverStock.stockName;
-        stock.cashTagName = symbol;
         await getRepository(Stock).save(stock);
       }
     }

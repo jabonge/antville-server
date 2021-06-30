@@ -13,6 +13,7 @@ const ormConfig: TypeOrmModuleOptions = {
   database: process.env.DB_NAME,
   logging: process.env.NODE_ENV === 'local',
   synchronize: process.env.NODE_ENV === 'local',
+  timezone: process.env.DB_TIMEZONE,
   entities: [process.cwd() + '/dist/**/*.entity{.ts,.js}'],
 };
 

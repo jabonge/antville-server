@@ -51,6 +51,10 @@ const CustomError = {
     errorCode: 901,
     message: 'User Is Banned',
   },
+  BLOCK_OR_BLOCKED_USER: {
+    errorCode: 902,
+    message: 'Blocked User or Blocking User',
+  },
 };
 
 export default CustomError;
