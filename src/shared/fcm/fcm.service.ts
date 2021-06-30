@@ -1,5 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { UserService } from '../../domain/user/services/user.service';
+import Sentry from '@sentry/node';
 import * as admin from 'firebase-admin';
 import { CreateNotificationDto } from '../../domain/notification/dto/create-notification.dto';
 
@@ -19,6 +20,7 @@ export class FcmService {
       if (users.length === 0) return;
       const message: admin.messaging.Message = {
         notification: {
+          title: createNotificationDto.user.nickname,
           body: createNotificationDto.getContent(),
         },
         data: {
@@ -30,8 +32,12 @@ export class FcmService {
           priority: 'high',
         },
       };
-      this.messaging.send(message);
-    } catch (_) {}
+      this.messaging.send(message).catch((_) => {
+        return;
+      });
+    } catch (err) {
+      Sentry.captureException(err);
+    }
   }
 
   async sendUserTagNotification(
@@ -43,6 +49,7 @@ export class FcmService {
       if (users.length === 0) return;
       const message: admin.messaging.MulticastMessage = {
         notification: {
+          title: createNotificationDto.user.nickname,
           body: createNotificationDto.getContent(),
         },
         data: {
@@ -54,7 +61,11 @@ export class FcmService {
           priority: 'high',
         },
       };
-      this.messaging.sendMulticast(message);
-    } catch (_) {}
+      this.messaging.sendMulticast(message).catch((_) => {
+        return;
+      });
+    } catch (err) {
+      Sentry.captureException(err);
+    }
   }
 }
