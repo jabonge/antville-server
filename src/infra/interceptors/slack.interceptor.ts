@@ -20,24 +20,24 @@ export class WebhookInterceptor implements NestInterceptor {
     if (process.env.NODE_ENV === 'local') return next.handle();
     return next.handle().pipe(
       catchError((error) => {
-        if (error instanceof HttpException) {
-          if (error.getStatus() > 499) {
-            this.slack.send({
-              attachments: [
-                {
-                  color: 'danger',
-                  fields: [
-                    {
-                      title: error.message,
-                      value: error.stack,
-                      short: false,
-                    },
-                  ],
-                  ts: Math.floor(new Date().getTime() / 1000).toString(),
-                },
-              ],
-            });
-          }
+        if (error instanceof HttpException && error.getStatus() < 499) {
+          return throwError(error);
+        } else {
+          this.slack.send({
+            attachments: [
+              {
+                color: 'danger',
+                fields: [
+                  {
+                    title: error.message,
+                    value: error.stack,
+                    short: false,
+                  },
+                ],
+                ts: Math.floor(new Date().getTime() / 1000).toString(),
+              },
+            ],
+          });
         }
         return throwError(error);
       }),

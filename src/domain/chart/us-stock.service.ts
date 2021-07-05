@@ -10,10 +10,10 @@ export class UsStockApiService {
   private readonly baseUrl = 'https://financialmodelingprep.com/api/v3';
   constructor(private httpService: HttpService) {}
 
-  async getCandlesBy5Min(market: string, from: string, to: string) {
+  async getCandlesBy5Min(market: string) {
     let { data } = await this.httpService
       .get<UsStockCandleData[]>(
-        `${this.baseUrl}/historical-chart/5min/${market}?apikey=${process.env.FINANCIAL_API_KEY}&from=${from}&to=${to}`,
+        `${this.baseUrl}/historical-chart/5min/${market}?apikey=${process.env.FINANCIAL_API_KEY}`,
       )
       .toPromise();
     if (data.length > 158) {

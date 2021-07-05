@@ -9,7 +9,6 @@ import {
   parseISO,
   startOfDay,
   startOfHour,
-  subDays,
   subMonths,
   subWeeks,
   subYears,
@@ -301,14 +300,7 @@ export class ChartService {
   async getUsStockData(market: string, type: ChartType) {
     let data;
     if (type === ChartType.Day) {
-      const now = utcToZonedTime(Date.now(), nyTimeZone);
-      const from = format(subDays(now, 1), dayFormat, {
-        timeZone: nyTimeZone,
-      });
-      const to = format(now, dayFormat, {
-        timeZone: nyTimeZone,
-      });
-      data = await this.usStockApiService.getCandlesBy5Min(market, from, to);
+      data = await this.usStockApiService.getCandlesBy5Min(market);
     } else if (type === ChartType.Week) {
       const now = utcToZonedTime(Date.now(), nyTimeZone);
       const from = format(subWeeks(now, 1), dayFormat);
