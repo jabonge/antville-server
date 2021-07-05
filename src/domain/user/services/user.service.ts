@@ -563,7 +563,8 @@ export class UserService {
         userId: user.id,
       },
       {
-        expiresIn: '1d',
+        expiresIn: '1h',
+        secret: process.env.VERIFY_EMAIL_SECRET_KEY,
       },
     );
     await this.sesService.verifyEmail(token, user.nickname, user.email);

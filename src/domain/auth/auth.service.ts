@@ -10,7 +10,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import CustomError from '../../util/constant/exception';
-import { TokenExpiredError } from 'jsonwebtoken';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { SesService } from '../../shared/ses/ses.service';
 
 @Injectable()
@@ -42,7 +42,8 @@ export class AuthService {
 
   issueFindPasswordToken(payload: FindPasswordPayload) {
     const signOption: JwtSignOptions = {
-      expiresIn: '1d',
+      expiresIn: '1h',
+      secret: this.configService.get<string>('FIND_PASSWORD_SECRET_KEY'),
     };
 
     const token = this.jwtService.sign(payload, signOption);
@@ -64,6 +65,8 @@ export class AuthService {
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         throw new UnauthorizedException(CustomError.REFRESH_TOKEN_EXPIRED);
+      } else if (e instanceof JsonWebTokenError) {
+        throw new UnauthorizedException(CustomError.INVALID_REFRESH_TOKEN);
       } else {
         throw e;
       }
@@ -118,7 +121,9 @@ export class AuthService {
     let tempPassword;
     let errorMessage;
     try {
-      const payload = this.jwtService.verify(token);
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('FIND_PASSWORD_SECRET_KEY'),
+      });
       tempPassword = payload.tempPassword;
       await this.userService.changeTempPassword(payload);
     } catch (e) {
@@ -138,7 +143,9 @@ export class AuthService {
   async verifyEmail(token: string) {
     let errorMessage;
     try {
-      const payload = this.jwtService.verify(token);
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('VERIFY_EMAIL_SECRET_KEY'),
+      });
       await this.userService.verifyEmail(payload);
     } catch (e) {
       if (e instanceof TokenExpiredError) {

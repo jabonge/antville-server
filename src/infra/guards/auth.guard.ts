@@ -14,6 +14,9 @@ export class LocalAuthGuard extends AuthGuard('local') {}
 @Injectable()
 export class ConditionAuthGuard extends AuthGuard('jwt-payload') {
   handleRequest(_, user, __, ___) {
-    return user;
+    if (user) {
+      return user;
+    }
+    return null;
   }
 }

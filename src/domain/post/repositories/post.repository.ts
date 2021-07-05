@@ -332,7 +332,6 @@ export class PostRepository extends Repository<Post> {
       ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
-      .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
       .orderBy('p.id', 'DESC')
@@ -384,7 +383,6 @@ export class PostRepository extends Repository<Post> {
       .addSelect('postImg.image')
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
-      .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif');
 
