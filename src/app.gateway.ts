@@ -61,16 +61,19 @@ export class AppGateway implements OnGatewayConnection {
         });
       } else if (channel === NEW_POST) {
         const post = JSON.parse(message) as Post;
-        this.connectedClients.forEach(({ ws, stockId }) => {
-          if (
-            stockId &&
-            ws.readyState === WebSocket.OPEN &&
-            post.stockPosts?.map((s) => s.stockId)?.includes(stockId)
-          ) {
-            delete post.stockPosts;
-            ws.send(message);
-          }
-        });
+        const stockIds = post.stockPosts?.map((s) => s.stockId);
+        if (stockIds) {
+          delete post.stockPosts;
+          this.connectedClients.forEach(({ ws, stockId }) => {
+            if (
+              stockId &&
+              ws.readyState === WebSocket.OPEN &&
+              stockIds.includes(stockId)
+            ) {
+              ws.send(message);
+            }
+          });
+        }
       }
     });
   }

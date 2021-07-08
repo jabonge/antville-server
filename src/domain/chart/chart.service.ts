@@ -4,8 +4,6 @@ import { plainToClass } from 'class-transformer';
 import {
   differenceInDays,
   differenceInMinutes,
-  getDay,
-  getHours,
   parseISO,
   startOfDay,
   startOfHour,
@@ -204,8 +202,8 @@ export class ChartService {
       );
 
       const diff = differenceInMinutes(now, lastChartDate);
-
-      if (this.isUsStockMarketOpen()) {
+      const isOpen = this.usStockApiService.isUsStockMarketOpen();
+      if (isOpen) {
         if (diff > 5) {
           return true;
         } else {
@@ -218,7 +216,10 @@ export class ChartService {
           const isSameDayNowAndUpdateAt =
             differenceInDays(startOfDay(now), startOfDay(updatedAt)) === 0;
           if (isSameDayNowAndUpdateAt) {
-            return this.isIncludeStockMaketTime(now, updatedAt);
+            return this.usStockApiService.isIncludeStockMaketTime(
+              now,
+              updatedAt,
+            );
           }
           return true;
         }
@@ -241,7 +242,7 @@ export class ChartService {
 
       const diff = differenceInMinutes(now, lastChartDate);
 
-      if (this.isUsStockMarketOpen()) {
+      if (this.usStockApiService.isUsStockMarketOpen()) {
         if (diff > 30) {
           return true;
         } else {
@@ -254,7 +255,10 @@ export class ChartService {
           const isSameDayNowAndUpdateAt =
             differenceInMinutes(startOfDay(now), startOfDay(updatedAt)) === 0;
           if (isSameDayNowAndUpdateAt) {
-            return this.isIncludeStockMaketTime(now, updatedAt);
+            return this.usStockApiService.isIncludeStockMaketTime(
+              now,
+              updatedAt,
+            );
           }
           return true;
         }
@@ -341,36 +345,5 @@ export class ChartService {
       throw new BadRequestException();
     }
     return data;
-  }
-
-  isUsStockMarketOpen() {
-    const now = utcToZonedTime(Date.now(), nyTimeZone);
-    const day = getDay(now);
-    if (day === 0 || day === 6) {
-      return false;
-    } else {
-      const hour = getHours(now);
-      if (hour < 9 || hour > 16) {
-        return false;
-      }
-      return true;
-    }
-  }
-
-  isIncludeStockMaketTime(now: Date, updatedAt: Date) {
-    const day = getDay(now);
-    if (day === 0 || day === 6) {
-      return false;
-    } else {
-      const nowHour = getHours(now);
-      const updateAtHour = getHours(updatedAt);
-      const diffTime = differenceInMinutes(now, updatedAt);
-      if (updateAtHour < 9 || nowHour > 16) {
-        if (diffTime > 390) {
-          return true;
-        }
-      }
-      return false;
-    }
   }
 }
