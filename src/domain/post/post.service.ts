@@ -90,6 +90,7 @@ export class PostService {
           const ps = new StockPost();
           ps.stockId = s.id;
           ps.authorId = user.id;
+          ps.symbol = s.symbol;
           return ps;
         });
         post.stockPosts = stockPosts;

@@ -27,4 +27,6 @@ export class StockPost {
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'authorId' })
   user: User;
+
+  symbol: string;
 }

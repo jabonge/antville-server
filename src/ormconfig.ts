@@ -15,10 +15,10 @@ const ormConfig: TypeOrmModuleOptions = {
   synchronize: process.env.NODE_ENV === 'local',
   timezone: process.env.DB_TIMEZONE,
   entities: [process.cwd() + '/dist/**/*.entity{.ts,.js}'],
-  migrations: ['src/infra/migration/*.ts'],
-  cli: {
-    migrationsDir: 'src/infra/migration',
-  },
+  // migrations: ['src/infra/migration/*.ts'],
+  // cli: {
+  //   migrationsDir: 'src/infra/migration',
+  // },
 };
 
 export default ormConfig;

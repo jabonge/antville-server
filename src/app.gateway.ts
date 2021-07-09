@@ -1,6 +1,4 @@
 import { StockPriceInfoDto } from './domain/stock/dtos/stock_price_info.dto';
-import { JwtPayload } from './domain/auth/auth.interface';
-import { JwtService } from '@nestjs/jwt';
 import { Inject, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
@@ -31,13 +29,10 @@ export class AppGateway implements OnGatewayConnection {
   //HashMap 사용고려
   private connectedClients: Map<
     string,
-    { ws: WebSocket; symbols?: string[]; stockId?: number }
+    { ws: WebSocket; symbols: string[]; detailSymbols: string[] }
   > = new Map();
 
-  constructor(
-    @Inject(PUB_SUB) private readonly pubsub: PubSub,
-    private readonly jwtService: JwtService,
-  ) {
+  constructor(@Inject(PUB_SUB) private readonly pubsub: PubSub) {
     setInterval(() => {
       this.connectedClients.forEach(({ ws }, id) => {
         ws.ping((err) => {
@@ -51,24 +46,28 @@ export class AppGateway implements OnGatewayConnection {
     pubsub.subscriber.on('message', (channel, message) => {
       if (channel === CHANGE_STOCK_PRICE_INFO) {
         const stockPriceInfo = JSON.parse(message) as StockPriceInfoDto;
-        this.connectedClients.forEach(({ ws, symbols }) => {
+        this.connectedClients.forEach(({ ws, symbols, detailSymbols }) => {
+          const symbolList = Array.from(
+            new Set([...symbols, ...detailSymbols]),
+          );
           if (
             ws.readyState === WebSocket.OPEN &&
-            symbols?.includes(stockPriceInfo.symbol)
+            symbolList.includes(stockPriceInfo.symbol)
           ) {
             ws.send(message);
           }
         });
       } else if (channel === NEW_POST) {
         const post = JSON.parse(message) as Post;
-        const stockIds = post.stockPosts?.map((s) => s.stockId);
-        if (stockIds) {
+        const symbols = post.stockPosts?.map((s) => s.symbol);
+        if (symbols) {
           delete post.stockPosts;
-          this.connectedClients.forEach(({ ws, stockId }) => {
+          this.connectedClients.forEach(({ ws, detailSymbols }) => {
+            const lastSymbol = detailSymbols[detailSymbols.length - 1];
             if (
-              stockId &&
+              lastSymbol &&
               ws.readyState === WebSocket.OPEN &&
-              stockIds.includes(stockId)
+              symbols.includes(lastSymbol)
             ) {
               ws.send(message);
             }
@@ -81,17 +80,15 @@ export class AppGateway implements OnGatewayConnection {
   //userId 말고 다른 값으로 클라이언트 구분하기!
   handleConnection(client: WebSocket, req: IncomingMessage) {
     if (req.url) {
-      try {
-        const id = req.headers.id as string;
-        const token = req.headers.token as string;
-        this.jwtService.verify<JwtPayload>(token);
-        this.connectedClients.set(id, { ws: client });
-        client.on('close', () => {
-          this.connectedClients.delete(id);
-        });
-      } catch (e) {
-        client.close(1011, 'Unauthorized');
-      }
+      const id = req.headers.id as string;
+      this.connectedClients.set(id, {
+        ws: client,
+        symbols: [],
+        detailSymbols: [],
+      });
+      client.on('close', () => {
+        this.connectedClients.delete(id);
+      });
     }
   }
 
@@ -99,7 +96,7 @@ export class AppGateway implements OnGatewayConnection {
   @SubscribeMessage(CHANGE_STOCK_PRICE_INFO)
   handleChangeStockMeta(
     @ConnectedSocket() client: WebSocket,
-    @MessageBody() data: { id: string; symbols?: string[] },
+    @MessageBody() data: { id: string; symbols: string[] },
   ) {
     const clientInMap = this.connectedClients.get(data.id);
     if (clientInMap) {
@@ -112,11 +109,13 @@ export class AppGateway implements OnGatewayConnection {
   @SubscribeMessage(NEW_POST)
   handleNewPost(
     @ConnectedSocket() client: WebSocket,
-    @MessageBody() data: { id: string; stockId?: number },
+    @MessageBody() data: { id: string; symbols: string[] },
   ) {
     const clientInMap = this.connectedClients.get(data.id);
     if (clientInMap) {
-      this.connectedClients.get(data.id).stockId = data.stockId;
+      if (data.symbols) {
+        this.connectedClients.get(data.id).detailSymbols = data.symbols;
+      }
     } else {
       client.close(1011, 'Unauthorized');
     }
