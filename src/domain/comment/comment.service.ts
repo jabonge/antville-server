@@ -135,7 +135,7 @@ export class CommentService {
       .addSelect(['commentCount.likeCount', 'commentCount.nextCommentCount'])
       .leftJoinAndSelect('c.link', 'link')
       .leftJoinAndSelect('c.gifImage', 'gif')
-      .orderBy('c.id', 'DESC')
+      .orderBy('c.id', 'ASC')
       .take(limit);
     if (userId) {
       query
@@ -153,7 +153,7 @@ export class CommentService {
         .addSelect(['u.id']);
     }
     if (cursor) {
-      query.andWhere('c.id < :cursor', { cursor });
+      query.andWhere('c.id > :cursor', { cursor });
     }
     return query.getMany();
   }
