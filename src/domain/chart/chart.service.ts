@@ -7,6 +7,7 @@ import {
   parseISO,
   startOfDay,
   startOfHour,
+  subDays,
   subMonths,
   subWeeks,
   subYears,
@@ -159,9 +160,13 @@ export class ChartService {
     const infoKey = `${symbol}-${type}-info`;
     const chartInfoString = await this.client.getChartInfo(infoKey);
     const chartInfo = plainToClass(ChartInfo, JSON.parse(chartInfoString));
+    const isOpen = this.usStockApiService.isUsStockMarketOpen();
 
-    if (!chartInfoString || this.isInValidUsStockData(type, chartInfo)) {
-      const data = await this.getUsStockData(symbol, type);
+    if (
+      !chartInfoString ||
+      this.isInValidUsStockData(type, chartInfo, isOpen)
+    ) {
+      const data = await this.getUsStockData(symbol, type, isOpen);
       const newChartInfo = new ChartInfo();
       newChartInfo.length = data.length;
       newChartInfo.lastChartDate = data[0].date;
@@ -181,7 +186,7 @@ export class ChartService {
     }
   }
 
-  isInValidUsStockData(type: string, chartInfo: ChartInfo) {
+  isInValidUsStockData(type: string, chartInfo: ChartInfo, isOpen: boolean) {
     if (!chartInfo) {
       return true;
     }
@@ -202,7 +207,6 @@ export class ChartService {
       );
 
       const diff = differenceInMinutes(now, lastChartDate);
-      const isOpen = this.usStockApiService.isUsStockMarketOpen();
       if (isOpen) {
         if (diff > 5) {
           return true;
@@ -210,19 +214,12 @@ export class ChartService {
           return false;
         }
       } else {
-        if (chartInfo.length < 79) {
-          return true;
-        } else {
-          const isSameDayNowAndUpdateAt =
-            differenceInDays(startOfDay(now), startOfDay(updatedAt)) === 0;
-          if (isSameDayNowAndUpdateAt) {
-            return this.usStockApiService.isIncludeStockMaketTime(
-              now,
-              updatedAt,
-            );
-          }
-          return true;
+        const isSameDayNowAndUpdateAt =
+          differenceInDays(startOfDay(now), startOfDay(updatedAt)) === 0;
+        if (isSameDayNowAndUpdateAt) {
+          return this.usStockApiService.isIncludeStockMaketTime(now, updatedAt);
         }
+        return true;
       }
     } else if (type === ChartType.Week) {
       //30min
@@ -249,19 +246,12 @@ export class ChartService {
           return false;
         }
       } else {
-        if (chartInfo.length % 14 !== 0) {
-          return true;
-        } else {
-          const isSameDayNowAndUpdateAt =
-            differenceInMinutes(startOfDay(now), startOfDay(updatedAt)) === 0;
-          if (isSameDayNowAndUpdateAt) {
-            return this.usStockApiService.isIncludeStockMaketTime(
-              now,
-              updatedAt,
-            );
-          }
-          return true;
+        const isSameDayNowAndUpdateAt =
+          differenceInMinutes(startOfDay(now), startOfDay(updatedAt)) === 0;
+        if (isSameDayNowAndUpdateAt) {
+          return this.usStockApiService.isIncludeStockMaketTime(now, updatedAt);
         }
+        return true;
       }
     } else if (
       type === ChartType.Month ||
@@ -301,10 +291,26 @@ export class ChartService {
     }
   }
 
-  async getUsStockData(market: string, type: ChartType) {
+  async getUsStockData(market: string, type: ChartType, isOpen: boolean) {
     let data;
     if (type === ChartType.Day) {
-      data = await this.usStockApiService.getCandlesBy5Min(market);
+      const now = utcToZonedTime(Date.now(), nyTimeZone);
+      let subtractDay = 1;
+      if (isOpen) {
+        subtractDay = 0;
+      } else {
+        const day = now.getDay();
+        if (day === 0) {
+          subtractDay = 2;
+        } else if (day === 1) {
+          subtractDay = 3;
+        }
+      }
+      const from = format(subDays(now, subtractDay), dayFormat);
+      const to = format(now, dayFormat, {
+        timeZone: nyTimeZone,
+      });
+      data = await this.usStockApiService.getCandlesBy5Min(market, from, to);
     } else if (type === ChartType.Week) {
       const now = utcToZonedTime(Date.now(), nyTimeZone);
       const from = format(subWeeks(now, 1), dayFormat);

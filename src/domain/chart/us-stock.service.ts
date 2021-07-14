@@ -14,21 +14,20 @@ export class UsStockApiService {
   private readonly holidays = ['2021-12-24', '2021-11-25', '2021-09-06'];
   constructor(private httpService: HttpService) {}
 
-  async getCandlesBy5Min(market: string) {
+  async getCandlesBy5Min(market: string, from: string, to: string) {
     let { data } = await this.httpService
       .get<UsStockCandleData[]>(
-        `${this.baseUrl}/historical-chart/5min/${market}?apikey=${process.env.FINANCIAL_API_KEY}`,
+        `${this.baseUrl}/historical-chart/5min/${market}?apikey=${process.env.FINANCIAL_API_KEY}&from=${from}&to=${to}`,
       )
       .toPromise();
+    console.log(from);
+    console.log(to);
     if (data.length > 79) {
-      const divide = data.length % 79;
-      if (divide === 0) {
-        data = data.slice(0, 79);
-      } else {
-        data = data.slice(0, divide);
-      }
+      data = data.slice(0, 79);
     }
-    return data.map((v) => ChartData.usCandleToChartData(v));
+    const date = data[0].date.split(' ')[0];
+    data = data.filter((v) => v.date.split(' ')[0] === date);
+    return data;
   }
 
   async getCandlesBy30Min(market: string, from: string, to: string) {
