@@ -20,14 +20,14 @@ export class UsStockApiService {
         `${this.baseUrl}/historical-chart/5min/${market}?apikey=${process.env.FINANCIAL_API_KEY}&from=${from}&to=${to}`,
       )
       .toPromise();
-    console.log(from);
-    console.log(to);
     if (data.length > 79) {
       data = data.slice(0, 79);
     }
-    const date = data[0].date.split(' ')[0];
-    data = data.filter((v) => v.date.split(' ')[0] === date);
-    return data;
+    if (data.length > 0) {
+      const date = data[0].date.split(' ')[0];
+      data = data.filter((v) => v.date.split(' ')[0] === date);
+    }
+    return data.map((v) => ChartData.usCandleToChartData(v));
   }
 
   async getCandlesBy30Min(market: string, from: string, to: string) {
