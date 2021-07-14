@@ -90,6 +90,8 @@ export class UserService {
         'nickname',
         'profileImg',
         'isEmailVerified',
+        'influencerBadge',
+        'wadizBadge',
         'isBannded',
         'email',
       ],

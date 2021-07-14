@@ -181,7 +181,7 @@ export class CommentService {
       .addSelect(['commentCount.likeCount'])
       .leftJoinAndSelect('c.link', 'link')
       .leftJoinAndSelect('c.gifImage', 'gif')
-      .orderBy('c.id', 'DESC')
+      .orderBy('c.id', 'ASC')
       .take(limit);
     if (userId) {
       query
@@ -202,6 +202,32 @@ export class CommentService {
       query.andWhere('c.id < :cursor', { cursor });
     }
     return query.getMany();
+  }
+
+  async findOneComment(commentId: number, userId?: number) {
+    const query = this.commentRepository
+      .createQueryBuilder('c')
+      .where('c.id = :id', { id: commentId })
+      .innerJoin('c.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
+      .leftJoin('c.commentImgs', 'commentImg')
+      .addSelect('commentImg.image')
+      .leftJoin('c.commentCount', 'commentCount')
+      .addSelect(['commentCount.likeCount', 'commentCount.nextCommentCount'])
+      .leftJoinAndSelect('c.link', 'link')
+      .leftJoinAndSelect('c.gifImage', 'gif');
+    if (userId) {
+      query
+        .leftJoin('c.likers', 'u', 'u.id = :userId', { userId })
+        .addSelect(['u.id']);
+    }
+    return query.getOne();
   }
 
   async deleteComment(userId: number, commentId: number) {

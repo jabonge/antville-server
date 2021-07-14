@@ -1,7 +1,7 @@
 import { Exchange } from '../../domain/stock/entities/exchange.entity';
 import { Stock, StockType } from '../../domain/stock/entities/stock.entity';
 import { getRepository } from 'typeorm';
-import { getQuotes } from './api/getQuotes';
+import { getQuote, getQuotes } from './api/getQuotes';
 import { getEtfList } from './api/getEtfList';
 import { StockCount } from '../../domain/stock/entities/stock-count.entity';
 import { StockMeta } from '../../domain/stock/entities/stock-meta.entity';
@@ -72,6 +72,36 @@ class AbroadSyncBot {
         stock.stockMeta.marketCap = Math.round(
           Math.round(quote.marketCap) / 100000,
         );
+        await getRepository(Stock).save(stock);
+      }
+    }
+  }
+  async addSymbols(symbols: string[]) {
+    for (let i = 0; i < symbols.length; i++) {
+      const symbol = symbols[i];
+      const quote = await getQuote(symbol);
+      if (!quote.name) {
+        continue;
+      }
+      let stock = await getRepository(Stock).findOne({
+        where: { symbol },
+      });
+      if (!stock) {
+        const exchange = await getRepository(Exchange).findOne({
+          where: { name: quote.exchange },
+        });
+        stock = new Stock();
+        stock.type = null;
+        stock.symbol = symbol;
+        stock.enName = quote.name;
+        stock.krName = quote.name;
+        stock.cashTagName = symbol;
+        stock.exchange = exchange;
+        stock.stockMeta = new StockMeta();
+        stock.stockMeta.marketCap = Math.round(
+          Math.round(quote.marketCap) / 100000,
+        );
+        stock.stockCount = new StockCount();
         await getRepository(Stock).save(stock);
       }
     }

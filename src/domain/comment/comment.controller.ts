@@ -13,6 +13,7 @@ import {
   BadRequestException,
   UploadedFile,
   Put,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FindOneParamDto } from '../../common/dtos/id-param.dto';
@@ -67,6 +68,12 @@ export class CommentController {
     @CurrentUser() user?: User,
   ) {
     return this.commentService.getSecondComments(id, cursor, limit, user?.id);
+  }
+
+  @Get()
+  @UseGuards(ConditionAuthGuard)
+  findOne(@Query('id', ParseIntPipe) id: number, @CurrentUser() user?: User) {
+    return this.commentService.findOneComment(+id, user?.id);
   }
 
   @Delete(':id')
