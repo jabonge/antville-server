@@ -199,7 +199,7 @@ export class CommentService {
         .addSelect(['u.id']);
     }
     if (cursor) {
-      query.andWhere('c.id < :cursor', { cursor });
+      query.andWhere('c.id > :cursor', { cursor });
     }
     return query.getMany();
   }
