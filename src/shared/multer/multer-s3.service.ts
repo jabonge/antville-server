@@ -26,7 +26,12 @@ export class UploadService implements MulterOptionsFactory {
       acl: 'public-read',
       key: (_, file, cb) => {
         const fileExtension = file.originalname.split('.').pop();
-        return cb(null, `${file.fieldname}/${Date.now()}.${fileExtension}`);
+        return cb(
+          null,
+          `${process.env.NODE_ENV}/${
+            file.fieldname
+          }/${Date.now()}.${fileExtension}`,
+        );
       },
     });
 

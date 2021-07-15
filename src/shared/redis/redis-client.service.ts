@@ -1,7 +1,7 @@
 import { StockPriceInfoDto } from '../../domain/stock/dtos/stock_price_info.dto';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
-import redis, { RedisClient } from 'redis';
+import redis, { ClientOpts, RedisClient } from 'redis';
 import { promisify } from 'util';
 import { plainToClass, classToPlain } from 'class-transformer';
 import { ChartData } from '../../domain/chart/interfaces/chart.interface';
@@ -17,7 +17,9 @@ export class RedisClientWrapper {
     const host = this.configService.get<string>('REDIS_HOST');
     const port = this.configService.get<number>('REDIS_PORT');
     const password = this.configService.get<string>('REDIS_PASSWORD');
-    this.client = redis.createClient(port, host, { password });
+    const redisOptions: ClientOpts =
+      process.env.NODE_ENV === 'production' ? {} : { password };
+    this.client = redis.createClient(port, host, redisOptions);
     this.setAsync = promisify(this.client.set).bind(this.client);
     this.getAsync = promisify(this.client.get).bind(this.client);
     this.mgetAsync = promisify(this.client.mget).bind(this.client);

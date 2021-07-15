@@ -6,11 +6,17 @@ import { AuthGuard } from '@nestjs/passport';
 export class JwtAuthGuard extends AuthGuard('jwt') {}
 
 @Injectable()
+export class JwtPayloadAuthGuard extends AuthGuard('jwt-payload') {}
+
+@Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {}
 
 @Injectable()
-export class ConditionAuthGuard extends AuthGuard('jwt') {
+export class ConditionAuthGuard extends AuthGuard('jwt-payload') {
   handleRequest(_, user, __, ___) {
-    return user;
+    if (user) {
+      return user;
+    }
+    return null;
   }
 }

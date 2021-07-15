@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import CustomError from '../../util/constant/exception';
 
 interface CustomError {
   errorCode?: number;
@@ -19,23 +20,24 @@ export class AVExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse();
     const env = process.env.NODE_ENV;
 
-    if (env === 'local') {
-    }
-    Logger.error(exception);
-
     let status;
     let message;
     let errorCode;
 
+    if (env === 'local') {
+      Logger.error(exception);
+    }
+
     if (exception instanceof HttpException) {
+      const errResponse = exception.getResponse();
       status = exception.getStatus();
+
       if (typeof exception.getResponse() === 'object') {
-        errorCode = (exception.getResponse() as CustomError).errorCode;
+        errorCode = (errResponse as CustomError).errorCode;
+        message = (errResponse as CustomError).message.toString();
       }
-      if (env === 'production' && status !== 401) {
+      if (env === 'production' && status > 499) {
         message = 'INTERNAL_SERVER_ERROR';
-      } else {
-        message = exception.message;
       }
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;

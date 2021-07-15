@@ -11,7 +11,14 @@ export class PostRepository extends Repository<Post> {
     const query = this.createQueryBuilder('p')
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .leftJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
@@ -76,12 +83,18 @@ export class PostRepository extends Repository<Post> {
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .leftJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
-      .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'DESC');
+      .leftJoinAndSelect('p.gifImage', 'gif');
     if (userId) {
       query
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
@@ -132,22 +145,61 @@ export class PostRepository extends Repository<Post> {
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .leftJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
-      .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'DESC');
+      .leftJoinAndSelect('p.gifImage', 'gif');
     return query.getMany();
   }
 
   async findAllPostByFollowing(userId: number, cursor: number, limit: number) {
     const query = this.createQueryBuilder('p')
-      .leftJoin('follow', 'f', 'p.authorId = f.followingId')
-      .andWhere(`f.followerId = ${userId}`)
-      .innerJoinAndSelect('p.author', 'author')
+      .innerJoin(
+        (qb) => {
+          const subQuery = qb
+            .subQuery()
+            .select(['id'])
+            .from(Post, 'ip')
+            .innerJoin(
+              (qb) => {
+                const ipSubQuery = qb
+                  .subQuery()
+                  .select()
+                  .from('follow', 'f')
+                  .where(`f.followerId = ${userId}`);
+                return ipSubQuery;
+              },
+              'ipif',
+              'ipif.followingId = ip.authorId',
+            )
+            .orderBy('ip.id', 'DESC')
+            .limit(limit);
+          if (cursor) {
+            subQuery.where('ip.id < :cursor', { cursor });
+          }
+          return subQuery;
+        },
+        'ipf',
+        'ipf.id = p.id',
+      )
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
       .leftJoin('p.postCount', 'postCount')
@@ -155,12 +207,8 @@ export class PostRepository extends Repository<Post> {
       .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
       .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
-      .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'DESC')
-      .take(limit);
-    if (cursor) {
-      query.andWhere('p.id < :cursor', { cursor });
-    }
+      .leftJoinAndSelect('p.gifImage', 'gif');
+
     return query.getMany();
   }
 
@@ -169,7 +217,14 @@ export class PostRepository extends Repository<Post> {
       .where('p.id = :id', { id: postId })
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .leftJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
@@ -234,13 +289,18 @@ export class PostRepository extends Repository<Post> {
       )
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .leftJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
       .leftJoinAndSelect('p.link', 'link')
-      .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'DESC')
-      .take(limit);
+      .leftJoinAndSelect('p.gifImage', 'gif');
     if (cursor) {
       query.andWhere('p.id < :cursor', { cursor });
     }
@@ -262,10 +322,16 @@ export class PostRepository extends Repository<Post> {
       .andWhere('p.authorId = :id', { id: userId })
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .leftJoinAndSelect('p.author', 'author')
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
-      .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
       .leftJoinAndSelect('p.gifImage', 'gif')
       .orderBy('p.id', 'DESC')
@@ -286,26 +352,40 @@ export class PostRepository extends Repository<Post> {
     userId: number,
     myId?: number,
   ) {
-    const cursorWhere = cursor ? `AND postId < ${cursor}` : '';
     const query = this.createQueryBuilder('p')
       .innerJoin(
-        `(SELECT postId FROM post_liker pl WHERE userId = ${userId} ${cursorWhere} ORDER BY postId DESC LIMIT ${limit})`,
-        'pl',
-        'p.id = pl.postId',
+        (qb) => {
+          const subQuery = qb
+            .subQuery()
+            .select(['postId'])
+            .from('post_liker', 'pl')
+            .where(`pl.userId = ${userId}`)
+            .orderBy('pl.postId', 'DESC')
+            .limit(limit);
+          if (cursor) {
+            subQuery.andWhere(`pl.postId < ${cursor}`);
+          }
+
+          return subQuery;
+        },
+        'ipl',
+        'ipl.postId = p.id',
       )
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('p.postImgs', 'postImg')
       .addSelect('postImg.image')
-      .leftJoinAndSelect('p.author', 'author')
       .leftJoin('p.postCount', 'postCount')
       .addSelect(['postCount.likeCount', 'postCount.commentCount'])
-      .addSelect(['u.id'])
       .leftJoinAndSelect('p.link', 'link')
-      .leftJoinAndSelect('p.gifImage', 'gif')
-      .orderBy('p.id', 'DESC')
-      .take(limit);
-    if (cursor) {
-      query.andWhere('p.id < :cursor', { cursor });
-    }
+      .leftJoinAndSelect('p.gifImage', 'gif');
+
     if (myId) {
       query
         .leftJoin('p.likers', 'u', 'u.id = :userId', { userId: myId })

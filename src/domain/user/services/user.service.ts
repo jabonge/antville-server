@@ -5,7 +5,7 @@ import { CreateUserInput } from '../dtos/create-user.dto';
 import { User } from '../entities/user.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, In, IsNull, Not, Repository } from 'typeorm';
+import { Connection, In, IsNull, MoreThan, Not, Repository } from 'typeorm';
 import { UserCount } from '../entities/user-count.entity';
 import { EditProfileDto } from '../dtos/edit-profile.dto';
 import CustomError from '../../../util/constant/exception';
@@ -44,7 +44,7 @@ export class UserService {
     );
   }
 
-  async findByNicknames(nicknames: string[], user: User) {
+  async findByNicknames(nicknames: string[], userId: number) {
     const users = await this.userRepository
       .createQueryBuilder('u')
       .select(['u.id', 'u.nickname'])
@@ -54,7 +54,7 @@ export class UserService {
           .subQuery()
           .select()
           .from(UserBlock, 'ub')
-          .where(`ub.blockerId = ${user.id}`)
+          .where(`ub.blockerId = ${userId}`)
           .andWhere(`u.id = ub.blockedId`)
           .getQuery();
         return 'NOT EXISTS ' + subQuery;
@@ -78,13 +78,24 @@ export class UserService {
     }
     const user = await query.getOne();
     if (!user) {
-      throw new BadRequestException();
+      throw new BadRequestException(CustomError.INVALID_USER);
     }
     return user;
   }
 
   findById(id: number) {
-    return this.userRepository.findOne({ id });
+    return this.userRepository.findOne(id, {
+      select: [
+        'id',
+        'nickname',
+        'profileImg',
+        'isEmailVerified',
+        'influencerBadge',
+        'wadizBadge',
+        'isBannded',
+        'email',
+      ],
+    });
   }
 
   async getUserProfile(userId: number, myId?: number) {
@@ -193,6 +204,7 @@ export class UserService {
             UserCount,
             {
               userId: myId,
+              following: MoreThan(0),
             },
             'following',
             1,
@@ -201,12 +213,14 @@ export class UserService {
             UserCount,
             {
               userId,
+              followers: MoreThan(0),
             },
             'followers',
             1,
           ),
         ]);
-      } else if (isFollowed) {
+      }
+      if (isFollowed) {
         await Promise.all([
           manager
             .createQueryBuilder(User, 'u')
@@ -217,6 +231,7 @@ export class UserService {
             UserCount,
             {
               userId,
+              following: MoreThan(0),
             },
             'following',
             1,
@@ -225,6 +240,7 @@ export class UserService {
             UserCount,
             {
               userId: myId,
+              followers: MoreThan(0),
             },
             'followers',
             1,
@@ -261,9 +277,7 @@ export class UserService {
       userId,
     );
     if (isBlockingOrBlocked) {
-      throw new BadRequestException(
-        '유저가 차단을 했거나 당한 상태에서 팔로우 할 수 없습니다.',
-      );
+      throw new BadRequestException(CustomError.BLOCK_OR_BLOCKED_USER);
     }
     const createNotificationDto = new CreateNotificationDto();
     createNotificationDto.viewerId = userId;
@@ -280,7 +294,7 @@ export class UserService {
         manager.increment(
           UserCount,
           {
-            userId,
+            userId: me.id,
           },
           'following',
           1,
@@ -313,7 +327,8 @@ export class UserService {
         manager.decrement(
           UserCount,
           {
-            userId,
+            userId: myId,
+            following: MoreThan(0),
           },
           'following',
           1,
@@ -322,6 +337,7 @@ export class UserService {
           UserCount,
           {
             userId,
+            followers: MoreThan(0),
           },
           'followers',
           1,
@@ -348,7 +364,13 @@ export class UserService {
   searchUser(query: string, cursor: number, limit: number) {
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
-      .select()
+      .select([
+        'u.id',
+        'u.nickname',
+        'u.profileImg',
+        'u.wadizBadge',
+        'u.influencerBadge',
+      ])
       .orWhere(`u.nickname like '${query}%'`)
       .take(limit);
     if (cursor) {
@@ -361,6 +383,13 @@ export class UserService {
     const cursorWhere = cursor ? `AND followerId < ${cursor}` : '';
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
+      .select([
+        'u.id',
+        'u.nickname',
+        'u.profileImg',
+        'u.wadizBadge',
+        'u.influencerBadge',
+      ])
       .innerJoin(
         `(SELECT followerId FROM follow WHERE followingId = ${userId} ${cursorWhere} ORDER BY followerId DESC LIMIT ${limit})`,
         'f',
@@ -373,6 +402,13 @@ export class UserService {
     const cursorWhere = cursor ? `AND followingId < ${cursor}` : '';
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
+      .select([
+        'u.id',
+        'u.nickname',
+        'u.profileImg',
+        'u.wadizBadge',
+        'u.influencerBadge',
+      ])
       .innerJoin(
         `(SELECT followingId FROM follow WHERE followerId = ${userId} ${cursorWhere} ORDER BY followingId DESC LIMIT ${limit})`,
         'f',
@@ -384,6 +420,13 @@ export class UserService {
   findBlocking(userId: number, cursor: number, limit: number) {
     const dbQuery = this.userRepository
       .createQueryBuilder('u')
+      .select([
+        'u.id',
+        'u.nickname',
+        'u.profileImg',
+        'u.wadizBadge',
+        'u.influencerBadge',
+      ])
       .innerJoin(
         'u.blockedUsers',
         'b',
@@ -451,9 +494,9 @@ export class UserService {
     return;
   }
 
-  async changePushAlarm(userId: number, isOff: boolean) {
+  async changePushAlarm(userId: number, push: boolean) {
     await this.userRepository.update(userId, {
-      isPushAlarmOff: isOff,
+      pushAlarm: push,
     });
     return;
   }
@@ -464,13 +507,13 @@ export class UserService {
       where: {
         id: In(userIds),
         fcmToken: Not(IsNull()),
-        isPushAlarmOff: false,
+        pushAlarm: true,
       },
     });
   }
 
   async changePassword(
-    user: User,
+    userId: number,
     { changePassword, currentPassword }: ChangePasswordDto,
   ) {
     if (changePassword === currentPassword) {
@@ -478,7 +521,7 @@ export class UserService {
         '현재 비밀번호와 동일한 비밀번호로 변경 할 수 없습니다.',
       );
     }
-    const userHasPassword = await this.userRepository.findOneOrFail(user.id, {
+    const userHasPassword = await this.userRepository.findOneOrFail(userId, {
       select: ['id', 'password'],
     });
     if (await userHasPassword.checkPassword(currentPassword)) {
@@ -522,7 +565,8 @@ export class UserService {
         userId: user.id,
       },
       {
-        expiresIn: '1d',
+        expiresIn: '1h',
+        secret: process.env.VERIFY_EMAIL_SECRET_KEY,
       },
     );
     await this.sesService.verifyEmail(token, user.nickname, user.email);

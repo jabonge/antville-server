@@ -46,10 +46,9 @@ export class User {
   fcmToken: string;
 
   @Column({
-    select: false,
-    default: false,
+    default: true,
   })
-  isPushAlarmOff: boolean;
+  pushAlarm: boolean;
 
   @Column({
     default: false,
@@ -70,6 +69,12 @@ export class User {
     default: false,
   })
   influencerBadge: boolean;
+
+  @Column({
+    default: false,
+    select: false,
+  })
+  isBannded: boolean;
 
   @Column({
     nullable: true,

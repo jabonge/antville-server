@@ -1,5 +1,5 @@
 import { PostImg } from './entities/post-img.entity';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Post } from './entities/post.entity';
 import {
@@ -26,6 +26,7 @@ import { PostStockPrice } from './entities/post-stock-price.entity';
 import { PubSub } from '../../shared/redis/interfaces';
 import { UserCount } from '../user/entities/user-count.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
+import CustomError from '../../util/constant/exception';
 
 @Injectable()
 export class PostService {
@@ -89,17 +90,21 @@ export class PostService {
           const ps = new StockPost();
           ps.stockId = s.id;
           ps.authorId = user.id;
+          ps.symbol = s.symbol;
           return ps;
         });
         post.stockPosts = stockPosts;
-        if (stocks[0]) {
+        const firstCashTagStock = stocks.find(
+          (v) => v.cashTagName === cashTags[0],
+        );
+        if (firstCashTagStock) {
           const priceInfo = await this.stockService.getPrices([
-            stocks[0].symbol,
+            firstCashTagStock.symbol,
           ]);
           if (priceInfo[0] && priceInfo[0].latest) {
             const postStockPrice = new PostStockPrice();
             postStockPrice.price = priceInfo[0].latest;
-            postStockPrice.stockId = stocks[0].id;
+            postStockPrice.stockId = firstCashTagStock.id;
             post.postStockPrice = postStockPrice;
           }
         }
@@ -275,15 +280,22 @@ export class PostService {
   }
 
   async createReport(userId: number, postId: number) {
-    await this.connection.transaction(async (manager) => {
-      await manager.findOneOrFail(Post, {
-        id: postId,
-      });
-      const report = new PostReport();
-      report.userId = userId;
-      report.postId = postId;
-      await manager.save(PostReport, report);
+    await this.connection.manager.findOneOrFail(Post, {
+      id: postId,
     });
+    const isExistReport = await this.connection.manager.findOne(PostReport, {
+      where: {
+        userId,
+        postId,
+      },
+    });
+    if (isExistReport) {
+      throw new BadRequestException(CustomError.ALREADY_REPORT);
+    }
+    const report = new PostReport();
+    report.userId = userId;
+    report.postId = postId;
+    await this.connection.manager.save(PostReport, report);
   }
 
   async createUserTagNotification(
@@ -293,9 +305,10 @@ export class PostService {
     postId: number,
   ) {
     let users: User[];
-    const userNicknames = findAtSignNickname(body);
-    if (userNicknames.length > 0) {
-      users = await this.userService.findByNicknames(userNicknames, user);
+    const findNicknames = findAtSignNickname(body);
+    const removeSelf = findNicknames.filter((v) => v !== user.nickname);
+    if (removeSelf.length > 0) {
+      users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
       await this.notificationService.createUserTagNotification(

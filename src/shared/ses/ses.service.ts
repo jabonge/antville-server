@@ -2,6 +2,7 @@ import { verifyEmailRequest } from '../../util/ses/index';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import AWS from 'aws-sdk';
+import Sentry from '@sentry/node';
 import { changePasswordEmailRequest } from '../../util/ses';
 
 @Injectable()
@@ -34,7 +35,7 @@ export class SesService {
       verifyEmailRequest(token, nickname, email),
       (err, _data) => {
         if (err) {
-          console.log(err);
+          Sentry.captureException(err);
         }
         return;
       },

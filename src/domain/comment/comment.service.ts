@@ -1,5 +1,5 @@
 import { Post } from './../post/entities/post.entity';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, EntityManager, Repository } from 'typeorm';
 import { GifImage } from '../../common/entities/gif.entity';
@@ -16,6 +16,7 @@ import { CommentImg } from './entities/comment-img.entity';
 import { CommentReport } from './entities/comment-report.entity';
 import { Comment } from './entities/comment.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
+import CustomError from '../../util/constant/exception';
 
 @Injectable()
 export class CommentService {
@@ -120,14 +121,21 @@ export class CommentService {
       .createQueryBuilder('c')
       .where('c.postId = :id', { id: postId })
       .andWhere('c.parentCommentId IS NULL')
+      .innerJoin('c.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('c.commentImgs', 'commentImg')
       .addSelect('commentImg.image')
-      .leftJoinAndSelect('c.author', 'author')
       .leftJoin('c.commentCount', 'commentCount')
       .addSelect(['commentCount.likeCount', 'commentCount.nextCommentCount'])
       .leftJoinAndSelect('c.link', 'link')
       .leftJoinAndSelect('c.gifImage', 'gif')
-      .orderBy('c.id', 'DESC')
+      .orderBy('c.id', 'ASC')
       .take(limit);
     if (userId) {
       query
@@ -145,7 +153,7 @@ export class CommentService {
         .addSelect(['u.id']);
     }
     if (cursor) {
-      query.andWhere('c.id < :cursor', { cursor });
+      query.andWhere('c.id > :cursor', { cursor });
     }
     return query.getMany();
   }
@@ -159,14 +167,21 @@ export class CommentService {
     const query = this.commentRepository
       .createQueryBuilder('c')
       .where('c.parentCommentId = :id', { id: parentCommentId })
+      .innerJoin('c.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
       .leftJoin('c.commentImgs', 'commentImg')
       .addSelect('commentImg.image')
-      .leftJoinAndSelect('c.author', 'author')
       .leftJoin('c.commentCount', 'commentCount')
       .addSelect(['commentCount.likeCount'])
       .leftJoinAndSelect('c.link', 'link')
       .leftJoinAndSelect('c.gifImage', 'gif')
-      .orderBy('c.id', 'DESC')
+      .orderBy('c.id', 'ASC')
       .take(limit);
     if (userId) {
       query
@@ -184,9 +199,35 @@ export class CommentService {
         .addSelect(['u.id']);
     }
     if (cursor) {
-      query.andWhere('c.id < :cursor', { cursor });
+      query.andWhere('c.id > :cursor', { cursor });
     }
     return query.getMany();
+  }
+
+  async findOneComment(commentId: number, userId?: number) {
+    const query = this.commentRepository
+      .createQueryBuilder('c')
+      .where('c.id = :id', { id: commentId })
+      .innerJoin('c.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
+      .leftJoin('c.commentImgs', 'commentImg')
+      .addSelect('commentImg.image')
+      .leftJoin('c.commentCount', 'commentCount')
+      .addSelect(['commentCount.likeCount', 'commentCount.nextCommentCount'])
+      .leftJoinAndSelect('c.link', 'link')
+      .leftJoinAndSelect('c.gifImage', 'gif');
+    if (userId) {
+      query
+        .leftJoin('c.likers', 'u', 'u.id = :userId', { userId })
+        .addSelect(['u.id']);
+    }
+    return query.getOne();
   }
 
   async deleteComment(userId: number, commentId: number) {
@@ -265,15 +306,22 @@ export class CommentService {
   }
 
   async createReport(userId: number, commentId: number) {
-    await this.connection.transaction(async (manager) => {
-      await manager.findOneOrFail(Comment, {
-        id: commentId,
-      });
-      const report = new CommentReport();
-      report.userId = userId;
-      report.commentId = commentId;
-      await manager.save(CommentReport, report);
+    await this.connection.manager.findOneOrFail(Post, {
+      id: commentId,
     });
+    const isExistReport = await this.connection.manager.findOne(CommentReport, {
+      where: {
+        userId,
+        commentId,
+      },
+    });
+    if (isExistReport) {
+      throw new BadRequestException(CustomError.ALREADY_REPORT);
+    }
+    const report = new CommentReport();
+    report.userId = userId;
+    report.commentId = commentId;
+    await this.connection.manager.save(CommentReport, report);
   }
 
   async createUserTagNotification(
@@ -283,9 +331,10 @@ export class CommentService {
     postId: number,
   ) {
     let users: User[];
-    const userNicknames = findAtSignNickname(body);
-    if (userNicknames.length > 0) {
-      users = await this.userService.findByNicknames(userNicknames, user);
+    const findNicknames = findAtSignNickname(body);
+    const removeSelf = findNicknames.filter((v) => v !== user.nickname);
+    if (removeSelf.length > 0) {
+      users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
       await this.notificationService.createUserTagNotification(

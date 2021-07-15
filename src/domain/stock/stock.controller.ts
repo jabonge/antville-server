@@ -1,6 +1,6 @@
 import { Stock } from './entities/stock.entity';
 import { User } from '../user/entities/user.entity';
-import { JwtAuthGuard } from '../../infra/guards/auth.guard';
+import { JwtPayloadAuthGuard } from '../../infra/guards/auth.guard';
 import { StockResponseDto, StocksResponseDto } from './dtos/stock-response.dto';
 import { StockService } from './stock.service';
 import {
@@ -8,26 +8,28 @@ import {
   Controller,
   Get,
   Param,
+  ParseArrayPipe,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../../infra/decorators/user.decorator';
 import { StockPriceInfoDto } from './dtos/stock_price_info.dto';
+import { StockPaginationDto } from './dtos/stock-pagination.dto';
+import { NotEmptyStringPipe } from '../../infra/pipes/not-empty-string.pipe';
 
 @Controller('stock')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
   @Post('search')
   search(
-    @Body() { query }: Record<'query', string>,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Body('query', NotEmptyStringPipe) query: string,
+    @Query() { page, limit }: StockPaginationDto,
   ): Promise<Stock[]> {
-    return this.stockService.search(query, +page, +limit);
+    return this.stockService.search(query, page, limit);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   @Get('watchlist')
   getWatchList(@CurrentUser() user: User): Promise<StocksResponseDto> {
     return this.stockService.getWatchListWithStockPriceInfo(user.id);
@@ -54,12 +56,17 @@ export class StockController {
   }
 
   @Post('prices')
-  getPrices(@Body('symbols') symbols: string[]): Promise<StockPriceInfoDto[]> {
+  getPrices(
+    @Body('symbols', new ParseArrayPipe({ items: String, optional: false }))
+    symbols: string[],
+  ): Promise<StockPriceInfoDto[]> {
     return this.stockService.getPrices(symbols);
   }
 
   @Get(':tag')
-  getStockByTitle(@Param('tag') tag: string): Promise<StockResponseDto> {
+  getStockByTitle(
+    @Param('tag', NotEmptyStringPipe) tag: string,
+  ): Promise<StockResponseDto> {
     return this.stockService.getStockByTag(tag);
   }
 }

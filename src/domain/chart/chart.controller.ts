@@ -2,6 +2,8 @@ import { Controller, Query, Post, Body } from '@nestjs/common';
 import { StockType } from '../stock/entities/stock.entity';
 import { StockService } from '../stock/stock.service';
 import { ChartService } from './chart.service';
+import { ChartTypeQueryDto } from './dtos/chart-type.dto';
+import { GetChartDto } from './dtos/get-chart.dto';
 
 @Controller('chart')
 export class ChartController {
@@ -12,8 +14,8 @@ export class ChartController {
 
   @Post()
   async getChart(
-    @Body() { symbol }: Record<'symbol', string>,
-    @Query('type') type: string,
+    @Body() { symbol }: GetChartDto,
+    @Query() { type }: ChartTypeQueryDto,
   ) {
     const stock = await this.stockService.findBySymbol(symbol);
     if (stock.type === StockType.CRYPTO) {

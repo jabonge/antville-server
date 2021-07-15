@@ -1,15 +1,14 @@
+import { krTimeZone } from './../../util/constant/time';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import {
   differenceInDays,
-  differenceInHours,
   differenceInMinutes,
   getDay,
-  getHours,
   parseISO,
-  startOfDay,
   startOfHour,
   subDays,
+  subHours,
   subMonths,
   subWeeks,
   subYears,
@@ -18,13 +17,14 @@ import { RedisClientWrapper } from '../../shared/redis/redis-client.service';
 import { REDIS_CLIENT } from '../../util/constant/redis';
 import { ChartInfo } from './interfaces/chart.interface';
 import { UpbitService } from './upbit.service';
-import { format, utcToZonedTime } from 'date-fns-tz';
+import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import { UsStockApiService } from './us-stock.service';
 import {
   dayFormat,
   hourMinuteFormat,
   nyTimeZone,
 } from '../../util/constant/time';
+import differenceInHours from 'date-fns/differenceInHours';
 
 export enum ChartType {
   Day = '1d',
@@ -43,7 +43,7 @@ export class ChartService {
     private readonly usStockApiService: UsStockApiService,
   ) {}
 
-  async getCryptoChart(symbol: string, type: string) {
+  async getCryptoChart(symbol: string, type: ChartType) {
     const splitList = symbol.split('/');
     const market = `${splitList[1]}-${splitList[0]}`;
     const key = `${symbol}-${type}`;
@@ -54,7 +54,10 @@ export class ChartService {
     if (!chartInfoString || this.isInValidCryptoData(type, chartInfo)) {
       const data = await this.getCryptoData(market, type);
       const newChartInfo = new ChartInfo();
-      newChartInfo.lastChartDate = data[0].date;
+      newChartInfo.lastChartDate = format(
+        zonedTimeToUtc(data[0].date, krTimeZone),
+        hourMinuteFormat,
+      );
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;
@@ -69,25 +72,17 @@ export class ChartService {
       return true;
     }
     if (type === ChartType.Day) {
-      const diff = differenceInMinutes(
-        new Date(format(Date.now(), hourMinuteFormat)),
-        new Date(chartInfo.lastChartDate),
-      );
-      console.log(new Date(format(Date.now(), hourMinuteFormat)));
-      console.log(new Date(chartInfo.lastChartDate));
-      console.log(diff);
+      const now = new Date(format(Date.now(), hourMinuteFormat));
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const diff = differenceInMinutes(now, lastChartDate);
       if (diff < 5) {
         return false;
       }
       return true;
     } else if (type === ChartType.Week) {
-      const diff = differenceInHours(
-        startOfHour(Date.now()),
-        new Date(chartInfo.lastChartDate),
-      );
-      console.log(startOfHour(Date.now()));
-      console.log(new Date(chartInfo.lastChartDate));
-      console.log(diff);
+      const now = new Date(startOfHour(Date.now()));
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const diff = differenceInHours(now, lastChartDate);
       if (diff < 1) {
         return false;
       }
@@ -97,26 +92,21 @@ export class ChartService {
       type == ChartType.ThreeMonth ||
       type === ChartType.SixMonth
     ) {
-      const diff = differenceInDays(
-        new Date(format(Date.now(), dayFormat)),
-        new Date(chartInfo.lastChartDate),
+      const now = new Date(format(Date.now(), dayFormat));
+      const lastChartDate = new Date(
+        format(parseISO(chartInfo.lastChartDate), dayFormat),
       );
-      console.log(new Date(format(Date.now(), dayFormat)));
-      console.log(new Date(chartInfo.lastChartDate));
-      console.log(diff);
+      const diff = differenceInDays(now, lastChartDate);
       if (diff < 1) {
         return false;
       }
       return true;
     } else if (type === ChartType.Year) {
-      console.log(chartInfo.lastChartDate);
-      const diff = differenceInDays(
-        new Date(format(Date.now(), dayFormat)),
-        new Date(chartInfo.lastChartDate),
+      const now = new Date(format(Date.now(), dayFormat));
+      const lastChartDate = new Date(
+        format(parseISO(chartInfo.lastChartDate), dayFormat),
       );
-      console.log(new Date(format(Date.now(), dayFormat)));
-      console.log(new Date(chartInfo.lastChartDate));
-      console.log(diff);
+      const diff = differenceInDays(now, lastChartDate);
       if (diff < 7) {
         return false;
       }
@@ -126,7 +116,7 @@ export class ChartService {
     }
   }
 
-  async getCryptoData(market: string, type: string) {
+  async getCryptoData(market: string, type: ChartType) {
     let data;
     if (type === ChartType.Day) {
       data = await this.upbitService.getCandlesBy5Min(market);
@@ -146,24 +136,24 @@ export class ChartService {
     return data;
   }
 
-  async getUsStockChart(symbol: string, type: string) {
+  async getUsStockChart(symbol: string, type: ChartType) {
     const key = `${symbol}-${type}`;
     const infoKey = `${symbol}-${type}-info`;
     const chartInfoString = await this.client.getChartInfo(infoKey);
     const chartInfo = plainToClass(ChartInfo, JSON.parse(chartInfoString));
+    const isOpen = this.usStockApiService.isUsStockMarketOpen();
 
-    if (!chartInfoString || this.isInValidUsStockData(type, chartInfo)) {
-      const data = await this.getUsStockData(symbol, type);
+    if (
+      !chartInfoString ||
+      this.isInValidUsStockData(type, chartInfo, isOpen)
+    ) {
+      const data = await this.getUsStockData(symbol, type, isOpen);
       const newChartInfo = new ChartInfo();
-      newChartInfo.length = data.length;
-      newChartInfo.lastChartDate = data[0].date;
-      newChartInfo.updatedAt = format(
-        utcToZonedTime(Date.now(), nyTimeZone),
+      newChartInfo.lastChartDate = format(
+        zonedTimeToUtc(data[0].date, nyTimeZone),
         hourMinuteFormat,
-        {
-          timeZone: nyTimeZone,
-        },
       );
+      newChartInfo.updatedAt = format(Date.now(), hourMinuteFormat);
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;
@@ -173,93 +163,55 @@ export class ChartService {
     }
   }
 
-  isInValidUsStockData(type: string, chartInfo: ChartInfo) {
+  isInValidUsStockData(type: string, chartInfo: ChartInfo, isOpen: boolean) {
     if (!chartInfo) {
       return true;
     }
-    console.log(chartInfo);
     if (type === ChartType.Day) {
       //5Min
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), nyTimeZone), hourMinuteFormat),
-      );
-      const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), hourMinuteFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      const updatedAt = new Date(
-        format(parseISO(chartInfo.updatedAt), hourMinuteFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      console.log(`now: ${now}`);
-      console.log(`lastChartDate: ${lastChartDate}`);
-      console.log(`updatedAt: ${updatedAt}`);
-      console.log(`chartInfo.length: ${chartInfo.length}`);
+
+      const now = new Date(Date.now());
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const updatedAt = new Date(chartInfo.updatedAt);
 
       const diff = differenceInMinutes(now, lastChartDate);
-      console.log(`diff : ${diff}`);
-
-      if (this.isUsStockMarketOpen()) {
+      if (isOpen) {
         if (diff > 5) {
           return true;
         } else {
           return false;
         }
       } else {
-        if (chartInfo.length < 79) {
-          return true;
-        } else {
-          const isSameDayNowAndUpdateAt =
-            differenceInDays(startOfDay(now), startOfDay(updatedAt)) === 0;
-          if (isSameDayNowAndUpdateAt) {
-            return this.isIncludeStockMaketTime(now, updatedAt);
-          }
-          return true;
+        const isSameDayNowAndUpdateAt =
+          getDay(subHours(now, 4)) === getDay(subHours(updatedAt, 4));
+
+        if (isSameDayNowAndUpdateAt) {
+          return this.usStockApiService.isIncludeStockMaketTime(now, updatedAt);
         }
+        return true;
       }
     } else if (type === ChartType.Week) {
       //30min
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), nyTimeZone), hourMinuteFormat),
-      );
-      const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), hourMinuteFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      const updatedAt = new Date(
-        format(parseISO(chartInfo.updatedAt), hourMinuteFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-
-      console.log(`now: ${now}`);
-      console.log(`lastChartDate: ${lastChartDate}`);
-      console.log(`updatedAt: ${updatedAt}`);
-      console.log(`chartInfo.length: ${chartInfo.length}`);
+      const now = new Date(Date.now());
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const updatedAt = new Date(chartInfo.updatedAt);
 
       const diff = differenceInMinutes(now, lastChartDate);
-      console.log(`diff: ${diff}`);
 
-      if (this.isUsStockMarketOpen()) {
+      if (this.usStockApiService.isUsStockMarketOpen()) {
         if (diff > 30) {
           return true;
         } else {
           return false;
         }
       } else {
-        if (chartInfo.length % 14 !== 0) {
-          return true;
-        } else {
-          const isSameDayNowAndUpdateAt =
-            differenceInMinutes(startOfDay(now), startOfDay(updatedAt)) === 0;
-          if (isSameDayNowAndUpdateAt) {
-            return this.isIncludeStockMaketTime(now, updatedAt);
-          }
-          return true;
+        const isSameDayNowAndUpdateAt =
+          getDay(subHours(now, 4)) === getDay(subHours(updatedAt, 4));
+
+        if (isSameDayNowAndUpdateAt) {
+          return this.usStockApiService.isIncludeStockMaketTime(now, updatedAt);
         }
+        return true;
       }
     } else if (
       type === ChartType.Month ||
@@ -267,31 +219,15 @@ export class ChartService {
       type === ChartType.SixMonth ||
       type === ChartType.Year
     ) {
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), nyTimeZone), dayFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), dayFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      const updatedAt = new Date(
-        format(parseISO(chartInfo.updatedAt), dayFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
+      const now = new Date(Date.now());
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const updatedAt = new Date(chartInfo.updatedAt);
       const diff = differenceInDays(now, lastChartDate);
-      console.log(now);
-      console.log(lastChartDate);
-      console.log(updatedAt);
-      console.log(diff);
+
       if (diff < 1) {
         return false;
       } else {
         const nowUpdateAtDiff = differenceInDays(now, updatedAt);
-        console.log(nowUpdateAtDiff);
         if (nowUpdateAtDiff !== 0) {
           return true;
         } else {
@@ -303,18 +239,25 @@ export class ChartService {
     }
   }
 
-  async getUsStockData(market: string, type: string) {
+  async getUsStockData(market: string, type: ChartType, isOpen: boolean) {
     let data;
     if (type === ChartType.Day) {
       const now = utcToZonedTime(Date.now(), nyTimeZone);
-      const from = format(subDays(now, 1), dayFormat, {
-        timeZone: nyTimeZone,
-      });
+      let subtractDay = 1;
+      if (isOpen) {
+        subtractDay = 0;
+      } else {
+        const day = now.getDay();
+        if (day === 0) {
+          subtractDay = 2;
+        } else if (day === 1) {
+          subtractDay = 3;
+        }
+      }
+      const from = format(subDays(now, subtractDay), dayFormat);
       const to = format(now, dayFormat, {
         timeZone: nyTimeZone,
       });
-      console.log(from);
-      console.log(to);
       data = await this.usStockApiService.getCandlesBy5Min(market, from, to);
     } else if (type === ChartType.Week) {
       const now = utcToZonedTime(Date.now(), nyTimeZone);
@@ -322,8 +265,7 @@ export class ChartService {
       const to = format(now, dayFormat, {
         timeZone: nyTimeZone,
       });
-      console.log(from);
-      console.log(to);
+
       data = await this.usStockApiService.getCandlesBy30Min(market, from, to);
     } else if (type === ChartType.Month) {
       const now = utcToZonedTime(Date.now(), nyTimeZone);
@@ -357,39 +299,5 @@ export class ChartService {
       throw new BadRequestException();
     }
     return data;
-  }
-
-  isUsStockMarketOpen() {
-    const now = utcToZonedTime(Date.now(), nyTimeZone);
-    console.log(`stockmaketNow: ${now}`);
-    const day = getDay(now);
-    console.log(day);
-    if (day === 0 || day === 6) {
-      return false;
-    } else {
-      const hour = getHours(now);
-      if (hour < 9 || hour > 16) {
-        return false;
-      }
-      return true;
-    }
-  }
-
-  isIncludeStockMaketTime(now: Date, updatedAt: Date) {
-    const day = getDay(now);
-    if (day === 0 || day === 6) {
-      return false;
-    } else {
-      const nowHour = getHours(now);
-      const updateAtHour = getHours(updatedAt);
-      const diffTime = differenceInMinutes(now, updatedAt);
-      console.log(`diffTime: ${diffTime}`);
-      if (updateAtHour < 9 || nowHour > 16) {
-        if (diffTime > 390) {
-          return true;
-        }
-      }
-      return false;
-    }
   }
 }

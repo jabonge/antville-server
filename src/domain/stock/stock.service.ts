@@ -3,6 +3,7 @@ import { RedisClientWrapper } from '../../shared/redis/redis-client.service';
 import { StockRepository } from './repositories/stock.repository';
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { REDIS_CLIENT } from '../../util/constant/redis';
+import CustomError from '../../util/constant/exception';
 
 @Injectable()
 export class StockService {
@@ -35,7 +36,7 @@ export class StockService {
   async getStockByTag(tag: string) {
     const stock = await this.stockRepository.findByTag(tag);
     if (!stock) {
-      throw new BadRequestException('존재하지 않는 자산입니다.');
+      throw new BadRequestException(CustomError.INVALID_STOCK);
     }
     const stockPriceInfo = await this.client.getStockPriceInfo(stock.symbol);
     return {
