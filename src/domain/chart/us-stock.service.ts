@@ -6,7 +6,7 @@ import {
 import { HttpService, Injectable } from '@nestjs/common';
 import { format } from 'date-fns-tz';
 import { dayFormat, nyTimeZone } from '../../util/constant/time';
-import { getDay, isAfter, isBefore, toDate } from 'date-fns';
+import { getDay, isAfter, isBefore } from 'date-fns';
 
 @Injectable()
 export class UsStockApiService {
@@ -54,26 +54,24 @@ export class UsStockApiService {
     if (this.isUsStockMarketHoliday(now)) {
       return false;
     }
-    const startTime = toDate(
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        process.env.NODE_ENV === 'local' ? 22 : 13,
-        30,
-        0,
-      ),
+    const startTime = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      process.env.NODE_ENV === 'local' ? 22 : 13,
+      30,
+      0,
     );
-    const endTime = toDate(
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        process.env.NODE_ENV === 'local' ? now.getDate() + 1 : now.getDate(),
-        process.env.NODE_ENV === 'local' ? 5 : 20,
-        0,
-        0,
-      ),
+
+    const endTime = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      process.env.NODE_ENV === 'local' ? now.getDate() + 1 : now.getDate(),
+      process.env.NODE_ENV === 'local' ? 5 : 20,
+      0,
+      0,
     );
+
     if (isAfter(now, startTime) && isBefore(now, endTime)) {
       return true;
     }
@@ -96,15 +94,13 @@ export class UsStockApiService {
     if (this.isUsStockMarketHoliday(now)) {
       return false;
     } else {
-      const endTime = toDate(
-        new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          process.env.NODE_ENV === 'local' ? now.getDate() + 1 : now.getDate(),
-          process.env.NODE_ENV === 'local' ? 5 : 20,
-          0,
-          0,
-        ),
+      const endTime = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        process.env.NODE_ENV === 'local' ? now.getDate() + 1 : now.getDate(),
+        process.env.NODE_ENV === 'local' ? 5 : 20,
+        0,
+        0,
       );
       if (isBefore(updatedAt, endTime) && isAfter(now, endTime)) {
         return true;

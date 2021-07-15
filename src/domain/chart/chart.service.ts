@@ -4,10 +4,11 @@ import { plainToClass } from 'class-transformer';
 import {
   differenceInDays,
   differenceInMinutes,
+  getDay,
   parseISO,
-  startOfDay,
   startOfHour,
   subDays,
+  subHours,
   subMonths,
   subWeeks,
   subYears,
@@ -16,7 +17,7 @@ import { RedisClientWrapper } from '../../shared/redis/redis-client.service';
 import { REDIS_CLIENT } from '../../util/constant/redis';
 import { ChartInfo } from './interfaces/chart.interface';
 import { UpbitService } from './upbit.service';
-import { format, utcToZonedTime } from 'date-fns-tz';
+import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import { UsStockApiService } from './us-stock.service';
 import {
   dayFormat,
@@ -53,7 +54,10 @@ export class ChartService {
     if (!chartInfoString || this.isInValidCryptoData(type, chartInfo)) {
       const data = await this.getCryptoData(market, type);
       const newChartInfo = new ChartInfo();
-      newChartInfo.lastChartDate = data[0].date;
+      newChartInfo.lastChartDate = format(
+        zonedTimeToUtc(data[0].date, krTimeZone),
+        hourMinuteFormat,
+      );
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;
@@ -68,31 +72,16 @@ export class ChartService {
       return true;
     }
     if (type === ChartType.Day) {
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), krTimeZone), hourMinuteFormat),
-      );
-      const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), hourMinuteFormat, {
-          timeZone: krTimeZone,
-        }),
-      );
+      const now = new Date(format(Date.now(), hourMinuteFormat));
+      const lastChartDate = new Date(chartInfo.lastChartDate);
       const diff = differenceInMinutes(now, lastChartDate);
       if (diff < 5) {
         return false;
       }
       return true;
     } else if (type === ChartType.Week) {
-      const now = new Date(
-        format(
-          utcToZonedTime(startOfHour(Date.now()), krTimeZone),
-          hourMinuteFormat,
-        ),
-      );
-      const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), hourMinuteFormat, {
-          timeZone: krTimeZone,
-        }),
-      );
+      const now = new Date(startOfHour(Date.now()));
+      const lastChartDate = new Date(chartInfo.lastChartDate);
       const diff = differenceInHours(now, lastChartDate);
       if (diff < 1) {
         return false;
@@ -103,13 +92,9 @@ export class ChartService {
       type == ChartType.ThreeMonth ||
       type === ChartType.SixMonth
     ) {
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), krTimeZone), dayFormat),
-      );
+      const now = new Date(format(Date.now(), dayFormat));
       const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), dayFormat, {
-          timeZone: krTimeZone,
-        }),
+        format(parseISO(chartInfo.lastChartDate), dayFormat),
       );
       const diff = differenceInDays(now, lastChartDate);
       if (diff < 1) {
@@ -117,13 +102,9 @@ export class ChartService {
       }
       return true;
     } else if (type === ChartType.Year) {
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), krTimeZone), dayFormat),
-      );
+      const now = new Date(format(Date.now(), dayFormat));
       const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), dayFormat, {
-          timeZone: krTimeZone,
-        }),
+        format(parseISO(chartInfo.lastChartDate), dayFormat),
       );
       const diff = differenceInDays(now, lastChartDate);
       if (diff < 7) {
@@ -168,15 +149,11 @@ export class ChartService {
     ) {
       const data = await this.getUsStockData(symbol, type, isOpen);
       const newChartInfo = new ChartInfo();
-      newChartInfo.length = data.length;
-      newChartInfo.lastChartDate = data[0].date;
-      newChartInfo.updatedAt = format(
-        utcToZonedTime(Date.now(), nyTimeZone),
+      newChartInfo.lastChartDate = format(
+        zonedTimeToUtc(data[0].date, nyTimeZone),
         hourMinuteFormat,
-        {
-          timeZone: nyTimeZone,
-        },
       );
+      newChartInfo.updatedAt = format(Date.now(), hourMinuteFormat);
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;
@@ -192,19 +169,10 @@ export class ChartService {
     }
     if (type === ChartType.Day) {
       //5Min
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), nyTimeZone), hourMinuteFormat),
-      );
-      const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), hourMinuteFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      const updatedAt = new Date(
-        format(parseISO(chartInfo.updatedAt), hourMinuteFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
+
+      const now = new Date(Date.now());
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const updatedAt = new Date(chartInfo.updatedAt);
 
       const diff = differenceInMinutes(now, lastChartDate);
       if (isOpen) {
@@ -215,7 +183,8 @@ export class ChartService {
         }
       } else {
         const isSameDayNowAndUpdateAt =
-          differenceInDays(startOfDay(now), startOfDay(updatedAt)) === 0;
+          getDay(subHours(now, 4)) === getDay(subHours(updatedAt, 4));
+
         if (isSameDayNowAndUpdateAt) {
           return this.usStockApiService.isIncludeStockMaketTime(now, updatedAt);
         }
@@ -223,19 +192,9 @@ export class ChartService {
       }
     } else if (type === ChartType.Week) {
       //30min
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), nyTimeZone), hourMinuteFormat),
-      );
-      const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), hourMinuteFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      const updatedAt = new Date(
-        format(parseISO(chartInfo.updatedAt), hourMinuteFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
+      const now = new Date(Date.now());
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const updatedAt = new Date(chartInfo.updatedAt);
 
       const diff = differenceInMinutes(now, lastChartDate);
 
@@ -247,7 +206,8 @@ export class ChartService {
         }
       } else {
         const isSameDayNowAndUpdateAt =
-          differenceInMinutes(startOfDay(now), startOfDay(updatedAt)) === 0;
+          getDay(subHours(now, 4)) === getDay(subHours(updatedAt, 4));
+
         if (isSameDayNowAndUpdateAt) {
           return this.usStockApiService.isIncludeStockMaketTime(now, updatedAt);
         }
@@ -259,21 +219,9 @@ export class ChartService {
       type === ChartType.SixMonth ||
       type === ChartType.Year
     ) {
-      const now = new Date(
-        format(utcToZonedTime(Date.now(), nyTimeZone), dayFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      const lastChartDate = new Date(
-        format(parseISO(chartInfo.lastChartDate), dayFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
-      const updatedAt = new Date(
-        format(parseISO(chartInfo.updatedAt), dayFormat, {
-          timeZone: nyTimeZone,
-        }),
-      );
+      const now = new Date(Date.now());
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const updatedAt = new Date(chartInfo.updatedAt);
       const diff = differenceInDays(now, lastChartDate);
 
       if (diff < 1) {

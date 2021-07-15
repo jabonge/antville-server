@@ -51,7 +51,6 @@ export interface UsStockCandleData {
 export class ChartInfo {
   updatedAt?: string;
   lastChartDate?: string;
-  length?: number;
 }
 
 export class ChartData {
