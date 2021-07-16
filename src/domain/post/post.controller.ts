@@ -44,9 +44,6 @@ export class PostController {
     if (user.isBannded) {
       throw new BadRequestException(CustomError.BANNED_USER);
     }
-    if (!user.isEmailVerified) {
-      throw new BadRequestException(CustomError.EMAIL_NOT_VERIFIED);
-    }
     return this.postService.createPost(createPostDto, user, file);
   }
 
