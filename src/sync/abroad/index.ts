@@ -7,6 +7,6 @@ createConnection(ormConfig).then(async (connection) => {
   const abroadSyncBot = new AbroadSyncBot();
   // await abroadSyncBot.syncAll();
   // await abroadSyncBot.setEtf();
-  await abroadSyncBot.addSymbols(['DIDI']);
+  await abroadSyncBot.addSymbols(['GOTU', 'BODY']);
   connection.close();
 });

@@ -27,6 +27,7 @@ import { PubSub } from '../../shared/redis/interfaces';
 import { UserCount } from '../user/entities/user-count.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
 import CustomError from '../../util/constant/exception';
+import { differenceInMinutes } from 'date-fns';
 
 @Injectable()
 export class PostService {
@@ -135,6 +136,9 @@ export class PostService {
 
   async findOnePost(postId: number, userId?: number) {
     const post = await this.postRepository.findOnePost(postId, userId);
+    if (!post) {
+      throw new BadRequestException();
+    }
     if (post.postStockPrice) {
       const priceInfo = await this.stockService.getPrices([
         post.postStockPrice.stock.symbol,
@@ -203,9 +207,28 @@ export class PostService {
   }
 
   async deletePost(userId: number, postId: number) {
-    await this.postRepository.delete({
-      authorId: userId,
-      id: postId,
+    const post = await this.postRepository.findOne(postId, {
+      select: ['id', 'createdAt'],
+      where: {
+        authorId: userId,
+      },
+    });
+    if (!post) {
+      throw new BadRequestException(CustomError.INVALID_POST);
+    }
+    if (differenceInMinutes(Date.now(), new Date(post.createdAt)) > 5) {
+      throw new BadRequestException(CustomError.DELETE_TIMEOUT);
+    }
+    await this.connection.transaction(async (manager) => {
+      await manager.delete(Post, postId);
+      await manager.decrement(
+        UserCount,
+        {
+          userId,
+        },
+        'postCount',
+        1,
+      );
     });
     return;
   }
@@ -217,6 +240,9 @@ export class PostService {
     const post = await this.postRepository.findOne(postId, {
       select: ['authorId'],
     });
+    if (!post) {
+      throw new BadRequestException(CustomError.INVALID_POST);
+    }
     await this.connection.transaction(async (manager) => {
       await Promise.all([
         manager
@@ -250,6 +276,12 @@ export class PostService {
     if (!(await this.isLiked(userId, postId))) {
       return;
     }
+    const post = await this.postRepository.findOne(postId, {
+      select: ['id'],
+    });
+    if (!post) {
+      throw new BadRequestException(CustomError.INVALID_POST);
+    }
     await this.connection.transaction(async (manager) => {
       await Promise.all([
         manager
@@ -280,9 +312,12 @@ export class PostService {
   }
 
   async createReport(userId: number, postId: number) {
-    await this.connection.manager.findOneOrFail(Post, {
+    const post = await this.connection.manager.findOne(Post, {
       id: postId,
     });
+    if (!post) {
+      throw new BadRequestException(CustomError.INVALID_POST);
+    }
     const isExistReport = await this.connection.manager.findOne(PostReport, {
       where: {
         userId,

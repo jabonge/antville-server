@@ -42,6 +42,14 @@ const CustomError = {
     errorCode: 801,
     message: 'Already Reported',
   },
+  DELETE_TIMEOUT: {
+    errorCode: 802,
+    message: 'Delete Timeout',
+  },
+  INVALID_POST: {
+    errorCode: 803,
+    message: 'Post Is Not Exist',
+  },
   //900 번대 user 관련
   INVALID_USER: {
     errorCode: 900,
