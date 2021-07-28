@@ -90,6 +90,15 @@ export class PostController {
     return this.postService.findAllPostByFollowing(user.id, cursor, limit);
   }
 
+  @Get('recommend')
+  @UseGuards(JwtPayloadAuthGuard)
+  findAllPostByRecommendUser(
+    @Query() { cursor, limit }: PaginationParamsDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.postService.findAllPostByRecommendUser(user.id, cursor, limit);
+  }
+
   @Get('popular')
   @UseGuards(ConditionAuthGuard)
   findAllPopularStockPost(
