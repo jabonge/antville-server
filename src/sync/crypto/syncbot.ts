@@ -5,7 +5,11 @@ import { getCryptoList } from './api/getAllCrypto';
 import { StockCount } from '../../domain/stock/entities/stock-count.entity';
 import { StockMeta } from '../../domain/stock/entities/stock-meta.entity';
 import { Exchange } from '../../domain/stock/entities/exchange.entity';
+import path from 'path';
+import * as fs from 'fs/promises';
+import { downloadStockLogo } from '../utils/download_logo';
 
+const logo_ticker_path = path.resolve(__dirname, 'logo_ticker.txt');
 //Upbit Api
 class CryptoSyncBot {
   async setMarketCap() {
@@ -68,6 +72,40 @@ class CryptoSyncBot {
       }
     }
   }
+
+  async downloadAllCryptoLogo() {
+    const cryptos = await getCryptoList();
+    const krwList = cryptos.filter((v) => {
+      return v.market.substring(0, 3) === 'KRW';
+    });
+    for (let i = 0; i < krwList.length; i++) {
+      const crypto = krwList[i];
+      const splitMarketName = crypto.market.split('-');
+      const symbol = `${splitMarketName[1]}/${splitMarketName[0]}`;
+      await this.downloadCryptoStockLogo(symbol);
+    }
+  }
+
+  async downloadCryptoStockLogo(symbol: string) {
+    const ticker = symbol.split('/')[0];
+    const imageDir = path.join(
+      __dirname,
+      '../',
+      'logos/crypto',
+      `${ticker}.png`,
+    );
+    try {
+      await downloadStockLogo(
+        `https://static.upbit.com/logos/${ticker}.png`,
+        imageDir,
+      );
+      fs.appendFile(logo_ticker_path, `${symbol}\n`, 'utf8');
+      // await getRepository(Stock).save(stock);
+    } catch (err) {
+      console.log(`err: ${err} ticker: ${ticker}`);
+    }
+  }
 }
+// stock.logo = `https://antville-s3.s3.ap-northeast-2.amazonaws.com/logos/crypto/${ticker}.png`;
 
 export default CryptoSyncBot;

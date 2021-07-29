@@ -14,6 +14,7 @@ export class StockRepository extends Repository<Stock> {
         's.cashTagName',
         's.symbol',
         's.type',
+        's.logo',
       ])
       .where('s.symbol = :symbol', { symbol })
       .leftJoin('s.stockCount', 'stockCount')
@@ -33,6 +34,7 @@ export class StockRepository extends Repository<Stock> {
         's.cashTagName',
         's.symbol',
         's.type',
+        's.logo',
       ])
       .andWhere(
         new Brackets((qb) => {
@@ -78,6 +80,7 @@ export class StockRepository extends Repository<Stock> {
         's.cashTagName',
         's.symbol',
         's.type',
+        's.logo',
       ])
       .andWhere(
         new Brackets((qb) => {
@@ -105,6 +108,7 @@ export class StockRepository extends Repository<Stock> {
         's.cashTagName',
         's.symbol',
         's.type',
+        's.logo',
       ])
       .innerJoin('s.watchUsers', 'w', `w.userId = ${userId}`)
       .orderBy('w.lexorank', 'ASC')
@@ -122,6 +126,7 @@ export class StockRepository extends Repository<Stock> {
         's.cashTagName',
         's.symbol',
         's.type',
+        's.logo',
       ])
       .innerJoin(
         (qb) => {
@@ -150,6 +155,7 @@ export class StockRepository extends Repository<Stock> {
         's.symbol',
         's.cashTagName',
         's.type',
+        's.logo',
       ])
       .innerJoin('s.stockMeta', 'meta')
       .innerJoin('s.exchange', 'exchange', 'exchange.name = "KOSPI"')
@@ -169,6 +175,7 @@ export class StockRepository extends Repository<Stock> {
         's.symbol',
         's.cashTagName',
         's.type',
+        's.logo',
       ])
       .where('s.type IS NULL')
       .innerJoin('s.stockMeta', 'meta')
@@ -189,6 +196,7 @@ export class StockRepository extends Repository<Stock> {
         's.symbol',
         's.cashTagName',
         's.type',
+        's.logo',
       ])
       .where(`s.type = "${StockType.CRYPTO}"`)
       .innerJoin('s.stockMeta', 'meta')
