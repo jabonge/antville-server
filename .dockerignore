@@ -4,3 +4,4 @@ docker
 dist
 *.tsbuildinfo
 .vscode
+**/*.txt
