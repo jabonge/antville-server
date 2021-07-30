@@ -3,7 +3,7 @@ import {
   UsStockCandleData,
   UsStockDayFullData,
 } from './interfaces/chart.interface';
-import { HttpService, Injectable } from '@nestjs/common';
+import { HttpService, Injectable, BadRequestException } from '@nestjs/common';
 import { format } from 'date-fns-tz';
 import { dayFormat, nyTimeZone } from '../../util/constant/time';
 import { getDay, isAfter, isBefore } from 'date-fns';
@@ -45,7 +45,9 @@ export class UsStockApiService {
         `${this.baseUrl}/historical-price-full/${market}?apikey=${process.env.FINANCIAL_API_KEY}&from=${from}&to=${to}`,
       )
       .toPromise();
-
+    if (!data?.historical) {
+      throw new BadRequestException();
+    }
     return data.historical.map((v) => ChartData.usCandleToChartData(v));
   }
 
