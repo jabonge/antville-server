@@ -20,7 +20,6 @@ export class FcmService {
       if (users.length === 0) return;
       const message: admin.messaging.Message = {
         notification: {
-          title: createNotificationDto.user.nickname,
           body: createNotificationDto.getContent(),
         },
         data: {
@@ -49,7 +48,6 @@ export class FcmService {
       if (users.length === 0) return;
       const message: admin.messaging.MulticastMessage = {
         notification: {
-          title: createNotificationDto.user.nickname,
           body: createNotificationDto.getContent(),
         },
         data: {
