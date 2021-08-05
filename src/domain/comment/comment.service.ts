@@ -1,7 +1,7 @@
 import { Post } from './../post/entities/post.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, EntityManager, Repository } from 'typeorm';
+import { Connection, EntityManager, MoreThan, Repository } from 'typeorm';
 import { GifImage } from '../../common/entities/gif.entity';
 import { Link } from '../../common/entities/link.entity';
 import { findAtSignNickname, findLinks, getOgTags } from '../../util/post';
@@ -17,6 +17,7 @@ import { CommentReport } from './entities/comment-report.entity';
 import { Comment } from './entities/comment.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
 import CustomError from '../../util/constant/exception';
+import { differenceInMinutes } from 'date-fns';
 
 @Injectable()
 export class CommentService {
@@ -227,13 +228,57 @@ export class CommentService {
         .leftJoin('c.likers', 'u', 'u.id = :userId', { userId })
         .addSelect(['u.id']);
     }
-    return query.getOne();
+    const comment = await query.getOne();
+    if (!comment) {
+      throw new BadRequestException();
+    }
+    return comment;
   }
 
   async deleteComment(userId: number, commentId: number) {
-    await this.commentRepository.delete({
-      authorId: userId,
-      id: commentId,
+    const comment = await this.commentRepository
+      .createQueryBuilder('c')
+      .where('c.id = :id AND c.authorId = :userId', { id: commentId, userId })
+      .addSelect(['c.id', 'c.createdAt', 'c.parentCommentId', 'c.postId'])
+      .innerJoin('c.commentCount', 'commentCount')
+      .addSelect(['commentCount.likeCount', 'commentCount.nextCommentCount'])
+      .getOne();
+    if (!comment) {
+      throw new BadRequestException(CustomError.INVALID_POST);
+    }
+    if (differenceInMinutes(Date.now(), new Date(comment.createdAt)) > 5) {
+      throw new BadRequestException(CustomError.DELETE_TIMEOUT);
+    }
+    await this.connection.transaction(async (manager) => {
+      await manager.delete(Comment, commentId);
+      if (comment.parentCommentId) {
+        await manager.decrement(
+          CommentCount,
+          {
+            commentId: comment.parentCommentId,
+          },
+          'nextCommentCount',
+          1,
+        );
+        await manager.decrement(
+          PostCount,
+          {
+            postId: comment.postId,
+          },
+          'commentCount',
+          1,
+        );
+      } else {
+        await manager.decrement(
+          PostCount,
+          {
+            postId: comment.postId,
+            commentCount: MoreThan(comment.commentCount.nextCommentCount),
+          },
+          'commentCount',
+          1 + comment.commentCount.nextCommentCount,
+        );
+      }
     });
     return;
   }
@@ -245,6 +290,9 @@ export class CommentService {
     const comment = await this.commentRepository.findOne(commentId, {
       select: ['authorId', 'postId'],
     });
+    if (!comment) {
+      throw new BadRequestException(CustomError.INVALID_POST);
+    }
     await this.connection.transaction(async (manager) => {
       await Promise.all([
         manager
@@ -277,6 +325,12 @@ export class CommentService {
     if (!(await this.isLiked(userId, commentId))) {
       return;
     }
+    const comment = await this.commentRepository.findOne(commentId, {
+      select: ['id'],
+    });
+    if (!comment) {
+      throw new BadRequestException(CustomError.INVALID_POST);
+    }
     await this.connection.transaction(async (manager) => {
       await Promise.all([
         manager
@@ -306,9 +360,12 @@ export class CommentService {
   }
 
   async createReport(userId: number, commentId: number) {
-    await this.connection.manager.findOneOrFail(Post, {
+    const comment = await this.connection.manager.findOne(Comment, {
       id: commentId,
     });
+    if (!comment) {
+      throw new BadRequestException(CustomError.INVALID_POST);
+    }
     const isExistReport = await this.connection.manager.findOne(CommentReport, {
       where: {
         userId,

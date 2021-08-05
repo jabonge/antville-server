@@ -59,6 +59,12 @@ export class Stock {
   })
   type: StockType;
 
+  @Column({
+    length: 200,
+    nullable: true,
+  })
+  logo: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

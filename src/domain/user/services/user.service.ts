@@ -441,6 +441,22 @@ export class UserService {
     return dbQuery.getMany();
   }
 
+  findRecommendUser() {
+    const dbQuery = this.userRepository
+      .createQueryBuilder('u')
+      .select([
+        'u.id',
+        'u.nickname',
+        'u.profileImg',
+        'u.wadizBadge',
+        'u.influencerBadge',
+      ])
+      .where(`u.isRecommendUser IS NOT NULL`)
+      .orderBy('u.isRecommendUser', 'ASC')
+      .limit(10);
+    return dbQuery.getMany();
+  }
+
   async editProfile(userId: number, editProfileDto: EditProfileDto) {
     Object.keys(editProfileDto).forEach((key) => {
       if (editProfileDto[key] === undefined) {

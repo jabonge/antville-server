@@ -1,3 +1,4 @@
+import { User } from './../../user/entities/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { UserBlock } from '../../user/entities/user-block.entity';
 import { Watchlist } from '../../user/entities/watchlist.entity';
@@ -191,6 +192,71 @@ export class PostRepository extends Repository<Post> {
         },
         'ipf',
         'ipf.id = p.id',
+      )
+      .innerJoin('p.author', 'author')
+      .addSelect([
+        'author.id',
+        'author.nickname',
+        'author.wadizBadge',
+        'author.influencerBadge',
+        'author.profileImg',
+      ])
+      .leftJoin('p.postImgs', 'postImg')
+      .addSelect('postImg.image')
+      .leftJoin('p.postCount', 'postCount')
+      .addSelect(['postCount.likeCount', 'postCount.commentCount'])
+      .leftJoin('p.likers', 'u', 'u.id = :userId', { userId })
+      .addSelect(['u.id'])
+      .leftJoinAndSelect('p.link', 'link')
+      .leftJoinAndSelect('p.gifImage', 'gif');
+
+    return query.getMany();
+  }
+
+  async findAllPostByRecommendUser(
+    userId: number,
+    cursor: number,
+    limit: number,
+  ) {
+    const query = this.createQueryBuilder('p')
+      .innerJoin(
+        (qb) => {
+          const spSubQuery = qb
+            .subQuery()
+            .select(['id'])
+            .from(Post, 'ip')
+            .innerJoin(
+              (qb) => {
+                const ipSubQuery = qb
+                  .subQuery()
+                  .select(['u.id'])
+                  .from(User, 'u')
+                  .where('u.isRecommendPostUser = TRUE');
+                return ipSubQuery;
+              },
+              'isu',
+              'isu.u_id = ip.authorId',
+            )
+            .orderBy('ip.id', 'DESC')
+            .limit(limit);
+          if (cursor) {
+            spSubQuery.andWhere(`ip.id < ${cursor}`);
+          }
+          if (userId) {
+            spSubQuery.andWhere((qb) => {
+              const utbSubQuery = qb
+                .subQuery()
+                .from(UserBlock, 'ub')
+                .where(`ub.blockerId = ${userId}`)
+                .andWhere(`ip.authorId = ub.blockedId`)
+                .getQuery();
+              return 'NOT EXISTS ' + utbSubQuery;
+            });
+          }
+          return spSubQuery;
+        },
+        'isp',
+        'isp.id = p.id',
       )
       .innerJoin('p.author', 'author')
       .addSelect([

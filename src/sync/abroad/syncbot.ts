@@ -5,11 +5,16 @@ import { getQuote, getQuotes } from './api/getQuotes';
 import { getEtfList } from './api/getEtfList';
 import { StockCount } from '../../domain/stock/entities/stock-count.entity';
 import { StockMeta } from '../../domain/stock/entities/stock-meta.entity';
+import { downloadStockLogo } from '../utils/download_logo';
+import * as path from 'path';
+import * as fs from 'fs/promises';
 
+const sleep = (duration: number) =>
+  new Promise((resolve) => setTimeout(resolve, duration));
+const usExchanges = ['NYSE', 'NASDAQ', 'AMEX'];
+const logo_ticker_path = path.resolve(__dirname, 'logo_ticker.txt');
 class AbroadSyncBot {
   async syncAll() {
-    const usExchanges = ['NYSE', 'NASDAQ', 'AMEX'];
-
     for (let i = 0; i < usExchanges.length; i++) {
       await this.syncStock(usExchanges[i]);
     }
@@ -104,6 +109,31 @@ class AbroadSyncBot {
         stock.stockCount = new StockCount();
         await getRepository(Stock).save(stock);
       }
+    }
+  }
+
+  async downloadAllStockLogo() {
+    for (let i = 0; i < usExchanges.length; i++) {
+      const quotes = await getQuotes(usExchanges[i]);
+      const symbols = quotes.map((q) => q.symbol);
+      for (let j = 0; j < symbols.length; j++) {
+        await this.downloadUsStockLogo(symbols[j]);
+        await sleep(200);
+      }
+    }
+  }
+
+  async downloadUsStockLogo(symbol: string) {
+    const imageDir = path.join(__dirname, '../', 'logos/us', `${symbol}.png`);
+    try {
+      await downloadStockLogo(
+        `https://financialmodelingprep.com/image-stock/${symbol}.png`,
+        imageDir,
+      );
+
+      fs.appendFile(logo_ticker_path, `${symbol}\n`, 'utf8');
+    } catch (err) {
+      console.log(`err: ${err} symbol: ${symbol}`);
     }
   }
 }

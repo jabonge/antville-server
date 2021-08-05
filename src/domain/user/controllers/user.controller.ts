@@ -107,6 +107,11 @@ export class UserController {
     return this.userService.findFollowers(id, cursor, limit);
   }
 
+  @Get('recommend')
+  async findRecommendUser() {
+    return this.userService.findRecommendUser();
+  }
+
   @Get(':id/following')
   async findFollowing(
     @Query() { cursor, limit }: PaginationParamsDto,

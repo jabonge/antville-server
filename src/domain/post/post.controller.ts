@@ -44,9 +44,6 @@ export class PostController {
     if (user.isBannded) {
       throw new BadRequestException(CustomError.BANNED_USER);
     }
-    if (!user.isEmailVerified) {
-      throw new BadRequestException(CustomError.EMAIL_NOT_VERIFIED);
-    }
     return this.postService.createPost(createPostDto, user, file);
   }
 
@@ -91,6 +88,15 @@ export class PostController {
     @CurrentUser() user: User,
   ) {
     return this.postService.findAllPostByFollowing(user.id, cursor, limit);
+  }
+
+  @Get('recommend')
+  @UseGuards(JwtPayloadAuthGuard)
+  findAllPostByRecommendUser(
+    @Query() { cursor, limit }: PaginationParamsDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.postService.findAllPostByRecommendUser(user.id, cursor, limit);
   }
 
   @Get('popular')

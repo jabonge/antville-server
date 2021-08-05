@@ -70,6 +70,19 @@ export class User {
   })
   influencerBadge: boolean;
 
+  @Index()
+  @Column({
+    unsigned: true,
+    nullable: true,
+  })
+  isRecommendUser: boolean;
+
+  @Index()
+  @Column({
+    default: false,
+  })
+  isRecommendPostUser: boolean;
+
   @Column({
     default: false,
     select: false,
