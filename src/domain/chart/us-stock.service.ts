@@ -4,9 +4,9 @@ import {
   UsStockDayFullData,
 } from './interfaces/chart.interface';
 import { HttpService, Injectable, BadRequestException } from '@nestjs/common';
-import { format } from 'date-fns-tz';
+import { format, utcToZonedTime } from 'date-fns-tz';
 import { dayFormat, nyTimeZone } from '../../util/constant/time';
-import { getDay, isAfter, isBefore } from 'date-fns';
+import { getDay, isAfter, isBefore, subHours } from 'date-fns';
 
 @Injectable()
 export class UsStockApiService {
@@ -96,11 +96,15 @@ export class UsStockApiService {
     if (this.isUsStockMarketHoliday(now)) {
       return false;
     } else {
+      const nyUpdateTime = utcToZonedTime(
+        process.env.NODE_ENV === 'local' ? subHours(updatedAt, 9) : updatedAt,
+        nyTimeZone,
+      );
       const endTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        process.env.NODE_ENV === 'local' ? now.getDate() + 1 : now.getDate(),
-        process.env.NODE_ENV === 'local' ? 5 : 20,
+        nyUpdateTime.getFullYear(),
+        nyUpdateTime.getMonth(),
+        updatedAt.getDate(),
+        16,
         0,
         0,
       );
