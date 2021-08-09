@@ -1,7 +1,9 @@
-import { krTimeZone } from './../../util/constant/time';
+import { KoscomApiService } from './koscom.service';
+import { krDayFormat, krTimeZone } from './../../util/constant/time';
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import {
+  addHours,
   differenceInDays,
   differenceInMinutes,
   getDay,
@@ -25,6 +27,7 @@ import {
   nyTimeZone,
 } from '../../util/constant/time';
 import differenceInHours from 'date-fns/differenceInHours';
+import { Stock } from '../stock/entities/stock.entity';
 
 export enum ChartType {
   Day = '1d',
@@ -35,12 +38,20 @@ export enum ChartType {
   Year = '1y',
 }
 
+export enum MarketStatus {
+  Holiday = 'Holiday',
+  Pre = 'Pre',
+  Post = 'Post',
+  Open = 'Open',
+}
+
 @Injectable()
 export class ChartService {
   constructor(
     @Inject(REDIS_CLIENT) private readonly client: RedisClientWrapper,
     private readonly upbitService: UpbitService,
     private readonly usStockApiService: UsStockApiService,
+    private readonly koscomApiService: KoscomApiService,
   ) {}
 
   async getCryptoChart(symbol: string, type: ChartType) {
@@ -295,6 +306,183 @@ export class ChartService {
         timeZone: nyTimeZone,
       });
       data = await this.usStockApiService.getCandlesByDay(market, from, to);
+    } else {
+      throw new BadRequestException();
+    }
+    return data;
+  }
+
+  async getKoreaStockChart(stock: Stock, type: ChartType) {
+    const key = `${stock.symbol}-${type}`;
+    const infoKey = `${stock.symbol}-${type}-info`;
+    const chartInfoString = await this.client.getChartInfo(infoKey);
+    const chartInfo = plainToClass(ChartInfo, JSON.parse(chartInfoString));
+    const status = this.koscomApiService.getKoreaStockMarketStatus();
+
+    if (
+      !chartInfoString ||
+      this.isInValidKoreaStockData(type, chartInfo, status)
+    ) {
+      const data = await this.getKoreaStockData(stock, type, status);
+      const newChartInfo = new ChartInfo();
+      newChartInfo.lastChartDate = format(
+        zonedTimeToUtc(data[0].date, krTimeZone),
+        hourMinuteFormat,
+      );
+      newChartInfo.updatedAt = format(Date.now(), hourMinuteFormat);
+      await this.client.setChartData(key, data);
+      await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
+      return data;
+    } else {
+      const data = await this.client.getChartData(key);
+      return data;
+    }
+  }
+
+  isInValidKoreaStockData(
+    type: string,
+    chartInfo: ChartInfo,
+    status: MarketStatus,
+  ) {
+    if (!chartInfo) {
+      return true;
+    }
+    if (type === ChartType.Day) {
+      //5Min
+
+      const now = new Date(Date.now());
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const updatedAt = new Date(chartInfo.updatedAt);
+
+      const diff = differenceInMinutes(now, lastChartDate);
+      if (status === MarketStatus.Open) {
+        if (diff > 5) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        const isSameDayNowAndUpdateAt =
+          getDay(addHours(now, 9)) === getDay(addHours(updatedAt, 9));
+
+        if (isSameDayNowAndUpdateAt) {
+          return this.koscomApiService.isIncludeStockMaketTime(now, updatedAt);
+        }
+        return true;
+      }
+    } else if (
+      type === ChartType.Week ||
+      type === ChartType.Month ||
+      type === ChartType.ThreeMonth ||
+      type === ChartType.SixMonth ||
+      type === ChartType.Year
+    ) {
+      const now = new Date(Date.now());
+      const lastChartDate = new Date(chartInfo.lastChartDate);
+      const updatedAt = new Date(chartInfo.updatedAt);
+      const diff = differenceInDays(now, lastChartDate);
+
+      if (diff < 1) {
+        return false;
+      } else {
+        const nowUpdateAtDiff = differenceInDays(now, updatedAt);
+        if (nowUpdateAtDiff !== 0) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } else {
+      throw new BadRequestException();
+    }
+  }
+
+  async getKoreaStockData(stock: Stock, type: ChartType, status: MarketStatus) {
+    let data;
+    if (type === ChartType.Day) {
+      const now = utcToZonedTime(Date.now(), krTimeZone);
+      let subtractDay = 1;
+      if (status === MarketStatus.Open) {
+        subtractDay = 0;
+      } else {
+        const day = now.getDay();
+        if (day === 0) {
+          subtractDay = 2;
+        } else if (day === 1) {
+          if (status === MarketStatus.Pre) {
+            subtractDay = 3;
+          } else {
+            subtractDay = 0;
+          }
+        }
+      }
+      const startDay = format(subDays(now, subtractDay), krDayFormat);
+      data = await this.koscomApiService.getCandlesBy5Min(stock, startDay);
+    } else if (type === ChartType.Week) {
+      const now = utcToZonedTime(Date.now(), krTimeZone);
+      const from = format(subWeeks(now, 1), krDayFormat);
+      const to = format(now, krDayFormat, {
+        timeZone: krTimeZone,
+      });
+      data = await this.koscomApiService.getCandlesByDay(
+        stock,
+        'D',
+        from,
+        to,
+        7,
+      );
+    } else if (type === ChartType.Month) {
+      const now = utcToZonedTime(Date.now(), krTimeZone);
+      const from = format(subMonths(now, 1), krDayFormat);
+      const to = format(now, krDayFormat, {
+        timeZone: krTimeZone,
+      });
+      data = await this.koscomApiService.getCandlesByDay(
+        stock,
+        'D',
+        from,
+        to,
+        30,
+      );
+    } else if (type === ChartType.ThreeMonth) {
+      const now = utcToZonedTime(Date.now(), krTimeZone);
+      const from = format(subMonths(now, 3), krDayFormat);
+      const to = format(now, krDayFormat, {
+        timeZone: krTimeZone,
+      });
+      data = await this.koscomApiService.getCandlesByDay(
+        stock,
+        'D',
+        from,
+        to,
+        90,
+      );
+    } else if (type === ChartType.SixMonth) {
+      const now = utcToZonedTime(Date.now(), krTimeZone);
+      const from = format(subMonths(now, 6), krDayFormat);
+      const to = format(now, krDayFormat, {
+        timeZone: krTimeZone,
+      });
+      data = await this.koscomApiService.getCandlesByDay(
+        stock,
+        'W',
+        from,
+        to,
+        30,
+      );
+    } else if (type === ChartType.Year) {
+      const now = utcToZonedTime(Date.now(), krTimeZone);
+      const from = format(subYears(now, 1), krDayFormat);
+      const to = format(now, krDayFormat, {
+        timeZone: krTimeZone,
+      });
+      data = await this.koscomApiService.getCandlesByDay(
+        stock,
+        'W',
+        from,
+        to,
+        60,
+      );
     } else {
       throw new BadRequestException();
     }
