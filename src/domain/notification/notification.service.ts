@@ -40,12 +40,13 @@ export class NotificationService {
   async likeNotification(
     manager: EntityManager,
     user: User,
+    type: NotificationType,
     param: number,
     viewerId: number,
   ) {
     const createNotificationDto = new CreateNotificationDto();
     createNotificationDto.param = `${param}`;
-    createNotificationDto.type = NotificationType.LIKE;
+    createNotificationDto.type = type;
     createNotificationDto.user = user;
     createNotificationDto.viewerId = viewerId;
     await this.create(manager, createNotificationDto);
@@ -55,24 +56,45 @@ export class NotificationService {
     manager: EntityManager,
     users: User[],
     writer: User,
+    type: NotificationType,
     postId: number,
   ) {
     const createNotificationDtos: CreateNotificationDto[] = [];
     for (let i = 0; i < users.length; i++) {
       const createNotificationDto = new CreateNotificationDto();
       createNotificationDto.param = `${postId}`;
-      createNotificationDto.type = NotificationType.TAG;
+      createNotificationDto.type = type;
       createNotificationDto.viewerId = users[i].id;
       createNotificationDto.user = writer;
       createNotificationDtos.push(createNotificationDto);
     }
-    this.fcmService.sendUserTagNotification(
+    this.fcmService.sendUserNotification(
       users.map((u) => u.id),
       createNotificationDtos[0],
     );
     return manager.save(
       Notification,
       createNotificationDtos.map((c) => c.toNotificationEntity()),
+    );
+  }
+
+  async createCommentNotification(
+    manager: EntityManager,
+    writer: User,
+    type: NotificationType,
+    authorId: number,
+    postId: number,
+  ) {
+    const createNotificationDto = new CreateNotificationDto();
+    createNotificationDto.param = `${postId}`;
+    createNotificationDto.type = type;
+    createNotificationDto.viewerId = authorId;
+    createNotificationDto.user = writer;
+
+    this.fcmService.sendUserNotification([authorId], createNotificationDto);
+    return manager.save(
+      Notification,
+      createNotificationDto.toNotificationEntity(),
     );
   }
 

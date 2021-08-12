@@ -28,6 +28,7 @@ import { UserCount } from '../user/entities/user-count.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
 import CustomError from '../../util/constant/exception';
 import moment from 'moment';
+import { NotificationType } from '../notification/entities/notification.entity';
 
 @Injectable()
 export class PostService {
@@ -276,6 +277,7 @@ export class PostService {
         await this.notificationService.likeNotification(
           manager,
           user,
+          NotificationType.LIKE,
           postId,
           post.authorId,
         );
@@ -358,10 +360,11 @@ export class PostService {
       users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
-      await this.notificationService.createUserTagNotification(
+      this.notificationService.createUserTagNotification(
         manager,
         users,
         user,
+        NotificationType.TAG,
         postId,
       );
     }

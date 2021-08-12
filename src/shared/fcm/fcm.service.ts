@@ -39,7 +39,7 @@ export class FcmService {
     }
   }
 
-  async sendUserTagNotification(
+  async sendUserNotification(
     receiverIds: number[],
     createNotificationDto: CreateNotificationDto,
   ) {
