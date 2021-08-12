@@ -8,12 +8,12 @@ createConnection(ormConfig).then(async (connection) => {
   const koreaSyncBot = new KoreaSyncBot();
   // await koreaSyncBot.downloadAllStockLogo();
   await koreaSyncBot.addSymbol(
-    '259960',
-    'KOSPI',
-    '크래프톤',
-    '크래프톤',
-    221997,
-    'https://antville-s3.s3.ap-northeast-2.amazonaws.com/logos/korea/259960.png',
+    '376980',
+    'KOSDAQ',
+    '원티드랩',
+    '원티드랩',
+    4280,
+    'https://antville-s3.s3.ap-northeast-2.amazonaws.com/logos/korea/376980.png',
   );
   connection.close();
 });

@@ -17,7 +17,7 @@ import { CommentReport } from './entities/comment-report.entity';
 import { Comment } from './entities/comment.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
 import CustomError from '../../util/constant/exception';
-import { differenceInMinutes } from 'date-fns';
+import moment from 'moment';
 
 @Injectable()
 export class CommentService {
@@ -246,7 +246,7 @@ export class CommentService {
     if (!comment) {
       throw new BadRequestException(CustomError.INVALID_POST);
     }
-    if (differenceInMinutes(Date.now(), new Date(comment.createdAt)) > 5) {
+    if (moment().diff(new Date(comment.createdAt), 'm') > 5) {
       throw new BadRequestException(CustomError.DELETE_TIMEOUT);
     }
     await this.connection.transaction(async (manager) => {
