@@ -318,7 +318,7 @@ export class CommentService {
           manager,
           user,
           NotificationType.COMMENT_LIKE,
-          comment.parentCommentId ?? comment.postId,
+          comment.parentCommentId ?? comment.id,
           comment.authorId,
         );
       }
@@ -409,7 +409,7 @@ export class CommentService {
         postId,
       );
     }
-    if (authorId) {
+    if (!users.some((u) => u.id === authorId) && user.id !== authorId) {
       this.notificationService.createCommentNotification(
         manager,
         user,

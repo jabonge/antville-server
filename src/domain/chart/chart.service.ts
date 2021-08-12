@@ -2,7 +2,12 @@ import moment_timezone from 'moment-timezone';
 import moment from 'moment';
 import { KoscomApiService, MarketStatus } from './koscom.service';
 import { krDayFormat, krTimeZone } from './../../util/constant/time';
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { RedisClientWrapper } from '../../shared/redis/redis-client.service';
 import { REDIS_CLIENT } from '../../util/constant/redis';
@@ -294,6 +299,11 @@ export class ChartService {
     ) {
       const data = await this.getKoreaStockData(stock, type, status);
       const newChartInfo = new ChartInfo();
+      if (!data[0]?.date) {
+        throw new InternalServerErrorException(
+          `Chart Error: symbol:${stock.symbol} type: ${type}`,
+        );
+      }
       newChartInfo.lastChartDate = moment(data[0].date)
         .tz(krTimeZone)
         .format(hourMinuteFormat);
@@ -387,6 +397,7 @@ export class ChartService {
           subtractDay = 0;
         }
       }
+
       const startDay = now.subtract(subtractDay, 'd').format(krDayFormat);
       data = await this.koscomApiService.getCandlesBy5Min(stock, startDay);
     } else if (type === ChartType.Week) {
