@@ -17,7 +17,8 @@ import { CommentReport } from './entities/comment-report.entity';
 import { Comment } from './entities/comment.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
 import CustomError from '../../util/constant/exception';
-import { differenceInMinutes } from 'date-fns';
+import moment from 'moment';
+import { NotificationType } from '../notification/entities/notification.entity';
 
 @Injectable()
 export class CommentService {
@@ -83,8 +84,9 @@ export class CommentService {
         'commentCount',
         1,
       );
+      let parentComment;
       if (createCommentDto.parentCommentId) {
-        const parentComment = await manager.findOneOrFail(
+        parentComment = await manager.findOneOrFail(
           Comment,
           createCommentDto.parentCommentId,
           {
@@ -102,11 +104,13 @@ export class CommentService {
         comment.parentCommentId = parentComment.id;
       }
       await manager.save(comment);
-      await this.createUserTagNotification(
+      await this.createCommentNotification(
         manager,
         createCommentDto.body,
         user,
-        post.id,
+        parentComment ? parentComment.authorId : post.authorId,
+        parentComment ? parentComment.id : post.id,
+        parentComment ? true : false,
       );
     });
     return comment;
@@ -246,7 +250,7 @@ export class CommentService {
     if (!comment) {
       throw new BadRequestException(CustomError.INVALID_POST);
     }
-    if (differenceInMinutes(Date.now(), new Date(comment.createdAt)) > 5) {
+    if (moment().diff(new Date(comment.createdAt), 'm') > 5) {
       throw new BadRequestException(CustomError.DELETE_TIMEOUT);
     }
     await this.connection.transaction(async (manager) => {
@@ -288,7 +292,7 @@ export class CommentService {
       return;
     }
     const comment = await this.commentRepository.findOne(commentId, {
-      select: ['authorId', 'postId'],
+      select: ['authorId', 'postId', 'parentCommentId'],
     });
     if (!comment) {
       throw new BadRequestException(CustomError.INVALID_POST);
@@ -313,7 +317,8 @@ export class CommentService {
         await this.notificationService.likeNotification(
           manager,
           user,
-          comment.postId,
+          NotificationType.COMMENT_LIKE,
+          comment.parentCommentId ?? comment.id,
           comment.authorId,
         );
       }
@@ -381,11 +386,13 @@ export class CommentService {
     await this.connection.manager.save(CommentReport, report);
   }
 
-  async createUserTagNotification(
+  async createCommentNotification(
     manager: EntityManager,
     body: string,
     user: User,
+    authorId: number,
     postId: number,
+    isSecondComment: boolean,
   ) {
     let users: User[];
     const findNicknames = findAtSignNickname(body);
@@ -394,10 +401,22 @@ export class CommentService {
       users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
-      await this.notificationService.createUserTagNotification(
+      this.notificationService.createUserTagNotification(
         manager,
         users,
         user,
+        NotificationType.COMMENT_TAG,
+        postId,
+      );
+    }
+    if (!users.some((u) => u.id === authorId) && user.id !== authorId) {
+      this.notificationService.createCommentNotification(
+        manager,
+        user,
+        isSecondComment
+          ? NotificationType.COMMENT_COMMENT
+          : NotificationType.POST_COMMENT,
+        authorId,
         postId,
       );
     }

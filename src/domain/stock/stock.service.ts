@@ -20,7 +20,7 @@ export class StockService {
 
   findBySymbol(symbol: string) {
     return this.stockRepository.findOneOrFail({
-      select: ['type', 'id'],
+      select: ['type', 'id', 'symbol'],
       where: {
         symbol,
       },

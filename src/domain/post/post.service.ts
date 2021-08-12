@@ -27,7 +27,8 @@ import { PubSub } from '../../shared/redis/interfaces';
 import { UserCount } from '../user/entities/user-count.entity';
 import { GifDto } from '../../common/dtos/gif.dto';
 import CustomError from '../../util/constant/exception';
-import { differenceInMinutes } from 'date-fns';
+import moment from 'moment';
+import { NotificationType } from '../notification/entities/notification.entity';
 
 @Injectable()
 export class PostService {
@@ -228,7 +229,7 @@ export class PostService {
     if (!post) {
       throw new BadRequestException(CustomError.INVALID_POST);
     }
-    if (differenceInMinutes(Date.now(), new Date(post.createdAt)) > 5) {
+    if (moment().diff(new Date(post.createdAt), 'm') > 5) {
       throw new BadRequestException(CustomError.DELETE_TIMEOUT);
     }
     await this.connection.transaction(async (manager) => {
@@ -276,6 +277,7 @@ export class PostService {
         await this.notificationService.likeNotification(
           manager,
           user,
+          NotificationType.LIKE,
           postId,
           post.authorId,
         );
@@ -358,10 +360,11 @@ export class PostService {
       users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
-      await this.notificationService.createUserTagNotification(
+      this.notificationService.createUserTagNotification(
         manager,
         users,
         user,
+        NotificationType.TAG,
         postId,
       );
     }

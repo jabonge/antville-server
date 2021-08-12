@@ -22,12 +22,22 @@ export class CreateNotificationDto {
   }
 
   getContent() {
-    if (this.type === NotificationType.LIKE) {
-      return `${this.user.nickname} 님이 회원님의 게시글을 좋아합니다.`;
+    if (
+      this.type === NotificationType.LIKE ||
+      this.type === NotificationType.COMMENT_LIKE
+    ) {
+      return `${this.user.nickname} 님이 회원님의 글을 좋아합니다.`;
     } else if (this.type === NotificationType.FOLLOW) {
       return `${this.user.nickname} 님이 회원님을 팔로우 합니다.`;
-    } else if (this.type === NotificationType.TAG) {
+    } else if (
+      this.type === NotificationType.TAG ||
+      this.type === NotificationType.COMMENT_TAG
+    ) {
       return `${this.user.nickname} 님이 게시글에 회원님을 태그하였습니다.`;
+    } else if (this.type === NotificationType.POST_COMMENT) {
+      return `${this.user.nickname} 님이 게시글에 댓글을 남겼습니다.`;
+    } else if (this.type === NotificationType.COMMENT_COMMENT) {
+      return `${this.user.nickname} 님이 대댓글을 남겼습니다.`;
     } else {
       throw new BadRequestException('Unexpected Type');
     }

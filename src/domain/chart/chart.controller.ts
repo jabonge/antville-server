@@ -23,7 +23,7 @@ export class ChartController {
     } else if (stock.exchange.countryCode == 'US') {
       return this.chartService.getUsStockChart(symbol, type);
     } else {
-      return;
+      return this.chartService.getKoreaStockChart(stock, type);
     }
   }
 }
