@@ -409,7 +409,7 @@ export class CommentService {
         postId,
       );
     }
-    if (!users.some((u) => u.id === authorId) && user.id !== authorId) {
+    if (!users?.some((u) => u.id === authorId) && user.id !== authorId) {
       this.notificationService.createCommentNotification(
         manager,
         user,
