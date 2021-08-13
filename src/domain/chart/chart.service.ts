@@ -393,7 +393,7 @@ export class ChartService {
           } else {
             subtractDay = 0;
           }
-        } else if (status == MarketStatus.Post) {
+        } else if (status === MarketStatus.Post) {
           subtractDay = 0;
         }
       }

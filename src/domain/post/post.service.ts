@@ -360,7 +360,7 @@ export class PostService {
       users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
-      this.notificationService.createUserTagNotification(
+      await this.notificationService.createUserTagNotification(
         manager,
         users,
         user,

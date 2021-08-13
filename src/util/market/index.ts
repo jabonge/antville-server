@@ -54,7 +54,7 @@ export function getKoreaMarketStatus(): MarketStatus {
     .set('hour', 15)
     .set('minute', 30)
     .set('second', 0);
-  if (koTime > startTime && koTime < closeTime) return MarketStatus.Open;
+  if (koTime >= startTime && koTime <= closeTime) return MarketStatus.Open;
   if (koTime < startTime) {
     return MarketStatus.Pre;
   } else if (koTime > closeTime) {

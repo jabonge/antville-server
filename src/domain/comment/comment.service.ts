@@ -292,7 +292,7 @@ export class CommentService {
       return;
     }
     const comment = await this.commentRepository.findOne(commentId, {
-      select: ['authorId', 'postId', 'parentCommentId'],
+      select: ['id', 'authorId', 'postId', 'parentCommentId'],
     });
     if (!comment) {
       throw new BadRequestException(CustomError.INVALID_POST);
@@ -313,7 +313,7 @@ export class CommentService {
           1,
         ),
       ]);
-      if (comment.authorId != user.id) {
+      if (comment.authorId !== user.id) {
         await this.notificationService.likeNotification(
           manager,
           user,
@@ -401,7 +401,7 @@ export class CommentService {
       users = await this.userService.findByNicknames(removeSelf, user.id);
     }
     if (users) {
-      this.notificationService.createUserTagNotification(
+      await this.notificationService.createUserTagNotification(
         manager,
         users,
         user,
@@ -410,7 +410,7 @@ export class CommentService {
       );
     }
     if (!users?.some((u) => u.id === authorId) && user.id !== authorId) {
-      this.notificationService.createCommentNotification(
+      await this.notificationService.createCommentNotification(
         manager,
         user,
         isSecondComment
