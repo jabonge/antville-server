@@ -56,8 +56,8 @@ export class ChartService {
     if (!chartInfoString || this.isInValidCryptoData(type, chartInfo)) {
       const data = await this.getCryptoData(market, type);
       const newChartInfo = new ChartInfo();
-      newChartInfo.lastChartDate = moment(data[0].date)
-        .tz(krTimeZone)
+      newChartInfo.lastChartDate = moment
+        .tz(data[0].date, krTimeZone)
         .utc()
         .format(hourMinuteFormat);
       await this.client.setChartData(key, data);
@@ -144,12 +144,11 @@ export class ChartService {
     ) {
       const data = await this.getUsStockData(symbol, type, isOpen);
       const newChartInfo = new ChartInfo();
-      newChartInfo.lastChartDate = moment(data[0].date)
-        .tz(nyTimeZone)
+      newChartInfo.lastChartDate = moment
+        .tz(data[0].date, nyTimeZone)
         .utc()
         .format(hourMinuteFormat);
       newChartInfo.updatedAt = moment().utc().format(hourMinuteFormat);
-      console.log(newChartInfo);
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;
@@ -306,11 +305,12 @@ export class ChartService {
           `Chart Error: symbol:${stock.symbol} type: ${type}`,
         );
       }
-      newChartInfo.lastChartDate = moment(data[0].date)
-        .tz(krTimeZone)
+      newChartInfo.lastChartDate = moment
+        .tz(data[0].date, krTimeZone)
         .utc()
         .format(hourMinuteFormat);
       newChartInfo.updatedAt = moment().utc().format(hourMinuteFormat);
+      console.log(newChartInfo);
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;

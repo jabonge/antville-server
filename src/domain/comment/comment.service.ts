@@ -108,9 +108,7 @@ export class CommentService {
         manager,
         createCommentDto.body,
         user,
-        parentComment ? parentComment.authorId : post.authorId,
         parentComment ? parentComment.id : post.id,
-        parentComment ? true : false,
       );
     });
     return comment;
@@ -390,9 +388,7 @@ export class CommentService {
     manager: EntityManager,
     body: string,
     user: User,
-    authorId: number,
     postId: number,
-    isSecondComment: boolean,
   ) {
     let users: User[];
     const findNicknames = findAtSignNickname(body);
@@ -409,16 +405,16 @@ export class CommentService {
         postId,
       );
     }
-    if (!users?.some((u) => u.id === authorId) && user.id !== authorId) {
-      await this.notificationService.createCommentNotification(
-        manager,
-        user,
-        isSecondComment
-          ? NotificationType.COMMENT_COMMENT
-          : NotificationType.POST_COMMENT,
-        authorId,
-        postId,
-      );
-    }
+    // if (!users?.some((u) => u.id === authorId) && user.id !== authorId) {
+    //   await this.notificationService.createCommentNotification(
+    //     manager,
+    //     user,
+    //     isSecondComment
+    //       ? NotificationType.COMMENT_COMMENT
+    //       : NotificationType.POST_COMMENT,
+    //     authorId,
+    //     postId,
+    //   );
+    // }
   }
 }
