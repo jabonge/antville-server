@@ -108,7 +108,7 @@ export class CommentService {
         manager,
         createCommentDto.body,
         user,
-        parentComment ? parentComment.id : post.id,
+        parentComment ? parentComment.id : comment.id,
       );
     });
     return comment;
