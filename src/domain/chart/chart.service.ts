@@ -58,6 +58,7 @@ export class ChartService {
       const newChartInfo = new ChartInfo();
       newChartInfo.lastChartDate = moment(data[0].date)
         .tz(krTimeZone)
+        .utc()
         .format(hourMinuteFormat);
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
@@ -137,7 +138,6 @@ export class ChartService {
     const chartInfoString = await this.client.getChartInfo(infoKey);
     const chartInfo = plainToClass(ChartInfo, JSON.parse(chartInfoString));
     const isOpen = isNYSEOpen();
-    console.log(isOpen);
     if (
       !chartInfoString ||
       this.isInValidUsStockData(type, chartInfo, isOpen)
@@ -146,8 +146,10 @@ export class ChartService {
       const newChartInfo = new ChartInfo();
       newChartInfo.lastChartDate = moment(data[0].date)
         .tz(nyTimeZone)
+        .utc()
         .format(hourMinuteFormat);
-      newChartInfo.updatedAt = moment().format(hourMinuteFormat);
+      newChartInfo.updatedAt = moment().utc().format(hourMinuteFormat);
+      console.log(newChartInfo);
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;
@@ -306,9 +308,9 @@ export class ChartService {
       }
       newChartInfo.lastChartDate = moment(data[0].date)
         .tz(krTimeZone)
+        .utc()
         .format(hourMinuteFormat);
-
-      newChartInfo.updatedAt = moment().format(hourMinuteFormat);
+      newChartInfo.updatedAt = moment().utc().format(hourMinuteFormat);
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;
@@ -336,6 +338,7 @@ export class ChartService {
       const updatedAt = moment_timezone(chartInfo.updatedAt).tz(krTimeZone);
 
       const diff = now.diff(lastChartDate, 'm');
+
       if (status === MarketStatus.Open) {
         if (diff > 5) {
           return true;
