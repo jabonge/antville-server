@@ -471,12 +471,13 @@ export class UserService {
         throw new BadRequestException(CustomError.DUPLICATED_NICKNAME);
       }
     }
-    return this.userRepository.update(
+    await this.userRepository.update(
       {
         id: userId,
       },
       editProfileDto,
     );
+    return;
   }
 
   async updateProfileImg(userId: number, profileImg: Express.MulterS3.File) {

@@ -5,6 +5,7 @@ export class StockPaginationDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
+  @Max(5)
   page: number;
 
   @Type(() => Number)

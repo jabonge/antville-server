@@ -19,6 +19,7 @@ import {
 } from './util/constant/redis';
 import { PubSub } from './shared/redis/interfaces';
 import { WsThrottlerGuard } from './infra/guards/ws-throttler.guard';
+import { isUUID } from 'class-validator';
 
 @WebSocketGateway()
 @UseGuards(WsThrottlerGuard)
@@ -84,7 +85,8 @@ export class AppGateway implements OnGatewayConnection {
       id = client.protocol;
     } else if (req.headers.id) {
       id = req.headers.id as string;
-    } else {
+    }
+    if (!isUUID(id, 4)) {
       client.close(1011, 'Unauthorized');
       return;
     }
