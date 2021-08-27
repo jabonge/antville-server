@@ -94,6 +94,7 @@ export class User {
   })
   bio?: string;
 
+  //deprecated soon
   @Column({
     nullable: true,
   })

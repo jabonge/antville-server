@@ -128,7 +128,7 @@ export class ChartData {
 
   static upbitCandleToChartData(data: UpbitCandleData) {
     return new ChartData(
-      data.candle_date_time_kst,
+      data.candle_date_time_kst.replace('T', ' '),
       data.opening_price,
       data.low_price,
       data.high_price,

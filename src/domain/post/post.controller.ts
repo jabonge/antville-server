@@ -47,8 +47,8 @@ export class PostController {
     return this.postService.createPost(createPostDto, user, file);
   }
 
-  @UseGuards(ConditionAuthGuard)
   @Get(':id/symbol')
+  @UseGuards(ConditionAuthGuard)
   findAllPostByStockId(
     @Param() { id }: FindOneParamDto,
     @Query() { cursor, limit }: PaginationParamsDto,

@@ -19,6 +19,7 @@ import {
 } from './util/constant/redis';
 import { PubSub } from './shared/redis/interfaces';
 import { WsThrottlerGuard } from './infra/guards/ws-throttler.guard';
+import { isUUID } from 'class-validator';
 
 @WebSocketGateway()
 @UseGuards(WsThrottlerGuard)
@@ -79,17 +80,24 @@ export class AppGateway implements OnGatewayConnection {
 
   //userId 말고 다른 값으로 클라이언트 구분하기!
   handleConnection(client: WebSocket, req: IncomingMessage) {
-    if (req.url) {
-      const id = req.headers.id as string;
-      this.connectedClients.set(id, {
-        ws: client,
-        symbols: [],
-        detailSymbols: [],
-      });
-      client.on('close', () => {
-        this.connectedClients.delete(id);
-      });
+    let id;
+    if (client.protocol) {
+      id = client.protocol;
+    } else if (req.headers.id) {
+      id = req.headers.id as string;
     }
+    if (!isUUID(id, 4)) {
+      client.close(1011, 'Unauthorized');
+      return;
+    }
+    this.connectedClients.set(id, {
+      ws: client,
+      symbols: [],
+      detailSymbols: [],
+    });
+    client.on('close', () => {
+      this.connectedClients.delete(id);
+    });
   }
 
   //Symbols Alphabet순 -> 최적화?
@@ -100,6 +108,9 @@ export class AppGateway implements OnGatewayConnection {
   ) {
     const clientInMap = this.connectedClients.get(data.id);
     if (clientInMap) {
+      if (data.symbols.length > 40) {
+        client.close();
+      }
       this.connectedClients.get(data.id).symbols = data.symbols;
     } else {
       client.close(1011, 'Unauthorized');
@@ -113,9 +124,8 @@ export class AppGateway implements OnGatewayConnection {
   ) {
     const clientInMap = this.connectedClients.get(data.id);
     if (clientInMap) {
-      if (data.symbols) {
-        this.connectedClients.get(data.id).detailSymbols = data.symbols;
-      }
+      this.connectedClients.get(data.id).detailSymbols =
+        data.symbols.length > 3 ? data.symbols.slice(-3) : data.symbols;
     } else {
       client.close(1011, 'Unauthorized');
     }
