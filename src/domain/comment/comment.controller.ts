@@ -62,9 +62,16 @@ export class CommentController {
   findSecondComments(
     @Param() { id }: FindOneParamDto,
     @Query() { cursor, limit }: PaginationParamsDto,
+    @Query('order') order: 'DESC' | 'ASC' = 'ASC',
     @CurrentUser() user?: User,
   ) {
-    return this.commentService.getSecondComments(id, cursor, limit, user?.id);
+    return this.commentService.getSecondComments(
+      id,
+      cursor,
+      limit,
+      order,
+      user?.id,
+    );
   }
 
   @Get()

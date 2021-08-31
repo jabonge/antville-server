@@ -168,6 +168,7 @@ export class CommentService {
     parentCommentId: number,
     cursor: number,
     limit: number,
+    order: 'DESC' | 'ASC',
     userId?: number,
   ) {
     const query = this.commentRepository
@@ -187,7 +188,7 @@ export class CommentService {
       .addSelect(['commentCount.likeCount'])
       .leftJoinAndSelect('c.link', 'link')
       .leftJoinAndSelect('c.gifImage', 'gif')
-      .orderBy('c.id', 'ASC')
+      .orderBy('c.id', order)
       .take(limit);
     if (userId) {
       query
@@ -205,7 +206,8 @@ export class CommentService {
         .addSelect(['u.id']);
     }
     if (cursor) {
-      query.andWhere('c.id > :cursor', { cursor });
+      const where = order === 'ASC' ? 'c.id > :cursor' : 'c.id < :cursor';
+      query.andWhere(where, { cursor });
     }
     return query.getMany();
   }
