@@ -41,13 +41,15 @@ export class NotificationService {
     manager: EntityManager,
     user: User,
     type: NotificationType,
-    param: number,
     viewerId: number,
+    param: number,
+    webParam?: number,
   ) {
     const createNotificationDto = new CreateNotificationDto();
     createNotificationDto.param = `${param}`;
     createNotificationDto.type = type;
     createNotificationDto.user = user;
+    createNotificationDto.webParam = webParam;
     createNotificationDto.viewerId = viewerId;
     await this.create(manager, createNotificationDto);
   }
@@ -57,13 +59,15 @@ export class NotificationService {
     users: User[],
     writer: User,
     type: NotificationType,
-    postId: number,
+    paramId: number,
+    webParam?: number,
   ) {
     const createNotificationDtos: CreateNotificationDto[] = [];
     for (let i = 0; i < users.length; i++) {
       const createNotificationDto = new CreateNotificationDto();
-      createNotificationDto.param = `${postId}`;
+      createNotificationDto.param = `${paramId}`;
       createNotificationDto.type = type;
+      createNotificationDto.webParam = webParam;
       createNotificationDto.viewerId = users[i].id;
       createNotificationDto.user = writer;
       createNotificationDtos.push(createNotificationDto);
@@ -83,10 +87,12 @@ export class NotificationService {
     writer: User,
     type: NotificationType,
     authorId: number,
-    postId: number,
+    commentId: number,
+    postId?: number,
   ) {
     const createNotificationDto = new CreateNotificationDto();
-    createNotificationDto.param = `${postId}`;
+    createNotificationDto.param = `${commentId}`;
+    createNotificationDto.webParam = postId;
     createNotificationDto.type = type;
     createNotificationDto.viewerId = authorId;
     createNotificationDto.user = writer;

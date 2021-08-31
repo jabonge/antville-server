@@ -108,7 +108,10 @@ export class CommentService {
         manager,
         createCommentDto.body,
         user,
-        parentComment ? parentComment.id : comment.id,
+        post.authorId,
+        parentComment ? true : false,
+        parentComment ? parentComment.id : post.id,
+        post.id,
       );
     });
     return comment;
@@ -165,6 +168,7 @@ export class CommentService {
     parentCommentId: number,
     cursor: number,
     limit: number,
+    order: 'DESC' | 'ASC',
     userId?: number,
   ) {
     const query = this.commentRepository
@@ -184,7 +188,7 @@ export class CommentService {
       .addSelect(['commentCount.likeCount'])
       .leftJoinAndSelect('c.link', 'link')
       .leftJoinAndSelect('c.gifImage', 'gif')
-      .orderBy('c.id', 'ASC')
+      .orderBy('c.id', order)
       .take(limit);
     if (userId) {
       query
@@ -202,7 +206,8 @@ export class CommentService {
         .addSelect(['u.id']);
     }
     if (cursor) {
-      query.andWhere('c.id > :cursor', { cursor });
+      const where = order === 'ASC' ? 'c.id > :cursor' : 'c.id < :cursor';
+      query.andWhere(where, { cursor });
     }
     return query.getMany();
   }
@@ -316,8 +321,9 @@ export class CommentService {
           manager,
           user,
           NotificationType.COMMENT_LIKE,
-          comment.parentCommentId ?? comment.id,
           comment.authorId,
+          comment.parentCommentId ?? comment.id,
+          comment.postId,
         );
       }
     });
@@ -388,7 +394,10 @@ export class CommentService {
     manager: EntityManager,
     body: string,
     user: User,
-    postId: number,
+    authorId: number,
+    isSecondComment: boolean,
+    paramId: number,
+    webParam?: number,
   ) {
     let users: User[];
     const findNicknames = findAtSignNickname(body);
@@ -402,19 +411,21 @@ export class CommentService {
         users,
         user,
         NotificationType.COMMENT_TAG,
-        postId,
+        paramId,
+        webParam,
       );
     }
-    // if (!users?.some((u) => u.id === authorId) && user.id !== authorId) {
-    //   await this.notificationService.createCommentNotification(
-    //     manager,
-    //     user,
-    //     isSecondComment
-    //       ? NotificationType.COMMENT_COMMENT
-    //       : NotificationType.POST_COMMENT,
-    //     authorId,
-    //     postId,
-    //   );
-    // }
+    //   if (!users?.some((u) => u.id === authorId) && user.id !== authorId) {
+    //     await this.notificationService.createCommentNotification(
+    //       manager,
+    //       user,
+    //       isSecondComment
+    //         ? NotificationType.COMMENT_COMMENT
+    //         : NotificationType.POST_COMMENT,
+    //       authorId,
+    //       paramId,
+    //       webParam,
+    //     );
+    //   }
   }
 }

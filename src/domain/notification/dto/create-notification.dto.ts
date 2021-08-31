@@ -8,6 +8,7 @@ import {
 export class CreateNotificationDto {
   type: NotificationType;
   param: string;
+  webParam?: number;
   content: string;
   viewerId?: number;
   user?: User;
@@ -16,6 +17,7 @@ export class CreateNotificationDto {
     const notification = new Notification();
     notification.param = this.param;
     notification.viewerId = this.viewerId;
+    notification.webParam = this.webParam ? `${this.webParam}` : undefined;
     notification.type = this.type;
     notification.sender = this.user;
     return notification;

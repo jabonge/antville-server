@@ -278,8 +278,8 @@ export class PostService {
           manager,
           user,
           NotificationType.LIKE,
-          postId,
           post.authorId,
+          postId,
         );
       }
     });
