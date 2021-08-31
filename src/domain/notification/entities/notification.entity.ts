@@ -33,6 +33,9 @@ export class Notification {
   @Column()
   param: string;
 
+  @Column({ nullable: true })
+  webParam: string;
+
   @Column({
     type: 'bool',
     default: false,
