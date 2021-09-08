@@ -93,7 +93,6 @@ export class UserService {
         'influencerBadge',
         'wadizBadge',
         'isBannded',
-        'email',
       ],
     });
   }
@@ -453,7 +452,7 @@ export class UserService {
       ])
       .where(`u.isRecommendUser IS NOT NULL`)
       .orderBy('u.isRecommendUser', 'ASC')
-      .limit(10);
+      .limit(15);
     return dbQuery.getMany();
   }
 
@@ -574,6 +573,9 @@ export class UserService {
   }
 
   async sendVerifyEmail(user: User) {
+    const emailUser = await this.userRepository.findOne(user.id, {
+      select: ['id', 'nickname', 'email', 'isEmailVerified'],
+    });
     if (user.isEmailVerified) {
       throw new BadRequestException('이미 인증을 완료한 계정입니다.');
     }
@@ -586,7 +588,11 @@ export class UserService {
         secret: process.env.VERIFY_EMAIL_SECRET_KEY,
       },
     );
-    await this.sesService.verifyEmail(token, user.nickname, user.email);
+    await this.sesService.verifyEmail(
+      token,
+      emailUser.nickname,
+      emailUser.email,
+    );
     return;
   }
 }

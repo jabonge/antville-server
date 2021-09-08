@@ -2,7 +2,7 @@ import { verifyEmailRequest } from '../../util/ses/index';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import AWS from 'aws-sdk';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { changePasswordEmailRequest } from '../../util/ses';
 
 @Injectable()
