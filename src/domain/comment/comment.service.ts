@@ -410,7 +410,7 @@ export class CommentService {
         manager,
         users,
         user,
-        NotificationType.COMMENT_TAG,
+        isSecondComment ? NotificationType.COMMENT_TAG : NotificationType.TAG,
         paramId,
         webParam,
       );
