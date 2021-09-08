@@ -1,6 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { UserService } from '../../domain/user/services/user.service';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import * as admin from 'firebase-admin';
 import { CreateNotificationDto } from '../../domain/notification/dto/create-notification.dto';
 

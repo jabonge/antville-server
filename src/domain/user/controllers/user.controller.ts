@@ -190,7 +190,7 @@ export class UserController {
   }
 
   @Post('verify')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtPayloadAuthGuard)
   async verifyEmail(@CurrentUser() user: User) {
     return this.userService.sendVerifyEmail(user);
   }

@@ -415,17 +415,17 @@ export class CommentService {
         webParam,
       );
     }
-    //   if (!users?.some((u) => u.id === authorId) && user.id !== authorId) {
-    //     await this.notificationService.createCommentNotification(
-    //       manager,
-    //       user,
-    //       isSecondComment
-    //         ? NotificationType.COMMENT_COMMENT
-    //         : NotificationType.POST_COMMENT,
-    //       authorId,
-    //       paramId,
-    //       webParam,
-    //     );
-    //   }
+    if (!users?.some((u) => u.id === authorId) && user.id !== authorId) {
+      await this.notificationService.createCommentNotification(
+        manager,
+        user,
+        isSecondComment
+          ? NotificationType.COMMENT_COMMENT
+          : NotificationType.POST_COMMENT,
+        authorId,
+        paramId,
+        webParam,
+      );
+    }
   }
 }

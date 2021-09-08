@@ -15,7 +15,7 @@ export function findCacheTags(str: string): string[] {
 }
 
 export function findAtSignNickname(str: string): string[] {
-  const atSignRegex = /@([a-zA-Z가-힣_.]{2,30})/g;
+  const atSignRegex = /@([a-zA-Z가-힣0-9_.]{2,30})/g;
   const matches = [];
   let match;
   while ((match = atSignRegex.exec(str))) {

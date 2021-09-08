@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import moment_timezone from 'moment-timezone';
 import moment from 'moment';
 import { KoscomApiService, MarketStatus } from './koscom.service';
@@ -54,15 +55,20 @@ export class ChartService {
     const chartInfo = plainToClass(ChartInfo, JSON.parse(chartInfoString));
 
     if (!chartInfoString || this.isInValidCryptoData(type, chartInfo)) {
-      const data = await this.getCryptoData(market, type);
-      const newChartInfo = new ChartInfo();
-      newChartInfo.lastChartDate = moment
-        .tz(data[0].date, krTimeZone)
-        .utc()
-        .format(hourMinuteFormat);
-      await this.client.setChartData(key, data);
-      await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
-      return data;
+      try {
+        const data = await this.getCryptoData(market, type);
+        const newChartInfo = new ChartInfo();
+        newChartInfo.lastChartDate = moment
+          .tz(data[0].date, krTimeZone)
+          .utc()
+          .format(hourMinuteFormat);
+        await this.client.setChartData(key, data);
+        await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
+        return data;
+      } catch (err) {
+        Sentry.captureException(err);
+        throw new BadRequestException();
+      }
     } else {
       const data = await this.client.getChartData(key);
       return data;
