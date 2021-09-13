@@ -316,7 +316,6 @@ export class ChartService {
         .utc()
         .format(hourMinuteFormat);
       newChartInfo.updatedAt = moment().utc().format(hourMinuteFormat);
-      console.log(newChartInfo);
       await this.client.setChartData(key, data);
       await this.client.setChartInfo(infoKey, JSON.stringify(newChartInfo));
       return data;
@@ -424,8 +423,7 @@ export class ChartService {
       const now = moment_timezone().tz(krTimeZone);
       const from = now.clone().subtract(1, 'M').format(krDayFormat);
       const to = now.format(krDayFormat);
-      console.log(from);
-      console.log(to);
+
       data = await this.koscomApiService.getCandlesByDay(
         stock,
         'D',

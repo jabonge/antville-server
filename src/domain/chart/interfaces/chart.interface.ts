@@ -174,7 +174,7 @@ export class ChartData {
       data.opnprc,
       data.lwprc,
       data.hgprc,
-      data.trdPrc - data.cmpprevddPrc,
+      data.trdPrc,
       data.accTrdvol,
     );
   }
