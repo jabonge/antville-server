@@ -31,7 +31,7 @@ export class Post {
   id: number;
 
   @Column({
-    length: 1000,
+    length: 1500,
   })
   body: string;
 
