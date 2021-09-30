@@ -6,7 +6,7 @@ import {
 } from 'class-validator';
 
 export class CreateCommentDto {
-  @MaxLength(1000)
+  @MaxLength(1200)
   @IsNotEmpty()
   body: string;
   @IsNumberString()

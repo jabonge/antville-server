@@ -25,7 +25,7 @@ export class Comment {
   id: number;
 
   @Column({
-    length: 1000,
+    length: 1200,
   })
   body: string;
 
